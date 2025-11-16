@@ -1,0 +1,8 @@
+.game-page-wrapper {
+  width: 100%;
+}
+
+.game-container {
+  width: 100%;
+  min-height: calc(100vh - 80px);
+}

@@ -1,0 +1,140 @@
+.gamemodeselector {
+  width: 100%;
+  animation: fadeIn 0.3s ease;
+}
+
+.gamemodeselector.fade-out {
+  animation: fadeOut 1s ease forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+.gamemode-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.gamemode-title {
+  color: #9c76e4;
+  font-family: 'Itim', cursive;
+  font-size: 24px;
+  margin: 0;
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+
+.gamemode-toggle-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  width: 100%;
+}
+
+.gamemode-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+  border: 2px solid rgba(156, 118, 228, 0.3);
+  border-radius: 12px;
+  background: rgba(156, 118, 228, 0.05);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: 'Itim', cursive;
+  color: #ccc;
+}
+
+.gamemode-option:hover {
+  border-color: rgba(156, 118, 228, 0.6);
+  background: rgba(156, 118, 228, 0.12);
+  transform: translateY(-4px);
+}
+
+.gamemode-option.active {
+  border-color: #9c76e4;
+  background: linear-gradient(135deg, rgba(156, 118, 228, 0.2) 0%, rgba(73, 138, 251, 0.1) 100%);
+  box-shadow: 0 0 20px rgba(156, 118, 228, 0.4);
+}
+
+.gamemode-icon {
+  font-size: 48px;
+  transition: transform 0.3s ease;
+}
+
+.gamemode-option.active .gamemode-icon {
+  transform: scale(1.2);
+}
+
+.gamemode-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  text-align: center;
+}
+
+.gamemode-option.active .gamemode-label {
+  color: #9c76e4;
+}
+
+.gamemode-desc {
+  font-size: 12px;
+  color: #999;
+  text-align: center;
+  opacity: 0.8;
+}
+
+.gamemode-option.active .gamemode-desc {
+  color: #9c76e4;
+  opacity: 1;
+}
+
+/* Mobile responsive */
+@media screen and (max-width: 600px) {
+  .gamemode-toggle-group {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .gamemode-option {
+    padding: 16px;
+    gap: 10px;
+  }
+
+  .gamemode-icon {
+    font-size: 40px;
+  }
+
+  .gamemode-label {
+    font-size: 14px;
+  }
+
+  .gamemode-desc {
+    font-size: 11px;
+  }
+
+  .gamemode-title {
+    font-size: 20px;
+  }
+}
