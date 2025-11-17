@@ -8,6 +8,8 @@
 
 //REWRITTEN WITHOUT AI
 
+import { valuesMap, getAvailablePieceIndices, getAvailablePieceValues, getMaxAvailablePieceValue, getFirstAvailablePieceIndex } from '../pieceHelpers';
+
 export function getBotMove(board, deadO, difficulty, deadX) {
   
   const VERBOSE = false; // set true for debugging move decisions
@@ -15,16 +17,14 @@ export function getBotMove(board, deadO, difficulty, deadX) {
   // Find all empty tiles on the board
   
   // Player Tiles
-  const valuesMap = [1,1,2,2,3,3];
-  //This has to be an updated value, can't be static
-  const UpdatingValuesMap = valuesMap.map((tile, idx) => deadO[idx] === false ? tile: null)
   const botPlayer = 'O';
   const opponent = botPlayer === 'O' ? 'X' : 'O';
 
-  // Helper: get opponent's remaining tile values
-  function getOpponentPieceValues() {
-    return valuesMap.filter((v, idx) => !deadX[idx]);
-  }
+  // Helpers mapped to this call-site's dead arrays
+  const availablePieceIndices = () => getAvailablePieceIndices(deadO);
+  const availablePieceValues = () => getAvailablePieceValues(deadO);
+  const availableOpponentPieceIndices = () => getAvailablePieceIndices(deadX);
+  const availableOpponentPieceValues = () => getAvailablePieceValues(deadX);
 
   // Winning Combinations
   const winningConditions = [
@@ -34,9 +34,9 @@ export function getBotMove(board, deadO, difficulty, deadX) {
   ];
 
   // Find all possible moves for the bot
-  // Available O tiles (indices of unused, alive O tiles)
-  const availablePieces = valuesMap.filter((v, i) => !deadO[i]);
-  console.log("AP: ",availablePieces)
+  // Available O tiles (values of unused, alive O tiles)
+  const availablePieces = availablePieceValues();
+  if (VERBOSE) console.log("AP: ", availablePieces);
   //Empty indices on the board
   const emptyIndices = board
     .map((tile, idx) => tile.value === null ? idx : null)
@@ -45,7 +45,7 @@ export function getBotMove(board, deadO, difficulty, deadX) {
   const takeoverIndices = board
     .map((tile, idx) => tile.player === opponent ? idx : null)
     .filter(tile => tile !== null)
-    .filter(tile => board[tile].value < Math.max(...availablePieces))
+    .filter(tile => availablePieces.length > 0 && board[tile].value < getMaxAvailablePieceValue(deadO))
   
   
   // Determine difficulty level being used
@@ -53,9 +53,12 @@ export function getBotMove(board, deadO, difficulty, deadX) {
   // Medium Mode = Win > Block > Setup > Center > Random
   // Hard Mode = Block > Win > Takeover > Fork > Block Fork > Opposite Corner > Setup > Corner > Center > Side > Random
   
-  if (difficulty === 0 && deadO.filter(idx => idx === true).length < 1) { 
-    return getEasyMove(board); }
-  if (difficulty === 1 || difficulty === 0 && deadO.filter(idx => idx === true).length >= 1) { return getMediumMove(board, deadO, deadX); }
+  if (difficulty === 0 && deadO.filter(idx => idx === true).length < 1) {
+    return getEasyMove(board);
+  }
+  if (difficulty === 1 || (difficulty === 0 && deadO.filter(idx => idx === true).length >= 1)) {
+    return getMediumMove(board, deadO, deadX);
+  }
   if (difficulty === 2) { return getHardMove(board, deadO, deadX); }
 
   // Available Moves
@@ -68,33 +71,24 @@ export function getBotMove(board, deadO, difficulty, deadX) {
     
     // Easy: random valid move
     const moves = availableMoves();
-    const moveIdx = moves[Math.floor(Math.random() * moves.length)];
-    // Determine which O tile to use (random from available)
-    // Determine the value of the moveIdx tile currently on the board
-    console.log("moveIdx: ", moveIdx)
-    console.log("Board: ", board)
-    console.log("board[moveIdx]: ", board[moveIdx])
+  const moveIdx = moves[Math.floor(Math.random() * moves.length)];
+  // Determine which O tile to use (random from available)
+  // Determine the value of the moveIdx tile currently on the board
+  if (VERBOSE) console.log("moveIdx: ", moveIdx, "board[moveIdx]:", board[moveIdx]);
  
     if (board[moveIdx].value === null) {
-      // Empty tile, can use any available O tile
-      console.log("UpdatingValuesMap: ", UpdatingValuesMap)
-      let pieceIdx;
-      do {
-        pieceIdx = UpdatingValuesMap[Math.floor(Math.random() * UpdatingValuesMap.length)];
-      } while (pieceIdx === null);
-      console.log("EASY MODE: RANDOM")
-
-      return { moveIdx, pieceIdx: UpdatingValuesMap.indexOf(pieceIdx), moveReason: 'random' };
-    }
-    else {
-      // Takeover, must use strictly higher O tile
+      // Empty tile, pick a random available piece index
+      const pieceIdxCandidates = availablePieceIndices();
+      const pieceIdx = pieceIdxCandidates[Math.floor(Math.random() * pieceIdxCandidates.length)];
+      return { moveIdx, pieceIdx, moveReason: 'random' };
+    } else {
+      // Takeover, pick a random available piece index that is strictly higher than the takeover value
       const takeoverValue = board[moveIdx].value;
-      let pieceIdx;
-      do {
-        pieceIdx = UpdatingValuesMap[Math.floor(Math.random() * UpdatingValuesMap.length)];
-      } while (pieceIdx === null);
-      console.log("EASY MODE: TAKEOVER")
-      return { moveIdx, pieceIdx: UpdatingValuesMap.indexOf(pieceIdx), moveReason: 'random takeover' };
+      const pieceIdxCandidates = availablePieceIndices().filter(i => valuesMap[i] > takeoverValue);
+      const pieceIdx = pieceIdxCandidates.length > 0
+        ? pieceIdxCandidates[Math.floor(Math.random() * pieceIdxCandidates.length)]
+        : availablePieceIndices()[0];
+      return { moveIdx, pieceIdx, moveReason: 'random takeover' };
     }
   }
 
@@ -105,60 +99,62 @@ export function getBotMove(board, deadO, difficulty, deadX) {
   // 1. Win if possible
     const winIdx = findWinningMove(board, botPlayer);
     if (winIdx.idx !== null) {
-      console.log("Winning Condition found for bot: ", winIdx.condition)
       moveIdx = winIdx.idx;
-      // pick the smallest available tile that still wins (prefer to win with low-cost if possible)
-      const pieceIdx = availablePieces.filter(i => i > board[moveIdx].value)
-      if (pieceIdx.length > 0) {
-        console.log("UpdatingValuesMap: ", UpdatingValuesMap)
-        return { moveIdx, pieceIdx: UpdatingValuesMap.indexOf(Math.min(...pieceIdx)), moveReason: 'win' };
+      // pick the smallest available piece index whose value is > board[moveIdx].value
+      const candidatePieceIndices = availablePieceIndices().filter(i => valuesMap[i] > (board[moveIdx].value || 0));
+      if (candidatePieceIndices.length > 0) {
+        const bestIdx = candidatePieceIndices.reduce((a,b) => valuesMap[a] < valuesMap[b] ? a : b);
+        return { moveIdx, pieceIdx: bestIdx, moveReason: 'win' };
       }
     }
-    console.log("No Winning Move found")
+  if (VERBOSE) console.log("No Winning Move found")
   // 2. Block opponent win
     const blockObj = findBlockingMove(board, botPlayer);
     if (blockObj.moveIdx !== null) {
-      console.log("We are blocking - blockObj: ", blockObj)
       return blockObj;
-    } 
-    console.log("No Blocking Move found")
+    }
+    if (VERBOSE) console.log("No Blocking Move found")
   // 3. Setup two in a row
     const setupObj = findSetupMove(board, botPlayer);
     if (setupObj !== null) {
-      console.log("Setup Move found: ", setupObj)
+      if (VERBOSE) console.log("Setup Move found: ", setupObj)
       return setupObj;
     }
-    console.log("No Setup Move found")
+    if (VERBOSE) console.log("No Setup Move found")
   // 4. Takeover center if available
-    if (board[4].player === opponent && board[4].value < Math.max(...availablePieces)) {
+  if (board[4].player === opponent && availablePieces.length > 0 && board[4].value < getMaxAvailablePieceValue(deadO)) {
       moveIdx = 4;
-      pieceIdx = UpdatingValuesMap.indexOf(board[4].value+1);
-      return { moveIdx, pieceIdx: pieceIdx, moveReason: 'center takeover' };
+      // pick the smallest available piece that overtakes center
+      const candidatePieceIndices = availablePieceIndices().filter(i => valuesMap[i] > board[4].value);
+      if (candidatePieceIndices.length > 0) {
+        return { moveIdx, pieceIdx: candidatePieceIndices.reduce((a,b) => valuesMap[a] < valuesMap[b] ? a : b), moveReason: 'center takeover' };
       }
-    console.log("No Center Takeover available")
+    }
+  if (VERBOSE) console.log("No Center Takeover available")
   // 5. Takeover if player has a 2 with a 3
     const takeoverObj = findTakeoverMove(board, botPlayer);
     if (takeoverObj !== null) {
-      console.log("Takeover Move found: ", takeoverObj)
       return takeoverObj;
-    }  
-    console.log("No Takeover Move found")
+    }
+    if (VERBOSE) console.log("No Takeover Move found")
   // 6. First Move
     if (deadO.every(v => v === deadO[0])){
-      console.log("WE ARE AT FIRST MOVE")
+  if (VERBOSE) console.log("WE ARE AT FIRST MOVE")
       //First Move!
       //Randomize which move to make, make it with a 1 - either one of the corners or the middle
-      const openingMoves = [0,2,4,6,8]
+  const openingMoves = [0,2,4,6,8]
       let randomIndex = 0
       do {
         randomIndex = Math.floor(Math.random()*openingMoves.length)
       }
       while (board[openingMoves[randomIndex]].value != null);
       
-      return { moveIdx: openingMoves[randomIndex], pieceIdx: 0, moveReason: 'Opening Move'}
+  // Use the smallest available piece index (prefer using a 1)
+  const firstPieceIdx = availablePieceIndices().length > 0 ? availablePieceIndices()[0] : 0;
+  return { moveIdx: openingMoves[randomIndex], pieceIdx: firstPieceIdx, moveReason: 'Opening Move'}
     }
   // 7. Get Easy Move
-    console.log("WE ARE AT EASY MOVE")
+  if (VERBOSE) console.log("WE ARE AT EASY MOVE")
     return getEasyMove(board);
   }
 
@@ -182,17 +178,17 @@ export function getBotMove(board, deadO, difficulty, deadX) {
         values.filter(v => v === player).length === 2 &&
         (values.includes(null) || values.includes(player === 'O' ? 'X' : 'O'))
       ) {
-        console.log("Values in line for condition ", condition, ": ", values);
+  if (VERBOSE) console.log("Values in line for condition ", condition, ": ", values);
 
         // Find the empty index
         const emptyIdx = condition[values.indexOf(null)];
 
         // Check if the opponent can overtake the bot's piece
         const botBlockingIdx = condition.find(idx => board[idx].player === botPlayer);
-        const opponentCanOvertake = botBlockingIdx !== undefined &&
-          getOpponentPieceValues().some(value => value > board[botBlockingIdx].value);
+          const opponentCanOvertake = botBlockingIdx !== undefined &&
+          availableOpponentPieceValues().some(value => value > board[botBlockingIdx].value);
 
-        console.log("Empty Index: ", emptyIdx, " Bot Blocking Index: ", botBlockingIdx, " Opponent Can Overtake: ", opponentCanOvertake);
+  if (VERBOSE) console.log("Empty Index: ", emptyIdx, " Bot Blocking Index: ", botBlockingIdx, " Opponent Can Overtake: ", opponentCanOvertake);
 
         if (emptyIdx !== undefined && emptyIndices.includes(emptyIdx)) {
           winningIdx = emptyIdx;
@@ -213,34 +209,33 @@ export function getBotMove(board, deadO, difficulty, deadX) {
     let blockPieceIdx = null;
     let reason = null;
 
-    const opponent = player === 'O' ? 'X' : 'O';
-    const opponentPieces = getOpponentPieceValues();
+  const opponent = player === 'O' ? 'X' : 'O';
+  const opponentPieces = availableOpponentPieceValues();
 
     // Find the opponent's winning move
     const moveIdx = findWinningMove(board, opponent);
-    if (moveIdx.idx !== null) {
-      console.log("Opponent's Winning Move Found: ", moveIdx);
+  if (moveIdx.idx !== null) {
+  if (VERBOSE) console.log("Opponent's Winning Move Found: ", moveIdx);
       if (board[moveIdx.idx].value === null) {
           // Block by placing the highest-value piece that matches or exceeds the opponent's max piece
-          const maxOpponentValue = Math.max(...opponentPieces);
+          const maxOpponentValue = getMaxAvailablePieceValue(deadX);
           const pieceValues = availablePieces.filter(i => i >= maxOpponentValue);
 
           if (pieceValues.length > 0) {
             blockMoveIdx = moveIdx.idx;
-            console.log("UpdatingValuesMap: ", UpdatingValuesMap)
-            blockPieceIdx = UpdatingValuesMap.indexOf(pieceValues[0]);
+            // choose the smallest available piece value that is >= opponent's max
+            const chosenValue = Math.min(...pieceValues);
+            blockPieceIdx = availablePieceIndices().find(i => valuesMap[i] === chosenValue);
             reason = 'block';
-          } else {
-            console.log("Cannot block - no piece can match opponent's winning move");
           }
         }
       if (board[moveIdx.idx].player === botPlayer || board[moveIdx.idx].value === null) {
         // Player is trying to win by taking over our piece
         // Need to takeover one of their pieces to prevent win
         const takeoverable = moveIdx.condition.filter(
-            i => board[i].player === opponent && board[i].value < Math.max(...availablePieces)
+            i => board[i].player === opponent && board[i].value < getMaxAvailablePieceValue(deadO)
           );
-          console.log("Takeoverable Indices for Blocking: ", takeoverable);
+          if (VERBOSE) console.log("Takeoverable Indices for Blocking: ", takeoverable);
           if (takeoverable.length > 0) {
                 // Check if the winning move involves overtaking an opponent's piece
                   const mIdx = takeoverable[0]; // Pick the first takeoverable index
@@ -248,8 +243,8 @@ export function getBotMove(board, deadO, difficulty, deadX) {
 
                   if (possiblePieces.length > 0) {
                     blockMoveIdx = mIdx;
-                    console.log("UpdatingValuesMap: ", UpdatingValuesMap)
-                    blockPieceIdx = UpdatingValuesMap.indexOf(Math.max(...possiblePieces));
+                    const chosenValue = Math.max(...possiblePieces);
+                    blockPieceIdx = availablePieceIndices().find(i => valuesMap[i] === chosenValue);
                     reason = 'block takeover';
                   }
             } 
@@ -275,14 +270,14 @@ export function getBotMove(board, deadO, difficulty, deadX) {
         if (values.filter(v => v === player).length === 1 && values.filter(v => v === opponent).length === 1 && values.filter(v => v === null).length === 1) {
           // Is opponent's tile less than max available for bot?
           const opponentIdx = condition[values.indexOf(opponent)];
-          if (board[opponentIdx].value < Math.max(...availablePieces)) {
+          if (board[opponentIdx].value < getMaxAvailablePieceValue(deadO)) {
             conditionsMet.push(a,b,c);
           }
         }
         // Setup if bot has 1, opponent has 2 (less than max number that bot has)
         if (values.filter(v => v === player).length === 1 && values.filter(v => v === opponent).length === 2) {
           const opponentIdxs = condition.filter(i => board[i].player === opponent);
-          if (opponentIdxs.every(idx => board[idx].value < Math.max(...availablePieces))) {
+          if (opponentIdxs.every(idx => board[idx].value < getMaxAvailablePieceValue(deadO))) {
             conditionsMet.push(a,b,c);
           }
         }
@@ -295,17 +290,23 @@ export function getBotMove(board, deadO, difficulty, deadX) {
         // Check if targetIdx is in available moves (empty or takeover)
         const moves = availableMoves();
         if (moves.includes(targetIdx)) {
-          const pieceIdx = availablePieces.filter(i => i > board[targetIdx].value);
+          const candidateVals = availablePieces.filter(v => v > (board[targetIdx].value || 0));
           // Empty, can use any available piece, Non-Empty, takeover
           if (emptyIndices.includes(targetIdx)) {
-            return { moveIdx: targetIdx, pieceIdx: Math.min(...pieceIdx), moveReason: 'setup' };
-          } 
+            if (candidateVals.length > 0) {
+              const chosenVal = Math.min(...candidateVals);
+              const pieceIdx = availablePieceIndices().find(i => valuesMap[i] === chosenVal);
+              return { moveIdx: targetIdx, pieceIdx, moveReason: 'setup' };
+            }
+          }
           // If takeover then use max available piece that opponent has
           else if (takeoverIndices.includes(targetIdx)) {
-            const maxOpponentValue = Math.max(...getOpponentPieceValues());
-            const pieceIdx = availablePieces.filter(i => i >= maxOpponentValue && i > board[targetIdx].value);
-            if (pieceIdx.length > 0) {
-              return { moveIdx: targetIdx, pieceIdx: Math.min(...pieceIdx), moveReason: 'setup takeover' };
+            const maxOpponentValue = getMaxAvailablePieceValue(deadX);
+            const candidateVals2 = availablePieces.filter(v => v >= maxOpponentValue && v > board[targetIdx].value);
+            if (candidateVals2.length > 0) {
+              const chosenVal = Math.min(...candidateVals2);
+              const pieceIdx = availablePieceIndices().find(i => valuesMap[i] === chosenVal);
+              return { moveIdx: targetIdx, pieceIdx, moveReason: 'setup takeover' };
             }
           }
         }
@@ -322,23 +323,23 @@ export function getBotMove(board, deadO, difficulty, deadX) {
     const corners = [0,2,6,8]
     for (let idx = 0; idx < board.length; idx++) {
       if (board[idx].player === opponent && board[idx].value !== null) {
-        for (let piece of availablePieces) {
-          const pieceValue = valuesMap[piece];
+        for (let pieceIdx of availablePieceIndices()) {
+          const pieceValue = valuesMap[pieceIdx];
           if (pieceValue > board[idx].value) {
             // simulate takeover and check tactical value
-            const simBoard = board.map((t, i) => i === idx ? { value: pieceValue, type: player } : { ...t });
+            const simBoard = board.map((t, i) => i === idx ? { value: pieceValue, player: player } : { ...t });
             // if takeover creates immediate win, prefer it
             const winAfter = findWinningMove(simBoard, player);
             if (winAfter.idx !== null) {
-              return { moveIdx: idx, pieceIdx: piece, moveReason: 'takeover win' };
+              return { moveIdx: idx, pieceIdx: pieceIdx, moveReason: 'takeover win' };
             }
             const forkAfter = findForkMove(simBoard, player);
             // if takeover creates fork, prefer it
             if (forkAfter !== null) {
-              return { moveIdx: idx, pieceIdx: piece, moveReason: 'takeover fork' };
+              return { moveIdx: idx, pieceIdx: pieceIdx, moveReason: 'takeover fork' };
             }
             // Find all possible takeovers and prefer 2 over 3
-            candidateMoves.push(idx)
+            if (!candidateMoves.includes(idx)) candidateMoves.push(idx);
           }
         }
       }
@@ -346,10 +347,12 @@ export function getBotMove(board, deadO, difficulty, deadX) {
     //All possible takeovers, prefer taking a 2 with a 3, otherwise... leave it
     for (let idx = 0; idx < candidateMoves.length; idx++) {
       // Are there any opponent 2's in the list
-      if (moves.includes(idx) && board[idx].value === 2){
-        return { moveIdx: idx, pieceIdx: Math.max(...availablePieces), moveReason: 'takeover 2'}
+  if (moves.includes(idx) && board[idx].value === 2){
+  const chosenVal = getMaxAvailablePieceValue(deadO);
+        const pieceIdx = availablePieceIndices().find(i => valuesMap[i] === chosenVal);
+        return { moveIdx: idx, pieceIdx, moveReason: 'takeover 2'}
       } /* else if (corners.includes(candidateMoves[idx] && moves.includes(idx))){
-        return { moveIdx: idx, pieceIdx: Math.max(...availablePieces), moveReason: 'takeover corner'} */
+        return { moveIdx: idx, pieceIdx, moveReason: 'takeover corner'} */
       }
     return null;
   }
@@ -363,7 +366,7 @@ export function getBotMove(board, deadO, difficulty, deadX) {
       for (let condition of winningConditions) {
         if (condition.includes(idx)) {
           const line = condition.map(i => board[i]);
-          const values = line.map(t => t.type);
+          const values = line.map(t => t.player);
           // If placing botType at idx would make two in a row and one empty
           if (values.filter(v => v === botType).length === 1 && values.filter(v => v === null).length === 2) {
             forkCount++;
@@ -384,7 +387,7 @@ export function getBotMove(board, deadO, difficulty, deadX) {
       for (let condition of winningConditions) {
         if (condition.includes(idx)) {
           const line = condition.map(i => board[i]);
-          const values = line.map(t => t.type);
+          const values = line.map(t => t.player);
           if (values.filter(v => v === opponent).length === 1 && values.filter(v => v === null).length === 2) {
             forkCount++;
           }
@@ -401,7 +404,7 @@ export function getBotMove(board, deadO, difficulty, deadX) {
     const corners = [0, 2, 6, 8];
     const opposite = { 0: 8, 2: 6, 6: 2, 8: 0 };
     for (let c of corners) {
-      if (board[c].type === opponent && board[opposite[c]].value === null) {
+      if (board[c].player === opponent && board[opposite[c]].value === null) {
         return opposite[c];
       }
     }

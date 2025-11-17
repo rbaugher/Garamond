@@ -3,6 +3,7 @@ import Controls from './Controls';
 import { checkWinner } from './functions/checkWinner';
 import { useGameMode } from './context/gamemodeContext';
 import { getBotMove } from './functions/botMoves/botMove';
+import { valuesMap } from './functions/pieceHelpers';
 import { useDifficulty } from './context/DifficultyContext';
 import { noPossibleMove,validMove } from './functions/Validator';
 
@@ -33,7 +34,7 @@ function Board() {
 
   let mainTiles = [1,2,3,4,5,6,7,8,9]; // Main Tile Indices
   const [board, setBoard] = useState(mainTiles.map((_, idx) => ({ value: null, player: null }))); //Track board state
-  const valuesMap = [1,1,2,2,3,3];
+  
   const botPlayer = 'O';
   const opponent = botPlayer === 'O' ? 'X' : 'O';
 
@@ -201,7 +202,7 @@ function playerTilePlacement(tileIndex){
         /* Mobile Device */
         <div className="player-tiles-row">
           <section className={`OPlayertiles${winner.Player === 'O' ? ' winner-border' : ''}`}>
-            {[1, 1, 2, 2, 3, 3].map((val, idx) => (
+            {valuesMap.map((val, idx) => (
               <div
                 key={idx}
                 className={`o-tile commontile${queueO[idx] ? ' used' : ''}${deadO[idx] ? ' dead' : ''}${turn === 'O' ? '' : ' unselectable'}`}
@@ -212,7 +213,7 @@ function playerTilePlacement(tileIndex){
             ))}
           </section>
           <section className={`XPlayertiles${winner.Player === 'X' ? ' winner-border' : ''}`}>
-            {[1, 1, 2, 2, 3, 3].map((val, idx) => (
+            {valuesMap.map((val, idx) => (
               <div
                 key={idx}
                 className={`x-tile commontile${queueX[idx] ? ' used' : ''}${deadX[idx] ? ' dead' : ''}${turn === 'X' ? '' : ' unselectable'}`}
@@ -227,7 +228,7 @@ function playerTilePlacement(tileIndex){
         <>
         {/* Not Mobile Device */}
           <section className={`OPlayertiles${winner.player === 'O' ? ' winner-border' : ''}`}>
-            {[1, 1, 2, 2, 3, 3].map((val, idx) => (
+            {valuesMap.map((val, idx) => (
               <div
                 key={idx}
                 className={`o-tile commontile${queueO[idx] ? ' used' : ''}${deadO[idx] ? ' dead' : ''}${turn === 'O' ? '' : ' unselectable'}`}
@@ -238,7 +239,7 @@ function playerTilePlacement(tileIndex){
             ))}
           </section>
           <section className={`XPlayertiles${winner.player === 'X' ? ' winner-border' : ''}`}>
-            {[1, 1, 2, 2, 3, 3].map((val, idx) => (
+            {valuesMap.map((val, idx) => (
               <div
                 key={idx}
                 className={`x-tile commontile${queueX[idx] ? ' used' : ''}${deadX[idx] ? ' dead' : ''}${turn === 'X' ? '' : ' unselectable'}`}
