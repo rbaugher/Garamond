@@ -247,8 +247,16 @@
   transform: translateX(0);
 }
 
+/* Submit and Back Buttons Container */
+.form-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
 /* Submit Button */
 .submit-btn {
+  flex: 1;
   background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
   color: #fff;
   border: none;
@@ -259,7 +267,6 @@
   cursor: pointer;
   transition: all 0.3s ease;
   font-family: 'Garamond', serif;
-  margin-top: 1rem;
   box-shadow: 0 4px 12px rgba(52, 211, 153, 0.3);
 }
 
@@ -278,6 +285,39 @@
   opacity: 0.6;
   cursor: not-allowed;
   box-shadow: 0 2px 8px rgba(52, 211, 153, 0.2);
+}
+
+/* Back Button */
+.back-btn {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.1);
+  color: #d0d0d0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 1rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Garamond', serif;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.back-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.back-btn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.back-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* Success Message */
@@ -382,7 +422,13 @@
     font-size: 0.95rem;
   }
 
-  .submit-btn {
+  .form-buttons {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .submit-btn,
+  .back-btn {
     padding: 0.85rem;
     font-size: 0.95rem;
   }
@@ -436,5 +482,17 @@
   .refresh-btn {
     padding: 0.6rem 1rem;
     font-size: 0.85rem;
+  }
+
+  .form-buttons {
+    display: flex;
+    gap: 0.75rem;
+    flex-direction: column;
+  }
+
+  .submit-btn,
+  .back-btn {
+    padding: 0.75rem;
+    font-size: 0.9rem;
   }
 }

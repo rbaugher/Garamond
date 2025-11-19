@@ -83,7 +83,7 @@ function Navbar() {
           )}
           <li>
             <Link
-              to="/sign-up"
+              to="/sign-in"
               className="nav-links-mobile"
               onClick={closeMobileMenu}
             >
@@ -98,7 +98,7 @@ function Navbar() {
               <span className="user-name">{user.name}</span>
             </div>
           ) : (
-            <Button buttonStyle="btn--outline">Player Login</Button>
+            <Button buttonStyle="btn--outline" to="/sign-in">Player Login</Button>
           )
         )}
       </div>

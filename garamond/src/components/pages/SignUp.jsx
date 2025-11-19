@@ -47,7 +47,7 @@ const AVATAR_OPTIONS = [
   { id: 12, emoji: "🎭", label: "Drama" },
 ];
 
-export default function SignUp() {
+export default function SignUp({ onSignUpComplete }) {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -166,6 +166,16 @@ export default function SignUp() {
           favoriteBibleVerse: "",
           wouldYouRatherAnswer: ""
         });
+        
+        // Call the callback if provided (e.g., when used in SignIn)
+        if (onSignUpComplete) {
+          onSignUpComplete();
+        } else {
+          // Redirect to home if used directly
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 500);
+        }
       }, 3000);
     } catch (err) {
       console.error("Sign up error:", err);
@@ -311,10 +321,22 @@ export default function SignUp() {
               </div>
             </div>
 
-            {/* Submit Button */}
-            <button type="submit" className="submit-btn" disabled={loading}>
-              {loading ? "Creating Profile..." : "Create Player Profile"}
-            </button>
+            {/* Submit and Back Buttons */}
+            <div className="form-buttons">
+              <button type="submit" className="submit-btn" disabled={loading}>
+                {loading ? "Creating Profile..." : "Create Player Profile"}
+              </button>
+              {onSignUpComplete && (
+                <button 
+                  type="button" 
+                  className="back-btn" 
+                  onClick={onSignUpComplete}
+                  disabled={loading}
+                >
+                  Back
+                </button>
+              )}
+            </div>
 
             <p className="form-note">* Required fields</p>
             </form>
