@@ -6,6 +6,7 @@ import { getBotMove } from './functions/botMoves/botMove';
 import { valuesMap } from './functions/pieceHelpers';
 import { useDifficulty } from './context/DifficultyContext';
 import { noPossibleMove,validMove } from './functions/Validator';
+import { recordGameMetrics, getWinningCondition } from './functions/gameMetricsCollector';
 
 
 export const TurnContext = createContext();
@@ -31,6 +32,7 @@ function Board() {
   const [botMove, setbotMove] = useState({ moveIdx: null, pieceIdx: null, value: null, player: 'O' }); // Track bot's chosen move
   const [moveList, setMoveList] = useState(Array(12).fill({index: null, value: null, player: null})); // Track all moves
   const botMoveTimeout = useRef(null); // Ref to store bot move timeout
+  const gameStartTimeRef = useRef(Date.now()); // Track game start time
 
   let mainTiles = [1,2,3,4,5,6,7,8,9]; // Main Tile Indices
   const [board, setBoard] = useState(mainTiles.map((_, idx) => ({ value: null, player: null }))); //Track board state
@@ -115,6 +117,7 @@ function playerTilePlacement(tileIndex){
       clearTimeout(botMoveTimeout.current);
       botMoveTimeout.current = null;
     }
+    gameStartTimeRef.current = Date.now(); // Reset game start time
     setqueueO(Array(6).fill(false));
     setDeadO(Array(6).fill(false));
     setqueueX(Array(6).fill(false));
@@ -148,9 +151,42 @@ function playerTilePlacement(tileIndex){
       setGameMessage(`Player ${winResult.player} wins!`);
       setWinner(winResult)
       setWinningTiles(winResult.winningTiles);
+      
+      // Record game metrics
+      const gameDuration = Math.floor((Date.now() - gameStartTimeRef.current) / 1000);
+      const winningCondition = getWinningCondition(winResult.winningTiles);
+      // Player is always X, so if X won, it's a Win, otherwise it's a Loss
+      const outcome = winResult.player === 'X' ? 'Win' : 'Loss';
+      
+      recordGameMetrics({
+        playerName: gamemode === 0 ? "Player" : "Player X",
+        opponentName: gamemode === 0 ? "Computer" : "Player O",
+        gameType: "Tic Tac Toe Squared",
+        outcome: outcome,
+        difficulty: gamemode === 0 ? difficulty : null,
+        winningCondition: winningCondition,
+        moveList: moveList.filter(m => m.index !== null),
+        gameDuration: gameDuration
+      }).catch(err => console.error("Failed to record metrics:", err));
+      
     } else if (noPossibleMove(board, deadO, deadX) && !winner.player) {
       setGameMessage("It's a tie!");
       setWinner({player: 'Tie'});
+      
+      // Record tie metrics
+      const gameDuration = Math.floor((Date.now() - gameStartTimeRef.current) / 1000);
+      
+      recordGameMetrics({
+        playerName: gamemode === 0 ? "Player" : "Player X",
+        opponentName: gamemode === 0 ? "Computer" : "Player O",
+        gameType: "Tic Tac Toe Squared",
+        outcome: "Tie",
+        difficulty: gamemode === 0 ? difficulty : null,
+        winningCondition: "tie",
+        moveList: moveList.filter(m => m.index !== null),
+        gameDuration: gameDuration
+      }).catch(err => console.error("Failed to record metrics:", err));
+      
     } else {
       setTurn(prev => prev === 'X' ? 'O' : 'X');
       return;
@@ -158,7 +194,6 @@ function playerTilePlacement(tileIndex){
       setShowMessage(true);
       setqueueO(Array(6).fill(true));
       setqueueX(Array(6).fill(true));
-      // Need to save the Move List to the backend here
       setMoveList(Array(12).fill({index: null, value: null, player: null}));
   }, [board]);
 

@@ -11,7 +11,7 @@ const GameLobby = () => {
   const games = [
     {
       id: 'tictactoe',
-      title: 'Tic Tac Toe Squared',
+      title: 'Tic Tac Toe \u00B2',
       description: 'A strategic twist on classic Tic Tac Toe with numbered tiles.',
       image: '/images/img-1.jpg',
       route: '/game/tictactoe',

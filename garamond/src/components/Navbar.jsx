@@ -6,6 +6,7 @@ import './Navbar.css';
 function Navbar() {
   const [click, setClick] = useState(false);
   const [button, setButton] = useState(true);
+  const [user, setUser] = useState(null);
   const location = useLocation();
   const isGameRoute = location.pathname.startsWith('/game');
 
@@ -23,7 +24,27 @@ function Navbar() {
   useEffect(() => {
     showButton();
     window.addEventListener('resize', showButton);
-    return () => window.removeEventListener('resize', showButton); // Cleanup
+    
+    // Check localStorage for user data
+    const savedUser = localStorage.getItem('garamondUser');
+    if (savedUser) {
+      try {
+        setUser(JSON.parse(savedUser));
+      } catch (err) {
+        console.error("Error parsing user data:", err);
+      }
+    }
+    
+    // Listen for sign-up event
+    const handleUserSignedUp = (event) => {
+      setUser(event.detail);
+    };
+    window.addEventListener('userSignedUp', handleUserSignedUp);
+    
+    return () => {
+      window.removeEventListener('resize', showButton);
+      window.removeEventListener('userSignedUp', handleUserSignedUp);
+    };
   }, []);
 
   return (
@@ -66,11 +87,20 @@ function Navbar() {
               className="nav-links-mobile"
               onClick={closeMobileMenu}
             >
-              Sign Up
+              Player Login
             </Link>
           </li>
         </ul>
-        {button && <Button buttonStyle="btn--outline">SIGN UP</Button>}
+        {button && (
+          user ? (
+            <div className="user-avatar" title={user.name}>
+              <span className="avatar-emoji">{user.avatar}</span>
+              <span className="user-name">{user.name}</span>
+            </div>
+          ) : (
+            <Button buttonStyle="btn--outline">Player Login</Button>
+          )
+        )}
       </div>
     </nav>
   );
