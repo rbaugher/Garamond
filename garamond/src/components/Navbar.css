@@ -1,13 +1,19 @@
 .navbar {
-  background: #5e5b5b;
+  background: rgba(30, 30, 30, 0.65); /* more visible transparency */
   height: 80px;
+  width: 100vw;
+  left: 0;
+  top: 0;
   display: flex;
   justify-content: center;
   align-items: center;
   font-size: 1.2rem;
-  position: sticky;
-  top: 0;
-  z-index: 999;
+  position: fixed;
+  z-index: 9999;
+  backdrop-filter: blur(10px) saturate(1.2);
+  box-shadow: 0 2px 16px 0 rgba(0,0,0,0.18);
+  border-bottom: 1.5px solid rgba(255,255,255,0.18);
+  transition: background 0.3s, border 0.3s;
 }
 
 .navbar-container {
