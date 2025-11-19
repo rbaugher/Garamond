@@ -38,9 +38,9 @@ function GameNavbar({ activeControl, onControlChange, onControlClose }) {
   return (
     <nav className="game-navbar" role="navigation" aria-label="Game navigation">
       <div className="game-navbar-container">
-        <Link to="/" className="game-navbar-logo" onClick={closeMobileMenu}>
+        <Link to="/game" className="game-navbar-logo" onClick={closeMobileMenu}>
           <ArrowBackIcon className="back-icon" />
-          <span>Back to Main</span>
+          <span>Back to Lobby</span>
         </Link>
         
         <h1 className="game-title">Tic Tac Toe <sup>2</sup></h1>

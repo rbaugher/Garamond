@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from './Button'; // Ensure this component exists
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import './Navbar.css';
 
 function Navbar() {
   const [click, setClick] = useState(false);
   const [button, setButton] = useState(true);
+  const location = useLocation();
+  const isGameRoute = location.pathname.startsWith('/game');
 
   const handleClick = () => setClick(!click);
   const closeMobileMenu = () => setClick(false);
@@ -39,21 +41,25 @@ function Navbar() {
           <i className={click ? 'fas fa-times' : 'fas fa-bars'} aria-hidden="true" />
         </button>
         <ul className={click ? 'nav-menu active' : 'nav-menu'}>
-          <li className="nav-item">
-            <Link to="/" className="nav-links" onClick={closeMobileMenu}>
-              Home
-            </Link>
-          </li>
-          <li className="nav-item">
-            <Link to="/services" className="nav-links" onClick={closeMobileMenu}>
-              Statistics
-            </Link>
-          </li>
-          <li className="nav-item">
-            <Link to="/game" className="nav-links" onClick={closeMobileMenu}>
-              Game Page
-            </Link>
-          </li>
+          {!isGameRoute && (
+            <>
+              <li className="nav-item">
+                <Link to="/" className="nav-links" onClick={closeMobileMenu}>
+                  Home
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link to="/services" className="nav-links" onClick={closeMobileMenu}>
+                  Statistics
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link to="/game" className="nav-links" onClick={closeMobileMenu}>
+                  Game Page
+                </Link>
+              </li>
+            </>
+          )}
           <li>
             <Link
               to="/sign-up"
