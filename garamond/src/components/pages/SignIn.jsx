@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import SignUp from './SignUp';
 import './SignIn.css';
+import { setStoredUser } from '../../utils/session';
 
 function SignIn() {
   const [mode, setMode] = useState('choice'); // 'choice', 'signin', 'signup'
@@ -31,18 +32,22 @@ function SignIn() {
     setSigninMessage('');
 
     try {
+      const apiBase = (import.meta.env && import.meta.env.VITE_API_BASE) ? import.meta.env.VITE_API_BASE : '';
       // First, query the database to find the user by email
-      const response = await fetch(`/api/signUpUser?email=${encodeURIComponent(signinForm.email)}`, {
+      const response = await fetch(`${apiBase}/api/signUpUser?email=${encodeURIComponent(signinForm.email)}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
       });
 
-      if (response.ok) {
-        const data = await response.json();
+      let text = await response.text();
+      let data = null;
+      try { data = text ? JSON.parse(text) : null; } catch (e) { data = null; }
+
+      if (response.ok && data) {
         const userData = data.user;
-        
+
         // Verify the name matches
         if (userData.name.toLowerCase() !== signinForm.name.toLowerCase()) {
           setSigninMessage('Name does not match the email on file. Please try again.');
@@ -50,25 +55,14 @@ function SignIn() {
           return;
         }
 
-        // User exists and name matches, sign them in
-        localStorage.setItem('garamondUser', JSON.stringify({
+        // User exists and name matches, sign them in via centralized helper
+        setStoredUser({
           id: userData.id,
           name: userData.name,
           email: userData.email,
           avatar: userData.avatar || '🧑',
           preferredColor: userData.preferredColor || '#4ECDC4',
-        }));
-
-        // Dispatch custom event to update navbar
-        window.dispatchEvent(new CustomEvent('userSignedUp', {
-          detail: {
-            id: userData.id,
-            name: userData.name,
-            email: userData.email,
-            avatar: userData.avatar || '🧑',
-            preferredColor: userData.preferredColor || '#4ECDC4',
-          }
-        }));
+        });
 
         setSigninMessage('Welcome back! Redirecting...');
         setTimeout(() => {

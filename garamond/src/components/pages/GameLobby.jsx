@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
@@ -11,33 +11,10 @@ const GameLobby = () => {
   const games = [
     {
       id: 'tictactoe',
-      title: 'Tic Tac Toe \u00B2',
+      title: 'Tic Tac Toe 2',
       description: 'A strategic twist on classic Tic Tac Toe with numbered tiles.',
       image: '/images/img-1.jpg',
       route: '/game/tictactoe',
-      leaderboards: {
-        easy: [
-          { rank: 1, player: 'RandomMaster', wins: 412, winRate: '88%' },
-          { rank: 2, player: 'LuckyStrike', wins: 389, winRate: '86%' },
-          { rank: 3, player: 'DiceRoller', wins: 356, winRate: '84%' },
-          { rank: 4, player: 'ChanceSeeker', wins: 334, winRate: '81%' },
-          { rank: 5, player: 'SimpleWinner', wins: 312, winRate: '79%' }
-        ],
-        medium: [
-          { rank: 1, player: 'StrategyMaster', wins: 245, winRate: '87%' },
-          { rank: 2, player: 'TileKing', wins: 198, winRate: '84%' },
-          { rank: 3, player: 'LogicPro', wins: 156, winRate: '81%' },
-          { rank: 4, player: 'GameWizard', wins: 142, winRate: '78%' },
-          { rank: 5, player: 'SmartPlayer', wins: 128, winRate: '75%' }
-        ],
-        hard: [
-          { rank: 1, player: 'AlphaBot', wins: 156, winRate: '92%' },
-          { rank: 2, player: 'OmegaMind', wins: 134, winRate: '88%' },
-          { rank: 3, player: 'CyberGhost', wins: 112, winRate: '85%' },
-          { rank: 4, player: 'BrainBoss', wins: 98, winRate: '82%' },
-          { rank: 5, player: 'MindBender', wins: 87, winRate: '79%' }
-        ]
-      }
     },
     {
       id: 'chess',
@@ -46,29 +23,6 @@ const GameLobby = () => {
       image: '/images/img-2.jpg',
       route: '#',
       disabled: true,
-      leaderboards: {
-        easy: [
-          { rank: 1, player: 'PawnMover', wins: 456, winRate: '91%' },
-          { rank: 2, player: 'BasicPlayer', wins: 423, winRate: '89%' },
-          { rank: 3, player: 'BeginnerBliss', wins: 398, winRate: '87%' },
-          { rank: 4, player: 'SimpleChess', wins: 367, winRate: '85%' },
-          { rank: 5, player: 'EasyMode', wins: 345, winRate: '82%' }
-        ],
-        medium: [
-          { rank: 1, player: 'ChessMaster', wins: 324, winRate: '88%' },
-          { rank: 2, player: 'RookSlayer', wins: 287, winRate: '85%' },
-          { rank: 3, player: 'PawnPusher', wins: 256, winRate: '83%' },
-          { rank: 4, player: 'KnightNinja', wins: 198, winRate: '80%' },
-          { rank: 5, player: 'QueenQuest', wins: 174, winRate: '78%' }
-        ],
-        hard: [
-          { rank: 1, player: 'Kasparov2.0', wins: 198, winRate: '94%' },
-          { rank: 2, player: 'DeepBlue', wins: 167, winRate: '91%' },
-          { rank: 3, player: 'GrandMaster', wins: 145, winRate: '89%' },
-          { rank: 4, player: 'CheckMate', wins: 123, winRate: '86%' },
-          { rank: 5, player: 'SuperIQ', wins: 98, winRate: '83%' }
-        ]
-      }
     },
     {
       id: 'checkers',
@@ -77,31 +31,32 @@ const GameLobby = () => {
       image: '/images/heavens.jpg',
       route: '#',
       disabled: true,
-      leaderboards: {
-        easy: [
-          { rank: 1, player: 'SimpleJumper', wins: 389, winRate: '90%' },
-          { rank: 2, player: 'EasyHopper', wins: 356, winRate: '88%' },
-          { rank: 3, player: 'BasicLeaper', wins: 334, winRate: '86%' },
-          { rank: 4, player: 'JumpStart', wins: 312, winRate: '84%' },
-          { rank: 5, player: 'BeginnerBounds', wins: 289, winRate: '81%' }
-        ],
-        medium: [
-          { rank: 1, player: 'JumpMaster', wins: 189, winRate: '86%' },
-          { rank: 2, player: 'KingJumper', wins: 167, winRate: '83%' },
-          { rank: 3, player: 'CheckerPro', wins: 145, winRate: '81%' },
-          { rank: 4, player: 'CrownHunter', wins: 123, winRate: '78%' },
-          { rank: 5, player: 'BoardLord', wins: 98, winRate: '75%' }
-        ],
-        hard: [
-          { rank: 1, player: 'CheckerGenius', wins: 134, winRate: '92%' },
-          { rank: 2, player: 'CrownCollector', wins: 112, winRate: '89%' },
-          { rank: 3, player: 'MasterJumper', wins: 98, winRate: '87%' },
-          { rank: 4, player: 'StrategicLeap', wins: 87, winRate: '84%' },
-          { rank: 5, player: 'EliteHopper', wins: 76, winRate: '81%' }
-        ]
-      }
     }
   ];
+
+  // Leaderboard state for Tic Tac Toe
+  const [leaderboard, setLeaderboard] = useState({ easy: [], medium: [], hard: [] });
+  const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
+  const [errorLeaderboard, setErrorLeaderboard] = useState("");
+
+  useEffect(() => {
+    // Only fetch for Tic Tac Toe and when a difficulty is selected
+    if (expandedGame === 'tictactoe' && expandedDifficulty) {
+      setLoadingLeaderboard(true);
+      setErrorLeaderboard("");
+      const apiBase = (import.meta.env && import.meta.env.VITE_API_BASE) ? import.meta.env.VITE_API_BASE : '';
+      fetch(`${apiBase}/api/leaderboard?gameType=Tic%20Tac%20Toe%20Squared&difficulty=${expandedDifficulty}`)
+        .then(res => res.json())
+        .then(data => {
+          setLeaderboard(lb => ({ ...lb, [expandedDifficulty]: data.leaderboard || [] }));
+          setLoadingLeaderboard(false);
+        })
+        .catch(err => {
+          setErrorLeaderboard("Failed to load leaderboard");
+          setLoadingLeaderboard(false);
+        });
+    }
+  }, [expandedGame, expandedDifficulty]);
 
   const handleLeaderboardToggle = (e, gameId) => {
     e.preventDefault();
@@ -167,27 +122,35 @@ const GameLobby = () => {
                 </div>
 
                 {/* Difficulty-Specific Leaderboards */}
-                {expandedDifficulty && (
-                  <table className="leaderboard-table">
-                    <thead>
-                      <tr>
-                        <th>Rank</th>
-                        <th>Player</th>
-                        <th>Wins</th>
-                        <th>Win Rate</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {game.leaderboards[expandedDifficulty].map((entry) => (
-                        <tr key={entry.rank}>
-                          <td className="rank-badge">#{entry.rank}</td>
-                          <td>{entry.player}</td>
-                          <td>{entry.wins}</td>
-                          <td>{entry.winRate}</td>
+                {expandedDifficulty && game.id === 'tictactoe' && (
+                  loadingLeaderboard ? (
+                    <div style={{ padding: '1rem', textAlign: 'center' }}>Loading leaderboard...</div>
+                  ) : errorLeaderboard ? (
+                    <div style={{ color: 'red', padding: '1rem', textAlign: 'center' }}>{errorLeaderboard}</div>
+                  ) : (
+                    <table className="leaderboard-table">
+                      <thead>
+                        <tr>
+                          <th>Rank</th>
+                          <th>Player</th>
+                          <th>Wins</th>
+                          <th>Win Rate</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {leaderboard[expandedDifficulty].length === 0 ? (
+                          <tr><td colSpan={4} style={{ textAlign: 'center' }}>No data yet</td></tr>
+                        ) : leaderboard[expandedDifficulty].map((entry) => (
+                          <tr key={entry.rank}>
+                            <td className="rank-badge">#{entry.rank}</td>
+                            <td>{entry.player}</td>
+                            <td>{entry.wins}</td>
+                            <td>{entry.winRate}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )
                 )}
               </div>
             </div>

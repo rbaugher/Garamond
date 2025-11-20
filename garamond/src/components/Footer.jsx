@@ -4,11 +4,12 @@ import './Footer.css';
 import  { Button }  from './Button';
 import { Link } from 'react-router-dom';
 import AutoGrowTextarea from "./sub-components/AutoGrowTextArea";
+import { getStoredUserName } from '../utils/session';
 
 // ---------------------- FooterForm Component ----------------------
 function FooterForm() {
   const [formData, setFormData] = useState({
-    name: '',
+    name: getStoredUserName() || '',
     thoughts: ''
   });
 
@@ -26,17 +27,25 @@ function FooterForm() {
     e.preventDefault();
 
     try {
-      const response = await fetch("/api/form", {
+      const apiBase = (import.meta.env && import.meta.env.VITE_API_BASE) ? import.meta.env.VITE_API_BASE : '';
+      const res = await fetch(`${apiBase}/api/form`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData)
       });
 
-      const data = await response.json();
-      alert(data.message || "Feedback submitted successfully!");
+      let text = await res.text();
+      let data = null;
+      try { data = text ? JSON.parse(text) : null; } catch (e) { data = null; }
+
+      if (!res.ok) {
+        throw new Error((data && data.message) || 'Failed to submit feedback');
+      }
+
+      alert((data && data.message) || "Feedback submitted successfully!");
 
       // Reset form
-      setFormData({ name: "", thoughts: "" });
+      setFormData({ name: getStoredUserName() || "", thoughts: "" });
     } catch (err) {
       console.error(err);
       alert("Error submitting feedback");

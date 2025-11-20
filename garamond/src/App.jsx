@@ -6,6 +6,7 @@ import Home from './components/pages/Home';
 import Statistics from './components/pages/Statistics';
 import SignIn from './components/pages/SignIn';
 import SignUp from './components/pages/SignUp';
+import Profile from './components/pages/Profile';
 import GameLobby from './components/pages/GameLobby';
 import TicTacToePage from './components/pages/TicTacToePage';
 
@@ -21,6 +22,7 @@ function App() {
         <Route path="/game/tictactoe" element={<TicTacToePage />} />
         <Route path="/sign-in" element={<SignIn />} />
         <Route path="/sign-up" element={<SignUp />} />
+        <Route path="/profile" element={<Profile />} />
       </Routes>
     </Router>
   );

@@ -1,14 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from './Button'; // Ensure this component exists
 import { Link, useLocation } from 'react-router-dom';
 import './Navbar.css';
+import { getStoredUser, clearStoredUser } from '../utils/session';
 
 function Navbar() {
   const [click, setClick] = useState(false);
   const [button, setButton] = useState(true);
   const [user, setUser] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
   const isGameRoute = location.pathname.startsWith('/game');
+  const menuRef = useRef(null);
 
   const handleClick = () => setClick(!click);
   const closeMobileMenu = () => setClick(false);
@@ -25,27 +28,37 @@ function Navbar() {
     showButton();
     window.addEventListener('resize', showButton);
     
-    // Check localStorage for user data
-    const savedUser = localStorage.getItem('garamondUser');
-    if (savedUser) {
-      try {
-        setUser(JSON.parse(savedUser));
-      } catch (err) {
-        console.error("Error parsing user data:", err);
-      }
-    }
-    
-    // Listen for sign-up event
-    const handleUserSignedUp = (event) => {
-      setUser(event.detail);
-    };
+    // Read stored user via helper
+    const stored = getStoredUser();
+    if (stored) setUser(stored);
+
+    // Listen for sign-up and sign-out events
+    const handleUserSignedUp = (event) => setUser(event.detail);
+    const handleUserSignedOut = () => setUser(null);
     window.addEventListener('userSignedUp', handleUserSignedUp);
+    window.addEventListener('userSignedOut', handleUserSignedOut);
     
     return () => {
       window.removeEventListener('resize', showButton);
       window.removeEventListener('userSignedUp', handleUserSignedUp);
+      window.removeEventListener('userSignedOut', handleUserSignedOut);
     };
   }, []);
+
+  // Close the menu when clicking outside
+  useEffect(() => {
+    function onDocClick(e) {
+      if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false);
+    }
+    document.addEventListener('click', onDocClick);
+    return () => document.removeEventListener('click', onDocClick);
+  }, []);
+
+  const handleLogout = () => {
+    clearStoredUser();
+    setUser(null);
+    setMenuOpen(false);
+  };
 
   return (
     <nav className="navbar" role="navigation" aria-label="Main navigation">
@@ -93,9 +106,17 @@ function Navbar() {
         </ul>
         {button && (
           user ? (
-            <div className="user-avatar" title={user.name}>
-              <span className="avatar-emoji">{user.avatar}</span>
-              <span className="user-name">{user.name}</span>
+            <div className="user-avatar" title={user.nickname || user.name} ref={menuRef}>
+              <button className="avatar-button" onClick={() => setMenuOpen(!menuOpen)} aria-haspopup="true" aria-expanded={menuOpen}>
+                <span className="avatar-emoji">{user.avatar}</span>
+                <span className="user-name">{user.nickname || user.name}</span>
+              </button>
+              {menuOpen && (
+                <div className="user-menu" role="menu">
+                  <Link to="/profile" className="user-menu-item" onClick={() => setMenuOpen(false)}>Profile</Link>
+                  <button className="user-menu-item" onClick={handleLogout}>Logout</button>
+                </div>
+              )}
             </div>
           ) : (
             <Button buttonStyle="btn--outline" to="/sign-in">Player Login</Button>

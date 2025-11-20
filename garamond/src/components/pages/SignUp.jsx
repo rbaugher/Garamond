@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import './SignUp.css';
+import { setStoredUser } from '../../utils/session';
 
 const WOULD_YOU_RATHER_QUESTIONS = [
   "Would you rather always have to sing everything you say or always have to dance everywhere you go?",
@@ -50,12 +51,37 @@ const AVATAR_OPTIONS = [
 export default function SignUp({ onSignUpComplete }) {
   const [formData, setFormData] = useState({
     name: "",
+    nickname: "",
     email: "",
     avatar: AVATAR_OPTIONS[0].emoji, // Default to first avatar
     preferredColor: "#4ECDC4",
     favoriteBibleVerse: "",
     wouldYouRatherAnswer: ""
   });
+
+  // Word lists for auto-nickname
+  const ADJECTIVES = [
+    "Swift", "Lucky", "Brave", "Clever", "Mighty", "Happy", "Witty", "Chill", "Funky", "Noble", "Cosmic", "Sunny", "Frosty", "Shadow", "Magic", "Epic", "Wild", "Silent", "Bold", "Jolly"
+  ];
+  const NOUNS = [
+    "Tiger", "Falcon", "Wizard", "Ninja", "Rider", "Knight", "Rocket", "Gamer", "Hero", "Phoenix", "Wolf", "Dragon", "Comet", "Samurai", "Pirate", "Ranger", "Viking", "Sage", "Jester", "Lion"
+  ];
+
+  function generateNickname() {
+    const adj = ADJECTIVES[Math.floor(Math.random() * ADJECTIVES.length)];
+    const noun = NOUNS[Math.floor(Math.random() * NOUNS.length)];
+    return adj + noun;
+  }
+
+  const handleAutoNickname = (e) => {
+    e.preventDefault();
+    let newNick = generateNickname();
+    // Ensure nickname is unique in this session (not already in field)
+    while (newNick === formData.nickname && ADJECTIVES.length * NOUNS.length > 1) {
+      newNick = generateNickname();
+    }
+    setFormData(prev => ({ ...prev, nickname: newNick }));
+  };
 
   const [randomQuestion, setRandomQuestion] = useState(
     WOULD_YOU_RATHER_QUESTIONS[Math.floor(Math.random() * WOULD_YOU_RATHER_QUESTIONS.length)]
@@ -99,8 +125,16 @@ export default function SignUp({ onSignUpComplete }) {
     e.preventDefault();
     setError("");
     
-    if (!formData.name.trim() || !formData.email.trim()) {
-      setError("Please fill in your name and email!");
+
+    if (!formData.name.trim() || !formData.nickname.trim() || !formData.email.trim()) {
+      setError("Please fill in your name, nickname, and email!");
+      return;
+    }
+
+    // Validate nickname (alphanumeric, 3-16 chars)
+    const nicknameRegex = /^[a-zA-Z0-9_]{3,16}$/;
+    if (!nicknameRegex.test(formData.nickname)) {
+      setError("Nickname must be 3-16 characters, letters, numbers, or underscores only.");
       return;
     }
 
@@ -114,13 +148,17 @@ export default function SignUp({ onSignUpComplete }) {
     setLoading(true);
 
     try {
-      const response = await fetch("/api/signUpUser", {
+      // Use environment-aware API base so we can target deployed Vercel functions
+      // or a locally running `vercel dev`. Set VITE_API_BASE in .env if needed.
+      const apiBase = (import.meta.env && import.meta.env.VITE_API_BASE) ? import.meta.env.VITE_API_BASE : '';
+      const response = await fetch(`${apiBase}/api/signUpUser`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
           name: formData.name,
+          nickname: formData.nickname,
           email: formData.email,
           avatar: formData.avatar,
           preferredColor: formData.preferredColor,
@@ -129,29 +167,40 @@ export default function SignUp({ onSignUpComplete }) {
         })
       });
 
-      const data = await response.json();
+      let data = null;
+      let text = await response.text();
+      try {
+        data = text ? JSON.parse(text) : null;
+      } catch (err) {
+        // Not valid JSON
+        data = null;
+      }
 
       if (!response.ok) {
-        setError(data.message || "Failed to create account");
+        setError((data && data.message) || "Failed to create account. Please try again later.");
+        setLoading(false);
+        return;
+      }
+
+      if (!data) {
+        setError("Unexpected server response. Please try again later.");
         setLoading(false);
         return;
       }
 
       console.log("User created successfully:", data);
       
-      // Save user data to localStorage
+      // Save user data to localStorage via centralized helper (also dispatches event)
       const userData = {
         id: data.userId,
         name: formData.name,
+        nickname: formData.nickname,
         email: formData.email,
         avatar: formData.avatar,
         preferredColor: formData.preferredColor,
         createdAt: new Date()
       };
-      localStorage.setItem('garamondUser', JSON.stringify(userData));
-      
-      // Dispatch custom event to notify Navbar of user login
-      window.dispatchEvent(new CustomEvent('userSignedUp', { detail: userData }));
+      setStoredUser(userData);
       
       setSubmitted(true);
       
@@ -160,6 +209,7 @@ export default function SignUp({ onSignUpComplete }) {
         setError("");
         setFormData({
           name: "",
+          nickname: "",
           email: "",
           avatar: AVATAR_OPTIONS[0].emoji,
           preferredColor: "#4ECDC4",
@@ -205,10 +255,9 @@ export default function SignUp({ onSignUpComplete }) {
             )}
             <form onSubmit={handleSubmit} className="signup-form">
             
-            {/* Name and Email Section */}
+            {/* Name, Nickname, and Email Section */}
             <div className="form-section">
               <h3>Basic Information</h3>
-              
               <div className="form-group">
                 <label htmlFor="name">Full Name *</label>
                 <input
@@ -221,7 +270,28 @@ export default function SignUp({ onSignUpComplete }) {
                   required
                 />
               </div>
-
+              <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <label htmlFor="nickname">Nickname *</label>
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  <input
+                    type="text"
+                    id="nickname"
+                    name="nickname"
+                    value={formData.nickname}
+                    onChange={handleInputChange}
+                    placeholder="Choose a unique player nickname"
+                    required
+                    maxLength={16}
+                    pattern="[a-zA-Z0-9_]{3,16}"
+                    title="3-16 characters, letters, numbers, or underscores only"
+                    style={{ flex: 1 }}
+                  />
+                  <button type="button" className="auto-nickname-btn" onClick={handleAutoNickname} title="Generate a nickname" style={{ padding: '0.3rem 0.7rem', fontSize: '0.95rem', borderRadius: '5px', border: '1px solid #bbb', background: '#f7f7f7', cursor: 'pointer' }}>
+                    Auto
+                  </button>
+                </div>
+                <small>3-16 characters, letters, numbers, or underscores only</small>
+              </div>
               <div className="form-group">
                 <label htmlFor="email">Email Address *</label>
                 <input

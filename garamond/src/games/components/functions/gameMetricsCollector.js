@@ -3,7 +3,7 @@
 /**
  * Collects game metrics and sends them to the backend
  * @param {Object} params - Metrics parameters
- * @param {string} params.playerName - Name of the player (X)
+ * @param {string} params.playerName - Player's nickname (unique identifier)
  * @param {string} params.opponentName - Name of opponent (O in singleplayer "Computer", or player name in multiplayer)
  * @param {string} params.gameType - Type of game (e.g., 'Tic Tac Toe Squared')
  * @param {string} params.outcome - Game outcome ('Win', 'Loss', 'Tie')
@@ -13,8 +13,10 @@
  * @param {number} params.gameDuration - Duration of game in seconds
  * @returns {Promise<Object>} Response from server
  */
+import { getStoredUserName } from '../../../utils/session';
+
 export async function recordGameMetrics({
-  playerName = "Player",
+  playerName = undefined,
   opponentName = "Computer",
   gameType = "Tic Tac Toe Squared",
   outcome,
@@ -29,8 +31,12 @@ export async function recordGameMetrics({
       throw new Error("Outcome is required");
     }
 
+    // Always use nickname as playerName for metrics
+    const storedNickname = getStoredUserName();
+    const finalPlayerName = storedNickname || playerName || 'player';
+
     const payload = {
-      playerName,
+      playerName: finalPlayerName, // This is the nickname
       opponentName,
       gameType,
       outcome,
@@ -40,21 +46,23 @@ export async function recordGameMetrics({
       gameDuration,
       timestamp: new Date().toISOString()
     };
+    const apiBase = (import.meta.env && import.meta.env.VITE_API_BASE) ? import.meta.env.VITE_API_BASE : '';
 
-    const response = await fetch("/api/gameMetrics", {
+    const response = await fetch(`${apiBase}/api/gameMetrics`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify(payload)
     });
+    let text = await response.text();
+    let data = null;
+    try { data = text ? JSON.parse(text) : null; } catch (e) { data = null; }
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Failed to record game metrics");
+      throw new Error((data && data.message) || "Failed to record game metrics");
     }
 
-    const data = await response.json();
     console.log("Game metrics recorded successfully:", data);
     return data;
   } catch (error) {
