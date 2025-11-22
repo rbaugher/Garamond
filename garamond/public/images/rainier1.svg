@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800">
+  <defs>
+    <linearGradient id="g" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#7fb3ff"/>
+      <stop offset="100%" stop-color="#e6f0ff"/>
+    </linearGradient>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#g)"/>
+  <g transform="translate(80,520)">
+    <path d="M0 160 L120 40 L240 160 Z" fill="#dbefff"/>
+    <path d="M120 40 L240 160 L360 60 L480 180 L600 40 L720 200 L840 80 L960 220 L1080 100 L1200 260" fill="#cfe6ff" opacity="0.9"/>
+  </g>
+  <text x="50" y="120" font-family="sans-serif" font-size="48" fill="#06306b">Mt. Rainier</text>
+  <text x="50" y="160" font-family="sans-serif" font-size="20" fill="#064289">2026 Summit — Animated Preview</text>
+</svg>

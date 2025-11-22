@@ -78,16 +78,6 @@ function Navbar() {
           {!isGameRoute && (
             <>
               <li className="nav-item">
-                <Link to="/" className="nav-links" onClick={closeMobileMenu}>
-                  Home
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link to="/services" className="nav-links" onClick={closeMobileMenu}>
-                  Statistics
-                </Link>
-              </li>
-              <li className="nav-item">
                 <Link to="/game" className="nav-links" onClick={closeMobileMenu}>
                   Game Page
                 </Link>

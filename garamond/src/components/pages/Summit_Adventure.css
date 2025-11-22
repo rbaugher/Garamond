@@ -1,0 +1,134 @@
+/* Summit_Adventure.css - layout and sticky side navigation */
+.summit-container { --navbar-height: 80px; padding: calc(1rem + var(--navbar-height)) 0 2rem; max-width: 1200px; margin: 0 auto; padding-bottom: 50vh; }
+.summit-header { text-align:center; margin-bottom:1.25rem; }
+.summit-header h1 { margin:0; font-size:2rem; color: #fff }
+.summit-header p { margin-top:0.5rem; color:#6b7280 }
+
+.summit-body { display:flex; gap:2rem; align-items:flex-start; padding-inline: clamp(12px, 3.5vw, 40px); }
+
+/* Side nav */
+.summit-side-nav { width:220px; position:sticky; top:80px; height:calc(100vh - 100px); overflow:auto; padding:1rem; background:transparent; }
+.summit-side-nav ul{ list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.5rem }
+.summit-side-nav a{ color:#0b3d91; text-decoration:none; padding:0.35rem 0.5rem; display:inline-block; border-radius:6px; transition: background 200ms ease, color 200ms ease, transform 120ms ease; }
+.summit-side-nav a:hover, .summit-side-nav a:focus{ background:rgba(11,61,145,0.06); }
+/* Active nav item */
+.summit-side-nav a.active{ background:#0b3d91; color:#fff; box-shadow: 0 6px 18px rgba(11,61,145,0.14); }
+.summit-side-nav a[aria-current="true"]{ background:#0b3d91; color:#fff; }
+
+
+.years-grid { display:flex; flex-direction:column; gap:1.25rem; flex:1; padding-inline: clamp(8px, 4vw, 48px); box-sizing: border-box; }
+.years-grid.vertical { width:100% }
+.year-card { background:#fff; padding:1.25rem; border-radius:6px; box-shadow: 0 4px 14px rgba(2,6,23,0.05); width:100%; box-sizing: border-box; }
+.year-badge{ display:none }
+.year-title{ margin:0 0 0.5rem 0; font-size:1.25rem }
+.year-summary{ color:#475569; margin:0 }
+.year-cta .cta{ display:inline-block; margin-top:0.75rem; padding:0.45rem 0.75rem; background:#0b3d91; color:white; border-radius:6px; text-decoration:none }
+
+
+/* Make cards taller and style facts list */
+.year-card { min-height: 180px; display: flex; flex-direction: column; justify-content: flex-start; }
+.year-facts{ margin:0.75rem 0 0; padding-left:1.1rem; color:#334155 }
+.year-facts li{ margin-bottom:0.45rem; line-height:1.35; display:flex; align-items:flex-start }
+.fact-badge{ display:inline-flex; width:28px; height:28px; align-items:center; justify-content:center; margin-right:0.6rem; border-radius:6px; background:rgba(11,61,145,0.06); font-size:0.95rem }
+.fact-text{ display:inline-block }
+
+.fact-icon{ width:18px; height:18px; color: #0b3d91 }
+
+/* Keyframes for staggered slide-up + fade-in */
+@keyframes slideUpFade {
+	from { opacity: 0; transform: translateY(12px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes cardLift {
+	from { transform: translateY(10px) scale(0.995); box-shadow: 0 4px 14px rgba(2,6,23,0.03); }
+	to   { transform: translateY(0) scale(1.02); box-shadow: 0 14px 44px rgba(2,6,23,0.12); }
+}
+
+/* Animate only the first time a card becomes in-view: use :not(.seen) so 'seen' prevents repeats */
+.year-card.in-view:not(.seen) {
+	animation: cardLift 520ms cubic-bezier(.22,.9,.35,1) both;
+}
+
+/* Keep a subtle scale for cards that are active even after they've been seen */
+.year-card.in-view.seen {
+	transform: translateY(0) scale(1.02);
+	box-shadow: 0 12px 36px rgba(2,6,23,0.09);
+	transition: transform 260ms cubic-bezier(.2,.9,.3,1), box-shadow 260ms ease;
+}
+
+.year-card.in-view:not(.seen) .year-title { animation: slideUpFade 420ms ease 70ms both; }
+.year-card.in-view:not(.seen) .year-summary { animation: slideUpFade 420ms ease 140ms both; }
+.year-card.in-view:not(.seen) .year-facts li { animation: slideUpFade 420ms ease 210ms both; }
+.year-card.in-view:not(.seen) .year-cta { animation: slideUpFade 420ms ease 300ms both; }
+
+
+@media (min-width: 1200px) {
+	/* allow more generous card height on wide screens */
+	.year-card { min-height: 220px }
+}
+
+/* Collapsible facts: hidden by default, shown on very small screens */
+.year-facts-collapsible{ display:none }
+.year-facts-collapsible summary{ cursor:pointer; list-style:none; padding:0.5rem 0.6rem; background:rgba(11,61,145,0.04); border-radius:8px; margin-top:0.6rem }
+.year-facts-collapsible summary::-webkit-details-marker { display:none }
+.year-facts-collapsible ul{ list-style:none; padding:0.6rem 0 0 0; margin:0 }
+.year-facts-collapsible li{ display:flex; align-items:flex-start; padding:0.45rem 0 }
+
+@media (max-width:600px){
+	.year-facts{ display:none }
+	.year-facts-collapsible{ display:block }
+}
+
+/* Divider line with centered year */
+.year-divider { display:flex; align-items:center; width:100%; }
+.year-divider::before, .year-divider::after { content:''; flex:1; height:1px; background:#e6eefc }
+.year-divider span { display:inline-block; padding:0.35rem 0.9rem; margin:0 0.6rem; background:#0b3d91; color:#fff; font-weight:700; border-radius:999px; box-shadow: 0 4px 12px rgba(11,61,145,0.12); }
+
+/* Smooth scroll */
+html { scroll-behavior: smooth; }
+
+/* Responsive adjustments */
+@media (max-width:900px){
+	.summit-body{ flex-direction:column; margin-left: 0; }
+	.summit-side-nav{
+		width: auto;
+		max-width: 520px;
+		margin: 0 auto 1rem;
+		position: relative;
+		height: auto;
+		top: auto;
+		padding: 0.6rem 0.9rem;
+		text-align: center;
+	}
+	.summit-side-nav ul{ align-items: center; }
+}
+
+/* On larger viewports make the side nav fixed so it follows the viewport while scrolling */
+@media (min-width: 900px) {
+			.summit-side-nav {
+				position: fixed;
+				top: calc(var(--navbar-height) + 16px); /* below the navbar */
+				height: calc(100vh - (var(--navbar-height) + 30px));
+			overflow:auto;
+			z-index: 10002; /* above navbar and user menu so it won't be hidden */
+			/* place the nav aligned to the left edge of the centered content area
+				 content max-width is 1200px so we offset from center by half that width */
+			/* ensure nav never moves off-screen; keep at least 12px from viewport edge */
+			left: max(calc(50% - 600px), 12px);
+				background: rgba(255,255,255,0.72);
+				width: clamp(180px, 18vw, 220px);
+				backdrop-filter: blur(6px) saturate(1.05);
+				border: 1px solid rgba(11,61,145,0.06);
+				border-radius: 12px;
+				padding: 0.6rem;
+				pointer-events: auto;
+				box-shadow: 0 8px 30px rgba(11,61,145,0.06);
+		}
+			/* Prevent the fixed nav from overlapping the main content by offsetting the body */
+				.summit-body { margin-left: 260px; }
+
+			/* Align the header to the main content area (centered over the year cards) */
+			.summit-header { width: calc(100% - 260px); margin-left: 260px; text-align: center; }
+	/* if the page becomes narrower than 1200px the left calc still works reasonably; adjust on very wide screens */
+}

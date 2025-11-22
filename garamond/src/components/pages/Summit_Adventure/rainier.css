@@ -1,0 +1,29 @@
+/* Basic Rainier page styles and simple animations */
+.rainier-page { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; color: #222; }
+.rainier-hero { position: relative; height: 320px; display:flex; align-items:center; justify-content:center; text-align:center; background: linear-gradient(180deg, #0b3d91 0%, #2b7cff 60%); color: white; overflow:hidden; }
+.hero-overlay { position:absolute; inset:0; background-image: radial-gradient(ellipse at center, rgba(255,255,255,0.06), rgba(0,0,0,0.12)); mix-blend-mode: overlay; }
+.hero-title { font-size: clamp(1.6rem, 3.6vw, 2.8rem); z-index:2; margin:0; animation: floatY 6s ease-in-out infinite; }
+.hero-sub { margin-top:.5rem; z-index:2; opacity:.95 }
+
+@keyframes floatY { 0%{transform:translateY(0)}50%{transform:translateY(-8px)}100%{transform:translateY(0)} }
+
+.rainier-content { max-width:1000px; margin: 2rem auto; padding:0 1rem; }
+.gallery .cards { display:flex; gap:1rem; flex-wrap:wrap; }
+.card { background: linear-gradient(180deg,#fff,#f7fbff); border-radius:10px; padding:1rem; box-shadow:0 6px 18px rgba(2,6,23,0.08); width:calc(33% - .67rem); min-width:200px; }
+.card-image { height:120px; border-radius:8px; background-size:cover; background-position:center; margin-bottom:.6rem; }
+.img1 { background-image: url('/images/rainier1.svg'); transform-origin:center; }
+.img2 { background-image: url('/images/rainier2.svg'); }
+.img3 { background-image: url('/images/rainier3.svg'); }
+
+/* Animations */
+.float-card .card-image { animation: floatY 8s ease-in-out infinite; }
+.pulse-card { animation: pulse 4s ease-in-out infinite; }
+@keyframes pulse { 0%{transform:scale(1)}50%{transform:scale(1.02)}100%{transform:scale(1)} }
+.slide-card { transform: translateX(-6px); animation: slideIn 1.2s ease-out both; }
+@keyframes slideIn { from{opacity:0;transform:translateX(-20px)} to{opacity:1;transform:translateX(0)} }
+
+.articles article { margin-bottom:1rem; padding:1rem; background:#fff; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.04); }
+.rainier-footer { text-align:center; padding:2rem 0; color:#6b7280 }
+
+/* Responsive */
+@media (max-width:800px){ .card{ width:100% } }

@@ -3,7 +3,8 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Home from './components/pages/Home';
-import Statistics from './components/pages/Statistics';
+import Summit from './components/pages/Summit_Adventure';
+import Rainier from './components/pages/Summit_Adventure/Rainier';
 import SignIn from './components/pages/SignIn';
 import SignUp from './components/pages/SignUp';
 import Profile from './components/pages/Profile';
@@ -17,7 +18,8 @@ function App() {
       <Navbar/>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/statistics" element={<Statistics />} />
+        <Route path="/summit_adventure" element={<Summit />} />
+  <Route path="/summit_adventure/rainier" element={<Rainier />} />
         <Route path="/game" element={<GameLobby />} />
         <Route path="/game/tictactoe" element={<TicTacToePage />} />
         <Route path="/sign-in" element={<SignIn />} />
