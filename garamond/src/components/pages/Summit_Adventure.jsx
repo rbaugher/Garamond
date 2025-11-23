@@ -45,50 +45,56 @@ const YEARS = [
     },
     {
         year: 2027,
-        title: 'St. Helens',
+        title: 'Mt. Kilimanjaro',
         facts: [
-            { icon: 'volcano', text: 'Famous 1980 eruption dramatically altered the mountain and surrounding landscape.' },
-            { icon: 'ruler', text: 'Elevation: ~8,363 ft (notable change after the 1980 eruption).' }
+            { icon: 'mountain', text: 'Highest free-standing mountain in the world; highest peak in Africa at 19,341 ft (5,895 m).' },
+            { icon: 'volcano', text: 'A dormant volcanic massif composed of three cones (Kibo, Mawenzi, and Shira).' },
+            { icon: 'compass', text: 'Popular non-technical trekking routes with distinct climate zones from rainforest to alpine desert.' }
         ]
     },
     {
         year: 2028,
-        title: 'Baker',
+        title: 'Mt. Fuji',
         facts: [
-            { icon: 'snow', text: 'Active glacier-covered stratovolcano in the North Cascades.' },
-            { icon: 'peak', text: 'Home to one of the heaviest snowfall records in the U.S.; great for alpine climbing.' }
+            { icon: 'volcano', text: 'Japan’s iconic stratovolcano with a near-perfect conical profile; elevation 3,776 m (12,389 ft).' },
+            { icon: 'scroll', text: 'Last erupted in 1707–1708 (the Hōei eruption); a UNESCO World Heritage cultural site.' },
+            { icon: 'peak', text: 'Popular for day climbs in summer; famous for sunrise views from the summit (goraiko).' }
         ]
     },
     {
         year: 2029,
-        title: 'Adams',
+        title: 'Everest Base Camp',
         facts: [
-            { icon: 'compass', text: 'Large, potentially active stratovolcano with varied climbing routes.' },
-            { icon: 'leaf', text: 'Notable for its broad flanks and scenic high alpine meadows.' }
+            { icon: 'compass', text: 'One of the world’s most famous trekking objectives; South Base Camp (Nepal) sits at ~5,364 m.' },
+            { icon: 'climb', text: 'Serves as the staging area for summit expeditions; strong emphasis on acclimatization and logistics.' },
+            { icon: 'mountain', text: 'Spectacular high-altitude scenery and Sherpa culture along the Khumbu route.' }
         ]
     },
     {
         year: 2030,
-        title: 'Hood',
+        title: 'Gran Paradiso',
         facts: [
-            { icon: 'pick', text: 'Oregon’s highest peak at 11,249 ft and a popular year-round climbing destination.' },
-            { icon: 'ice', text: 'Features glaciers and several technical routes; visible from Portland on clear days.' }
+            { icon: 'mountain', text: 'A 4,061 m peak in the Graian Alps of Italy; the centerpiece of Gran Paradiso National Park.' },
+            { icon: 'leaf', text: 'Renowned for wildlife (ibex) and classic alpine routes popular with guided climbs.' },
+            { icon: 'ice', text: 'Glaciated approaches and non-technical summit routes make it a classic alpine objective.' }
         ]
     },
     {
         year: 2031,
-        title: 'Shasta',
+        title: 'Vinson Massif',
         facts: [
-            { icon: 'mountain', text: 'Stands at 14,179 ft and is a prominent volcanic peak in Northern California.' },
-            { icon: 'climb', text: 'Known for long climbing seasons and a variety of routes from hikes to technical climbs.' }
+            { icon: 'mountain', text: 'The highest peak in Antarctica at 4,892 m (16,050 ft); extremely remote and cold.' },
+            { icon: 'snow', text: 'Climbs require significant logistics and are typically flown in via ski-equipped aircraft.' },
+            { icon: 'climb', text: 'Part of the Seven Summits — a popular objective for mountaineers pursuing the set.' }
         ]
     },
     {
         year: 2032,
-        title: 'Olympus',
+        title: 'Mount Cook',
         facts: [
-            { icon: 'tree', text: 'Refers to the high peaks of the Olympic Mountains (e.g., Mount Olympus).' },
-            { icon: 'rain', text: 'Coastal climate creates lush alpine meadows and rugged, weathered summits.' }
+            { icon: 'mountain', text: 'Also called Aoraki / Mount Cook — New Zealand’s highest peak at 3,724 m (12,218 ft).' },
+            { icon: 'ice', text: 'Known for steep, technical alpine routes and extensive glaciation in the Southern Alps.' },
+            { icon: 'tree', text: 'Located in Aoraki/Mount Cook National Park with dramatic alpine scenery and mountain weather.' }
         ]
     }
 ];

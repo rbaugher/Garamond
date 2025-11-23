@@ -24,6 +24,18 @@ if (process.env.NODE_ENV === "development") {
 }
 
 export default async function handler(req, res) {
+  console.log(`[signUpUser] ${req.method} ${req.url}`);
+  try {
+    if (req.method === "POST") {
+      console.log('[signUpUser] POST body:', JSON.stringify(req.body));
+    } else if (req.method === 'GET') {
+      console.log('[signUpUser] GET query:', JSON.stringify(req.query));
+    } else if (req.method === 'PATCH') {
+      console.log('[signUpUser] PATCH body:', JSON.stringify(req.body));
+    }
+  } catch (e) {
+    // ignore logging errors
+  }
   if (req.method === "POST") {
     try {
       const client = await clientPromise;
@@ -34,15 +46,15 @@ export default async function handler(req, res) {
       const { name, nickname, email, avatar, preferredColor, favoriteBibleVerse, wouldYouRatherAnswer } = req.body;
 
       // Validate required fields
-      if (!name || !nickname || !email) {
+      if (!name || !nickname || !email || !avatar) {
         return res.status(400).json({ 
-          message: "Missing required fields: name, nickname, and email" 
+          message: "Missing required fields: name, nickname, email, and avatar are required" 
         });
       }
 
       // Validate nickname (alphanumeric, 3-16 chars)
-      const nicknameRegex = /^[a-zA-Z0-9_]{3,16}$/;
-      if (!nicknameRegex.test(nickname)) {
+      const nicknamePattern = /^[a-zA-Z0-9_]{3,16}$/;
+      if (!nicknamePattern.test(nickname)) {
         return res.status(400).json({ 
           message: "Nickname must be 3-16 characters, letters, numbers, or underscores only." 
         });
@@ -57,22 +69,31 @@ export default async function handler(req, res) {
       }
 
 
-      // Check if user already exists by email, name, or nickname
+      // Normalize values for comparison
+      const emailNorm = email.toLowerCase();
+      const nameNorm = name.trim();
+      const nicknameNorm = nickname.trim().toLowerCase();
+
+      // Build a case-insensitive regex for nickname so uniqueness check is case-insensitive
+      const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const nicknameRegex = new RegExp(`^${escapeRegex(nickname.trim())}$`, 'i');
+
+      // Check if user already exists by email, name, or nickname (nickname comparison is case-insensitive)
       const existingUser = await collection.findOne({
         $or: [
-          { email: email.toLowerCase() },
-          { name: name.trim() },
-          { nickname: nickname.trim().toLowerCase() }
+          { email: emailNorm },
+          { name: nameNorm },
+          { nickname: nicknameRegex }
         ]
       });
 
       if (existingUser) {
         let reason = "";
-        if (existingUser.email === email.toLowerCase()) {
+        if (existingUser.email === emailNorm) {
           reason = "An account with this email already exists";
-        } else if (existingUser.name === name.trim()) {
+        } else if (existingUser.name === nameNorm) {
           reason = "An account with this name already exists";
-        } else if (existingUser.nickname === nickname.trim().toLowerCase()) {
+        } else if (existingUser.nickname && existingUser.nickname.toLowerCase() === nicknameNorm) {
           reason = "An account with this nickname already exists";
         }
         return res.status(409).json({ 
@@ -87,12 +108,12 @@ export default async function handler(req, res) {
       }
 
 
-      // Create new user document
+      // Create new user document (store nickname normalized to lowercase)
       const newUser = {
-        name: name.trim(),
-        nickname: nickname.trim(),
-        email: email.toLowerCase(),
-        avatar: avatar || "🧑",
+        name: nameNorm,
+        nickname: nicknameNorm,
+        email: emailNorm,
+        avatar: avatar,
         preferredColor: preferredColor || "#4ECDC4",
         favoriteBibleVerse: favoriteBibleVerse || null,
         wouldYouRatherAnswer: wouldYouRatherAnswer || null,
@@ -102,6 +123,7 @@ export default async function handler(req, res) {
 
       // Insert the new user
       const result = await collection.insertOne(newUser);
+      console.log('[signUpUser] Created user:', result.insertedId.toString());
 
       res.status(201).json({
         message: "User created successfully!",
@@ -131,6 +153,8 @@ export default async function handler(req, res) {
       if (preferredColor) updateFields.preferredColor = preferredColor;
       updateFields.updatedAt = new Date();
 
+      console.log('[signUpUser] Updating user', email.toLowerCase(), 'fields:', Object.keys(updateFields));
+
       const result = await collection.findOneAndUpdate(
         { email: email.toLowerCase() },
         { $set: updateFields },
@@ -138,9 +162,11 @@ export default async function handler(req, res) {
       );
 
       if (!result.value) {
+        console.log('[signUpUser] Update failed: user not found', email.toLowerCase());
         return res.status(404).json({ message: "User not found" });
       }
 
+      console.log('[signUpUser] Update success for', email.toLowerCase());
       res.status(200).json({
         message: "User updated successfully!",
         user: result.value
@@ -164,22 +190,28 @@ export default async function handler(req, res) {
         });
       }
 
+      console.log('[signUpUser] GET user by email:', email.toLowerCase());
+
       const user = await collection.findOne({ 
         email: email.toLowerCase() 
       });
 
       if (!user) {
+        console.log('[signUpUser] GET user not found for', email.toLowerCase());
         return res.status(404).json({ 
           message: "User not found" 
         });
       }
 
+      console.log('[signUpUser] GET user found:', user._id.toString());
       res.status(200).json({
         exists: true,
         user: {
           id: user._id,
           name: user.name,
+          nickname: user.nickname,
           email: user.email,
+          avatar: user.avatar,
           preferredColor: user.preferredColor,
           createdAt: user.createdAt
         }

@@ -59,6 +59,7 @@ function SignIn() {
         setStoredUser({
           id: userData.id,
           name: userData.name,
+          nickname: userData.nickname || null,
           email: userData.email,
           avatar: userData.avatar || '🧑',
           preferredColor: userData.preferredColor || '#4ECDC4',
