@@ -8,7 +8,6 @@ function Home() {
     return (
         <>
             <Carousel />
-            {/* <HeroSection /> */}
             <Cards />
             <Footer />
         </>

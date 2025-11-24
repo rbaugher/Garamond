@@ -1,0 +1,162 @@
+/* Make Outdoors page full-bleed like Hobbies page */
+.outdoors-page {
+  /* full-width container but no background image (use page background) */
+  max-width: none;
+  width: 100%;
+  margin: 0;
+  padding: 1rem 1.25rem;
+  position: relative;
+  background: none;
+}
+
+
+/* overlay to mute background for readability */
+/* remove full-bleed background overlay so the page uses the site's normal background */
+.outdoors-page::before { display: none; }
+.outdoors-page > * { position: relative; z-index: 1; }
+
+/* translucent hero similar to Hobbies */
+.outdoors-hero {
+  background: rgba(6,6,8,0.26);
+  backdrop-filter: blur(6px) saturate(1.05);
+  -webkit-backdrop-filter: blur(6px) saturate(1.05);
+  padding: clamp(1rem, 3vw, 2.25rem);
+  border-radius: 12px;
+  margin-bottom: 1.25rem;
+  text-align: center;
+  color: #ffffff;
+  box-shadow: 0 8px 24px rgba(2,6,23,0.28);
+}
+
+.outdoors-hero h1 { color: #fff; font-size: clamp(1.8rem, 4.5vw, 3.25rem); margin: 0 0 0.5rem; }
+.outdoors-hero p { color: rgba(255,255,255,0.88); margin: 0; }
+
+.outdoors-intro { background: #fff; padding: 1rem; border-radius: 8px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); margin-bottom: 1rem }
+.outdoor-list { background: #fff; padding: 1rem; border-radius: 8px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); }
+
+/* Outdoors grid and card styles */
+.outdoors-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; align-items: start; margin-top: 1rem; }
+
+/* Limit to maximum 3 cards per row on wider viewports */
+@media (min-width: 1000px) {
+  .outdoors-grid { grid-template-columns: repeat(3, 1fr); }
+}
+.outdoor-card { position: relative; display:flex; flex-direction:column; overflow:hidden; border-radius:12px; box-shadow:0 10px 30px rgba(2,6,23,0.06); background:#fff; }
+.outdoor-card .card-media { width:100%; height:100%; object-fit:cover; display:block; }
+.outdoor-card .card-body { padding:0.9rem; }
+.outdoor-card h3 { margin:0 0 0.35rem; color:#0b3d91 }
+.outdoor-card p { margin:0; color:#334155 }
+
+/* size variants similar to hobbies page */
+.outdoor-card.size-sm { grid-row: span 10; min-height: 140px; }
+.outdoor-card.size-md { grid-row: span 16; min-height: 220px; }
+.outdoor-card.size-lg { grid-row: span 24; min-height: 340px; }
+
+/* Hover pop-out (subtle) */
+.outdoor-card { transition: transform 260ms cubic-bezier(0.2,0.9,0.2,1), box-shadow 260ms ease; transform-origin:center; will-change: transform, box-shadow; }
+.outdoor-card:hover,
+.outdoor-card:focus-within,
+.outdoor-card:focus { transform: translateY(-12px) scale(1.04); box-shadow: 0 28px 60px rgba(2,6,23,0.12); z-index:6; }
+
+@media (prefers-reduced-motion: reduce) {
+  .outdoor-card, .outdoor-card:hover { transition: none; transform: none; box-shadow: none; }
+}
+
+/* Modal / pop-out styles */
+.outdoors-modal-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(2,6,23,0.45);
+  z-index: 1200;
+  padding: 1.5rem;
+}
+
+.outdoors-modal {
+  background: #fff;
+  border-radius: 12px;
+  position: relative;
+  box-shadow: 0 30px 80px rgba(2,6,23,0.5);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-width: 100%;
+  width: auto;
+  height: auto;
+}
+
+/* FLIP surface used to animate from card rect to final modal rect */
+.outdoors-modal-surface {
+  position: fixed;
+  z-index: 1201;
+  border-radius: 12px;
+  overflow: hidden;
+  background: transparent;
+  transition: left 360ms cubic-bezier(.2,.9,.2,1), top 360ms cubic-bezier(.2,.9,.2,1), width 360ms cubic-bezier(.2,.9,.2,1), height 360ms cubic-bezier(.2,.9,.2,1), box-shadow 360ms ease;
+  box-shadow: 0 30px 80px rgba(2,6,23,0.06);
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+}
+
+/* When the modal is placed inside the animated surface, force it to fill the surface */
+.outdoors-modal-surface > .outdoors-modal {
+  width: 100%;
+  height: 100%;
+}
+
+/* Hidden measurer used to compute natural content size on mobile */
+.modal-measurer {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  visibility: hidden;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.surface-placeholder { width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#111; }
+.surface-placeholder img { width:100%; height:100%; object-fit:cover; display:block }
+
+.outdoors-modal .modal-close { top: 12px; right: 12px; }
+
+.outdoors-modal .modal-close {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  background: rgba(0,0,0,0.6);
+  color: #fff;
+  border: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  font-size: 20px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.outdoors-modal .modal-close:focus { outline: 3px solid rgba(11,61,145,0.24); }
+
+.modal-content { display: flex; flex-direction: row; gap: 1rem; height: 100%; }
+.modal-gallery { flex: 1 1 60%; display:flex; align-items:center; justify-content:center; background:#000; }
+.modal-gallery img { max-width: 100%; max-height: 100%; object-fit: contain; display:block }
+.modal-text { flex: 1 1 40%; padding: 1.25rem; overflow:auto; }
+.modal-text h2 { margin-top: 0; }
+
+@media (max-width: 900px) {
+  .modal-content { flex-direction: column; }
+  .modal-gallery, .modal-text { flex: unset; width: 100%; }
+  /* cap modal height to viewport minus nav and small gap; allow internal scrolling */
+  .outdoors-modal { height: auto !important; max-height: calc(100vh - var(--nav-height, 80px) - 24px); box-sizing: border-box; }
+  .outdoors-modal .modal-content { height: 100%; overflow: auto; -webkit-overflow-scrolling: touch; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .outdoors-modal-overlay, .outdoors-modal { transition: none !important; }
+}

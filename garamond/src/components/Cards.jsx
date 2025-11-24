@@ -17,30 +17,25 @@ function Cards() {
                             path="/Summit_Adventure"
                         />
                         <CardItem 
-                            src="images/shuttle_launch.jpg"
-                            text="Travel through the Islands of Bali in a Private Cruise"
-                            label="Luxury"
-                            path="/services"
+                            src="images/wood working.jpg"
+                            text="Learning new crafts!"
+                            label="Hobbies"
+                            path="/hobbies"
                         />
                     </ul>
                     <ul className="cards__items">
                         <CardItem 
                             src="images/hiker.jpg"
-                            text="Explore the hidden waterfall deep inside the Amazon Jungle"
-                            label="Adventure"
-                            path="/services"
+                            text="Exploring the world one step at a time!"
+                            label="Hiking"
+                            path="/outdoors"
                         />
+                        
                         <CardItem 
-                            src="images/heavens.jpg"
-                            text="Travel through the Islands of Bali in a Private Cruise"
-                            label="Luxury"
-                            path="/services"
-                        />
-                        <CardItem 
-                            src="images/Everest.jpg"
-                            text="Travel through the Islands of Bali in a Private Cruise"
-                            label="Luxury"
-                            path="/services"
+                            src="images/games.jpg"
+                            text="Games are Life"
+                            label="Games"
+                            path="/game"
                         />
                     </ul>
                 </div>

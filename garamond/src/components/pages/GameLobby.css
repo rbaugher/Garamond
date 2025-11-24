@@ -1,10 +1,12 @@
 .game-lobby {
-  min-height: calc(100vh - 80px);
-  margin-top: 80px;
+  /* Use the global nav height variable (fallback to 80px) so we don't
+     double-offset pages that also use body padding-top. Start content at
+     the top of the page (flex-start) rather than centering vertically. */
+  min-height: calc(100vh - var(--nav-height, 80px));
   background: linear-gradient(135deg, #1e1e2e 0%, #2d2d44 100%);
   padding: 3rem 2rem;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
 }
 

@@ -12,26 +12,42 @@ const GameLobby = () => {
     {
       id: 'tictactoe',
       title: 'Tic Tac Toe ²',
-      description: 'A strategic twist on classic Tic Tac Toe with numbered tiles.',
-      image: '/images/img-1.jpg',
+      description: 'A strategic twist on classic Tic Tac Toe!',
+      image: '/images/TicTacToe.jpg',
       route: '/game/tictactoe',
     },
     {
-      id: 'chess',
-      title: 'Chess',
-      description: 'The classic strategy game. (Coming Soon)',
-      image: '/images/img-2.jpg',
+      id: 'asteroids',
+      title: 'Asteroids',
+      description: 'The classic arcade game. (Coming Soon)',
+      image: '/images/heavens.jpg',
       route: '#',
       disabled: true,
     },
     {
-      id: 'checkers',
-      title: 'Checkers',
-      description: 'Jump your way to victory. (Coming Soon)',
+      id: 'connect 3',
+      title: 'Connect 3',
+      description: 'Is this really easier, come find out! (Coming Soon)',
       image: '/images/heavens.jpg',
       route: '#',
       disabled: true,
-    }
+    },
+    {
+      id: 'cribbage',
+      title: 'Sprint Cribbage',
+      description: 'Intrigued? This could be fun! (Coming Soon)',
+      image: '/images/heavens.jpg',
+      route: '#',
+      disabled: true,
+    },
+    {
+      id: 'wrds',
+      title: 'Wrds R Hrd',
+      description: 'What even is this?! (Coming Soon)',
+      image: '/images/heavens.jpg',
+      route: '#',
+      disabled: true,
+    },
   ];
 
   // Leaderboard state for Tic Tac Toe

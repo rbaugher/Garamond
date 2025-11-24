@@ -66,4 +66,16 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
- */
+
+/* Ensure main content is pushed below the fixed navbar
+   The navbar uses a fixed height of 80px; use a CSS variable so this
+   can be adjusted in one place if the navbar height changes. */
+:root {
+  --nav-height: 80px;
+}
+
+body {
+  /* add top padding equal to the navbar height so routed pages
+     don't sit under the fixed navbar */
+  padding-top: var(--nav-height);
+}

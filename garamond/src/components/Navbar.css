@@ -137,6 +137,31 @@
     cursor: pointer;
   }
 
+  /* Ensure the menu button looks like an icon (override global button rules)
+     and keep the icon bright on mobile. */
+  .menu-icon {
+    background: transparent;
+    border: none;
+    padding: 8px;
+    color: #fff; /* used by child <i> when it uses currentColor */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1010;
+  }
+
+  .menu-icon:focus {
+    outline: 3px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+  }
+
+  .menu-icon i {
+    color: #fff;
+    font-size: 1.8rem;
+    line-height: 1;
+    opacity: 1;
+  }
+
   .fa-times {
     color: #fff;
     font-size: 2rem;
