@@ -21,8 +21,8 @@ const GameLobby = () => {
       title: 'Asteroids',
       description: 'The classic arcade game. (Coming Soon)',
       image: '/images/heavens.jpg',
-      route: '#',
-      disabled: true,
+      route: '/game/asteroids',
+      disabled: false,
     },
     {
       id: 'connect 3',
@@ -94,6 +94,7 @@ const GameLobby = () => {
           {games.map((game) => (
             <div key={game.id} className="game-card-wrapper">
               <Link
+                id={game.id === 'asteroids' ? 'asteroids' : undefined}
                 to={game.route}
                 className={`game-card ${game.disabled ? 'disabled' : ''}`}
                 onClick={(e) => game.disabled && e.preventDefault()}

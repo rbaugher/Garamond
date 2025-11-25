@@ -28,22 +28,20 @@ export default function TicTacToePage() {
   return (
     <GameModeProvider>
       <DifficultyProvider>
-        <>
+        <div className="game-page-wrapper">
           <GameNavbar 
             activeControl={activeControl}
             onControlChange={setActiveControl}
             onControlClose={() => setActiveControl(null)}
           />
-          <div className="game-page-wrapper">
-            <div className="game-container">
-              <TicTacToeApp 
-                activeControl={activeControl}
-                onControlChange={setActiveControl}
-                onControlClose={() => setActiveControl(null)}
-              />
-            </div>
+          <div className="game-container">
+            <TicTacToeApp 
+              activeControl={activeControl}
+              onControlChange={setActiveControl}
+              onControlClose={() => setActiveControl(null)}
+            />
           </div>
-        </>
+        </div>
       </DifficultyProvider>
     </GameModeProvider>
   );

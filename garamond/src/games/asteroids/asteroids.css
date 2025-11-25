@@ -1,0 +1,24 @@
+.asteroids-root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 12px;
+  color: #fff;
+  flex: 1;
+  width: 100%;
+}
+
+.asteroids-instructions {
+  margin: 8px 0;
+  color: #cfd8dc;
+}
+
+.asteroids-canvas {
+  width: 100%;
+  height: 80vh;
+  background: #071019;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+  display: block;
+}

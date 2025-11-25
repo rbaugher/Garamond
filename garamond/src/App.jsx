@@ -12,6 +12,7 @@ import SignUp from './components/pages/SignUp';
 import Profile from './components/pages/Profile';
 import GameLobby from './components/pages/GameLobby';
 import TicTacToePage from './components/pages/TicTacToePage';
+import AsteroidsPage from './components/pages/AsteroidsPage';
 
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
     <Route path="/outdoors" element={<Outdoors />} />
         <Route path="/game" element={<GameLobby />} />
         <Route path="/game/tictactoe" element={<TicTacToePage />} />
+  <Route path="/game/asteroids" element={<AsteroidsPage />} />
         <Route path="/sign-in" element={<SignIn />} />
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/profile" element={<Profile />} />
