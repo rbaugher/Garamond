@@ -7,6 +7,7 @@ import { valuesMap } from './functions/pieceHelpers';
 import { useDifficulty } from './context/DifficultyContext';
 import { noPossibleMove,validMove } from './functions/Validator';
 import { recordGameMetrics, getWinningCondition } from './functions/gameMetricsCollector';
+import { getStoredUser } from '../../utils/session';
 
 
 export const TurnContext = createContext();
@@ -20,6 +21,11 @@ function Board() {
   const { turn, setTurn } = useContext(TurnContext); // Use context for turn
   const { winner, setWinner } = useContext(WinnerContext); // Use context for winner
   const { moveCount, setMoveCount } = useContext(MoveCountContext);
+  
+  // Get player nickname from session
+  const user = getStoredUser();
+  const playerNickname = user?.nickname || "Player";
+  
   // Player tile states
   const [queueO, setqueueO] = useState(Array(6).fill(false));
   const [deadO, setDeadO] = useState(Array(6).fill(false));
@@ -159,7 +165,7 @@ function playerTilePlacement(tileIndex){
       const outcome = winResult.player === 'X' ? 'Win' : 'Loss';
       
       recordGameMetrics({
-        playerName: gamemode === 0 ? "Player" : "Player X",
+        playerName: gamemode === 0 ? playerNickname : `${playerNickname} (X)`,
         opponentName: gamemode === 0 ? "Computer" : "Player O",
         gameType: "Tic Tac Toe Squared",
         outcome: outcome,
@@ -177,7 +183,7 @@ function playerTilePlacement(tileIndex){
       const gameDuration = Math.floor((Date.now() - gameStartTimeRef.current) / 1000);
       
       recordGameMetrics({
-        playerName: gamemode === 0 ? "Player" : "Player X",
+        playerName: gamemode === 0 ? playerNickname : `${playerNickname} (X)`,
         opponentName: gamemode === 0 ? "Computer" : "Player O",
         gameType: "Tic Tac Toe Squared",
         outcome: "Tie",
@@ -230,7 +236,7 @@ function playerTilePlacement(tileIndex){
       {/* Player banner for singleplayer mode (not mobile) */}
       {gamemode === 0 && !isMobile && (
         <div className="playerbanner" style={{ textAlign: 'center', color: '#fff', fontWeight: 'bold', fontSize: '1.2em', marginBottom: '0.5em' }}>
-          Player
+          {playerNickname}
         </div>
       )}
       {isMobile ? (

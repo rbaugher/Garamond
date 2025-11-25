@@ -24,8 +24,11 @@ export default async function handler(req, res) {
       const db = client.db("Garamond");
       const collection = db.collection("Game Metrics");
 
+      console.log("Received game metrics request body:", JSON.stringify(req.body, null, 2));
+
       const {
         playerName,
+        playerNickname,
         opponentName,
         gameType,
         outcome,
@@ -33,8 +36,13 @@ export default async function handler(req, res) {
         winningCondition,
         moveList,
         gameDuration,
-        timestamp
+        timestamp,
+        score,
+        level,
+        asteroidsDestroyed
       } = req.body;
+
+      console.log("Extracted values - score:", score, "level:", level, "asteroidsDestroyed:", asteroidsDestroyed);
 
       // Validate required fields
       if (!playerName || !gameType || !outcome) {
@@ -44,16 +52,22 @@ export default async function handler(req, res) {
       // Create the metrics document
       const metricsDoc = {
         playerName,
+        playerNickname: playerNickname || null,
         opponentName: opponentName || null,
         gameType,
         outcome, // 'Win', 'Loss', or 'Tie' (from player's perspective)
-        difficulty: difficulty || null, // null for multiplayer
+        difficulty: difficulty !== undefined ? difficulty : null, // null for multiplayer
         winningCondition: winningCondition || null, // e.g., 'diagonal', 'row', 'column', or 'tie'
         moveList: moveList || [],
         gameDuration: gameDuration || 0, // in seconds
+        score: score !== undefined ? Number(score) : null, // For games like Asteroids (can be 0) - ensure it's a number
+        level: level !== undefined ? Number(level) : null, // For games with levels (can be 1) - ensure it's a number
+        asteroidsDestroyed: asteroidsDestroyed !== undefined ? Number(asteroidsDestroyed) : null, // For Asteroids game (can be 0) - ensure it's a number
         timestamp: timestamp || new Date(),
         createdAt: new Date()
       };
+
+      console.log("Inserting metrics document to MongoDB:", metricsDoc);
 
       const result = await collection.insertOne(metricsDoc);
 

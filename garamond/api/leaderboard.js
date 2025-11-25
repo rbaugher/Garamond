@@ -18,6 +18,7 @@ if (!global._mongoClientPromise) {
 clientPromise = global._mongoClientPromise;
 
 // GET /api/leaderboard?gameType=Tic Tac Toe Squared&difficulty=easy
+// GET /api/leaderboard?gameType=Asteroids (for high score leaderboard)
 export default async function handler(req, res) {
   if (req.method !== "GET") {
     return res.status(405).json({ message: "Method not allowed" });
@@ -28,6 +29,34 @@ export default async function handler(req, res) {
     const collection = db.collection("Game Metrics");
 
     const { gameType = "Tic Tac Toe Squared", difficulty = "easy", limit = 10 } = req.query;
+
+    // Handle Asteroids leaderboard (high scores)
+    if (gameType === "Asteroids") {
+      const pipeline = [
+        { $match: { gameType: "Asteroids", score: { $exists: true, $ne: null } } },
+        { $sort: { score: -1 } },
+        { $limit: parseInt(limit) },
+        { $project: {
+            playerName: 1,
+            score: 1,
+            level: 1,
+            _id: 0
+          }
+        }
+      ];
+
+      const results = await collection.aggregate(pipeline).toArray();
+      console.log("Asteroids leaderboard query results:", results);
+      
+      const leaderboard = results.map((entry, idx) => ({
+        rank: idx + 1,
+        player: entry.playerName,
+        score: entry.score || 0,
+        level: entry.level || 1
+      }));
+
+      return res.status(200).json({ leaderboard });
+    }
 
     // Support both string and numeric difficulty for backward compatibility
     const difficultyMap = {

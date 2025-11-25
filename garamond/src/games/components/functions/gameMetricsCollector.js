@@ -17,13 +17,17 @@ import { getStoredUserName } from '../../../utils/session';
 
 export async function recordGameMetrics({
   playerName = undefined,
+  playerNickname = undefined,
   opponentName = "Computer",
   gameType = "Tic Tac Toe Squared",
   outcome,
   difficulty = null,
   winningCondition = null,
   moveList = [],
-  gameDuration = 0
+  gameDuration = 0,
+  score = null,
+  level = null,
+  asteroidsDestroyed = null
 }) {
   try {
     // Validate required fields
@@ -37,6 +41,7 @@ export async function recordGameMetrics({
 
     const payload = {
       playerName: finalPlayerName, // This is the nickname
+      playerNickname: playerNickname || storedNickname || null,
       opponentName,
       gameType,
       outcome,
@@ -44,8 +49,15 @@ export async function recordGameMetrics({
       winningCondition,
       moveList,
       gameDuration,
+      score,
+      level,
+      asteroidsDestroyed,
       timestamp: new Date().toISOString()
     };
+    
+    console.log("Sending game metrics payload:", JSON.stringify(payload, null, 2));
+    console.log("Score value:", score, "Level value:", level, "Asteroids destroyed:", asteroidsDestroyed);
+    
     const apiBase = (import.meta.env && import.meta.env.VITE_API_BASE) ? import.meta.env.VITE_API_BASE : '';
 
     const response = await fetch(`${apiBase}/api/gameMetrics`, {

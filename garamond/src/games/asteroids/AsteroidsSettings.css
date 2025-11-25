@@ -1,0 +1,236 @@
+.asteroids-settings-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.asteroids-settings-panel {
+  background: #1a1a2e;
+  border-radius: 12px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.asteroids-settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  position: sticky;
+  top: 0;
+  background: #1a1a2e;
+  z-index: 10;
+}
+
+.asteroids-settings-header h2 {
+  margin: 0;
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.asteroids-settings-close {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 2rem;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.asteroids-settings-close:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.asteroids-settings-content {
+  padding: 1.5rem;
+}
+
+.asteroids-setting-group {
+  margin-bottom: 2rem;
+}
+
+.asteroids-setting-group:last-child {
+  margin-bottom: 0;
+}
+
+.asteroids-setting-label {
+  display: block;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: 0.75rem;
+}
+
+/* Ship Shape Options */
+.asteroids-shape-options {
+  display: flex;
+  gap: 1rem;
+}
+
+.asteroids-shape-button {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #aaa;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.asteroids-shape-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+.asteroids-shape-button.active {
+  background: rgba(246, 213, 92, 0.1);
+  border-color: #F6D55C;
+  color: #F6D55C;
+}
+
+.asteroids-shape-button svg {
+  width: 40px;
+  height: 40px;
+}
+
+.asteroids-shape-button span {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* Color Picker */
+.asteroids-color-picker-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.asteroids-color-picker {
+  width: 60px;
+  height: 40px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  cursor: pointer;
+  background: transparent;
+}
+
+.asteroids-color-picker::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.asteroids-color-picker::-webkit-color-swatch {
+  border: none;
+  border-radius: 4px;
+}
+
+.asteroids-color-value {
+  color: #fff;
+  font-family: 'Courier New', monospace;
+  font-size: 0.875rem;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+}
+
+/* Color Presets */
+.asteroids-color-presets {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.asteroids-color-preset {
+  width: 36px;
+  height: 36px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 0;
+}
+
+.asteroids-color-preset:hover {
+  transform: scale(1.1);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* Preview */
+.asteroids-preview-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 120px;
+  border-radius: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Scrollbar styling */
+.asteroids-settings-panel::-webkit-scrollbar {
+  width: 8px;
+}
+
+.asteroids-settings-panel::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.asteroids-settings-panel::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.asteroids-settings-panel::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Mobile adjustments */
+@media screen and (max-width: 768px) {
+  .asteroids-settings-panel {
+    max-width: 95%;
+    max-height: 90vh;
+  }
+
+  .asteroids-settings-header {
+    padding: 1rem;
+  }
+
+  .asteroids-settings-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .asteroids-settings-content {
+    padding: 1rem;
+  }
+
+  .asteroids-shape-options {
+    flex-direction: column;
+  }
+}

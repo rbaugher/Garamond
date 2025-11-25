@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
@@ -8,12 +8,16 @@ import SmartToyIcon from '@mui/icons-material/SmartToy';
 import Button from '@mui/material/Button';
 import { useDifficulty } from './context/DifficultyContext';
 import { useGameMode } from './context/gamemodeContext';
+import { getStoredUser, clearStoredUser } from '../../utils/session';
 import './GameNavbar.css';
 
 function GameNavbar({ activeControl, onControlChange, onControlClose }) {
   const [click, setClick] = useState(false);
   const [isMobile, setIsMobile] = useState(() => window.matchMedia('(max-width: 960px)').matches);
+  const [user, setUser] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(false);
   const { gamemode } = useGameMode();
+  const menuRef = useRef(null);
 
   const handleClick = () => setClick(!click);
   const closeMobileMenu = () => setClick(false);
@@ -27,12 +31,42 @@ function GameNavbar({ activeControl, onControlChange, onControlClose }) {
       setIsMobile(window.innerWidth <= 960);
     };
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+
+    // Load stored user
+    const stored = getStoredUser();
+    if (stored) setUser(stored);
+
+    // Listen for sign-up and sign-out events
+    const handleUserSignedUp = (event) => setUser(event.detail);
+    const handleUserSignedOut = () => setUser(null);
+    window.addEventListener('userSignedUp', handleUserSignedUp);
+    window.addEventListener('userSignedOut', handleUserSignedOut);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('userSignedUp', handleUserSignedUp);
+      window.removeEventListener('userSignedOut', handleUserSignedOut);
+    };
+  }, []);
+
+  // Close the menu when clicking outside
+  useEffect(() => {
+    function onDocClick(e) {
+      if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false);
+    }
+    document.addEventListener('click', onDocClick);
+    return () => document.removeEventListener('click', onDocClick);
   }, []);
 
   const handleControlClick = (controlType) => {
     onControlChange(activeControl === controlType ? null : controlType);
     closeMobileMenu();
+  };
+
+  const handleLogout = () => {
+    clearStoredUser();
+    setUser(null);
+    setMenuOpen(false);
   };
 
   return (
@@ -90,6 +124,22 @@ function GameNavbar({ activeControl, onControlChange, onControlClose }) {
             >
               Stats
             </Button>
+          </div>
+        )}
+
+        {/* User Profile */}
+        {!isMobile && user && (
+          <div className="user-avatar" title={user.nickname || user.name} ref={menuRef}>
+            <button className="avatar-button" onClick={() => setMenuOpen(!menuOpen)} aria-haspopup="true" aria-expanded={menuOpen}>
+              <span className="avatar-emoji">{user.avatar}</span>
+              <span className="user-name">{user.nickname || user.name}</span>
+            </button>
+            {menuOpen && (
+              <div className="user-menu" role="menu">
+                <Link to="/profile" className="user-menu-item" onClick={() => setMenuOpen(false)}>Profile</Link>
+                <button className="user-menu-item" onClick={handleLogout}>Logout</button>
+              </div>
+            )}
           </div>
         )}
         
