@@ -60,14 +60,31 @@ function GameControls({ activeControl, onClose }) {
               <h2>Game Mechanics</h2>
               <div className="mechanics-info">
                 <h3>Tic Tac Toe Squared</h3>
-                <p><strong>Objective:</strong> Get three in a row on a 3×3 grid</p>
-                <h4>Tile Values:</h4>
+                
+                <h4>Objective</h4>
+                <p>Be the first player to control three squares in a row (horizontal, vertical, or diagonal).</p>
+                
+                <h4>Setup</h4>
                 <ul>
-                  <li><strong>Tile 1:</strong> Low value - easy to place</li>
-                  <li><strong>Tile 2:</strong> Medium value</li>
-                  <li><strong>Tile 3:</strong> High value - hard to place</li>
+                  <li><strong>Board:</strong> 3×3 grid</li>
+                  <li><strong>Turn order:</strong> Randomly assigned at start; players alternate</li>
+                  <li><strong>Tiles per player:</strong> Six tiles with values [1, 1, 2, 2, 3, 3]</li>
                 </ul>
-                <p><strong>Rule:</strong> You can only place a tile if its value is higher than what's already on that space.</p>
+                
+                <h4>How to Play</h4>
+                <ol>
+                  <li>Select a tile from your collection</li>
+                  <li>Place it on any valid square</li>
+                  <li>Once played, that tile is <strong>dead</strong> and cannot be used again</li>
+                  <li>Play continues until someone wins or no valid moves remain</li>
+                </ol>
+                
+                <h4>Placement Rules</h4>
+                <ul>
+                  <li><strong>Empty squares:</strong> You may place any tile on an empty square</li>
+                  <li><strong>Overwriting opponent:</strong> You may place on an opponent's square ONLY if your tile value is higher</li>
+                  <li><strong>Your own squares:</strong> You cannot overwrite your own tiles</li>
+                </ul>
               </div>
             </div>
           )}

@@ -64,7 +64,8 @@ export function getBotMove(board, deadO, difficulty, deadX) {
   // Available Moves
   function availableMoves() {
     const moves = emptyIndices.concat(takeoverIndices).sort((a, b) => a - b);
-    return moves;
+    // Extra safety: filter out any positions occupied by bot
+    return moves.filter(idx => board[idx].player !== botPlayer);
   }
 
   function getEasyMove(board){
@@ -159,8 +160,364 @@ export function getBotMove(board, deadO, difficulty, deadX) {
   }
 
   function getHardMove(board, deadO, deadX) {
-    // Hard mode implementation
-    return getMediumMove(board, deadO, deadX);
+    // Hard mode: Strategic tile value management with deep position evaluation
+    const moves = availableMoves();
+    const corners = [0, 2, 6, 8];
+    const sides = [1, 3, 5, 7];
+    
+    // Count remaining pieces by value
+    const botPieceCounts = { 1: 0, 2: 0, 3: 0 };
+    const oppPieceCounts = { 1: 0, 2: 0, 3: 0 };
+    deadO.forEach((dead, idx) => { if (!dead) botPieceCounts[valuesMap[idx]]++; });
+    deadX.forEach((dead, idx) => { if (!dead) oppPieceCounts[valuesMap[idx]]++; });
+    
+    if (VERBOSE) console.log("Bot pieces:", botPieceCounts, "Opp pieces:", oppPieceCounts);
+    
+    // Helper: Is this position strategically important?
+    function getPositionValue(idx) {
+      if (idx === 4) return 100; // Center is most valuable
+      if (corners.includes(idx)) return 60; // Corners are very valuable
+      return 20; // Sides are least valuable
+    }
+    
+    // Helper: Can opponent overtake this position?
+    function canOpponentOvertake(moveIdx, pieceValue) {
+      const maxOppValue = Math.max(...Object.keys(oppPieceCounts).filter(v => oppPieceCounts[v] > 0).map(Number));
+      return maxOppValue > pieceValue;
+    }
+    
+    // Helper: Choose optimal piece for position (strategic piece selection)
+    function choosePieceForPosition(moveIdx, currentValue = 0) {
+      const validPieces = availablePieceIndices().filter(i => valuesMap[i] > currentValue);
+      if (validPieces.length === 0) return null;
+      
+      const posValue = getPositionValue(moveIdx);
+      const maxOppValue = Math.max(...Object.keys(oppPieceCounts).filter(v => oppPieceCounts[v] > 0).map(Number));
+      
+      // PRIORITY: Always try to use 1s first, then 2s, only use 3s when critical
+      const ones = validPieces.filter(i => valuesMap[i] === 1);
+      const twos = validPieces.filter(i => valuesMap[i] === 2);
+      const threes = validPieces.filter(i => valuesMap[i] === 3);
+      
+      // For sides: ALWAYS use 1 if available
+      if (posValue <= 20 && ones.length > 0) {
+        return ones[0];
+      }
+      
+      // For corners and center: use smallest piece that won't be immediately overtaken
+      if (posValue >= 60) {
+        // If opponent has 3s and we're on center/corner, use a 2 if available
+        if (oppPieceCounts[3] > 0 && twos.length > 0) {
+          return twos[0];
+        }
+        // If opponent only has 2s or less, use a 1
+        if (maxOppValue <= 2 && ones.length > 0) {
+          return ones[0];
+        }
+        // If opponent only has 1s, use a 1
+        if (maxOppValue <= 1 && ones.length > 0) {
+          return ones[0];
+        }
+      }
+      
+      // Default: use smallest valid piece
+      if (ones.length > 0) return ones[0];
+      if (twos.length > 0) return twos[0];
+      if (threes.length > 0) return threes[0];
+      
+      return validPieces[0];
+    }
+    
+    // Helper: Comprehensive move evaluation
+    function evaluateMove(moveIdx, pieceIdx) {
+      const pieceValue = valuesMap[pieceIdx];
+      const simBoard = board.map((t, i) => 
+        i === moveIdx ? { value: pieceValue, player: botPlayer } : { ...t }
+      );
+      
+      let score = 0;
+      
+      // WINNING MOVE - highest priority
+      const winAfter = findWinningMove(simBoard, botPlayer);
+      if (winAfter.idx !== null) {
+        score += 10000;
+        // Use smallest piece that wins
+        score += (4 - pieceValue) * 100;
+        return score;
+      }
+      
+      // Count threats created (positions with 2 bot pieces and 1 empty)
+      let threats = 0;
+      let secureThreats = 0; // Threats opponent can't easily break
+      for (let condition of winningConditions) {
+        if (condition.includes(moveIdx)) {
+          const line = condition.map(i => simBoard[i]);
+          const values = line.map(t => t.player);
+          if (values.filter(v => v === botPlayer).length === 2 && 
+              values.filter(v => v === null).length === 1) {
+            threats++;
+            // Check if all pieces in line are secure (3s or 2s when opp has no 3s)
+            const botPiecesInLine = condition.filter(i => simBoard[i].player === botPlayer);
+            const allSecure = botPiecesInLine.every(i => 
+              simBoard[i].value === 3 || (simBoard[i].value === 2 && oppPieceCounts[3] === 0)
+            );
+            if (allSecure) secureThreats++;
+          }
+        }
+      }
+      score += threats * 300;
+      score += secureThreats * 200;
+      
+      // Position value bonus
+      score += getPositionValue(moveIdx);
+      
+      // Security bonus: can opponent overtake?
+      if (!canOpponentOvertake(moveIdx, pieceValue)) {
+        score += 150;
+      }
+      
+      // Piece economy: HEAVILY penalize using 3s unless absolutely critical
+      if (pieceValue === 3) {
+        // Massive penalty for using 3 on sides
+        if (getPositionValue(moveIdx) <= 20) {
+          score -= 500;
+        }
+        // Large penalty for using 3 on corners unless opponent has 3s
+        else if (getPositionValue(moveIdx) < 100 && oppPieceCounts[3] === 0) {
+          score -= 300;
+        }
+        // Moderate penalty for using 3 even on center if opponent doesn't have 3s
+        else if (oppPieceCounts[3] === 0) {
+          score -= 200;
+        }
+      }
+      
+      // Prefer using 1s (bonus for piece economy)
+      if (pieceValue === 1) {
+        score += 100;
+      }
+      // Slightly prefer 2s over 3s
+      else if (pieceValue === 2) {
+        score += 50;
+      }
+      
+      // Bonus for taking over opponent pieces
+      if (board[moveIdx].player === opponent) {
+        score += 50;
+        // Extra bonus for taking over strategic positions
+        score += getPositionValue(moveIdx) * 0.5;
+      }
+      
+      // Check if this blocks opponent's threats
+      let blockedThreats = 0;
+      for (let condition of winningConditions) {
+        if (condition.includes(moveIdx)) {
+          const line = condition.map(i => board[i]);
+          const values = line.map(t => t.player);
+          if (values.filter(v => v === opponent).length === 2) {
+            blockedThreats++;
+          }
+        }
+      }
+      score += blockedThreats * 250;
+      
+      return score;
+    }
+    
+    // Track if player has used any 3s yet
+    const playerUsed3s = deadX.filter((dead, idx) => dead && valuesMap[idx] === 3).length;
+    const botUsed3s = deadO.filter((dead, idx) => dead && valuesMap[idx] === 3).length;
+    
+    // 0. First move - NEVER use 3, prefer 1
+    const totalPiecesUsed = deadO.filter(Boolean).length + deadX.filter(Boolean).length;
+    if (totalPiecesUsed === 0) {
+      // Opening move - use a 1 on center or corner
+      const openingMoves = [4, 0, 2, 6, 8]; // Prefer center, then corners
+      for (let idx of openingMoves) {
+        if (board[idx].value === null) {
+          const ones = availablePieceIndices().filter(i => valuesMap[i] === 1);
+          if (ones.length > 0) {
+            if (VERBOSE) console.log("Opening move with 1");
+            return { moveIdx: idx, pieceIdx: ones[0], moveReason: 'opening with 1' };
+          }
+        }
+      }
+    }
+    
+    // Helper: Filter out 3s unless conditions are met for using them
+    function getAvailableNon3Pieces() {
+      return availablePieceIndices().filter(i => valuesMap[i] !== 3);
+    }
+    
+    // Helper: Can we use a 3?
+    function canUse3() {
+      // Never use both 3s before player uses any
+      if (playerUsed3s === 0 && botUsed3s >= 1) return false;
+      
+      // Only use 3 if player has used at least one 3, OR we're in endgame (5+ pieces used each)
+      const botPiecesUsed = deadO.filter(Boolean).length;
+      const playerPiecesUsed = deadX.filter(Boolean).length;
+      
+      return playerUsed3s > 0 || (botPiecesUsed >= 5 && playerPiecesUsed >= 5);
+    }
+    
+    // 1. ALWAYS check for immediate win
+    const winIdx = findWinningMove(board, botPlayer);
+    if (winIdx.idx !== null) {
+      let candidatePieces = availablePieceIndices().filter(i => valuesMap[i] > (board[winIdx.idx].value || 0));
+      
+      // Filter out 3s if we shouldn't use them yet (unless it's the only way to win)
+      if (!canUse3()) {
+        const non3Pieces = candidatePieces.filter(i => valuesMap[i] !== 3);
+        if (non3Pieces.length > 0) {
+          candidatePieces = non3Pieces;
+        }
+      }
+      
+      if (candidatePieces.length > 0) {
+        // Use smallest piece that wins
+        const bestIdx = candidatePieces.reduce((a,b) => valuesMap[a] < valuesMap[b] ? a : b);
+        return { moveIdx: winIdx.idx, pieceIdx: bestIdx, moveReason: 'win' };
+      }
+    }
+    if (VERBOSE) console.log("No immediate win");
+
+    // 2. ALWAYS block opponent win
+    const blockObj = findBlockingMove(board, botPlayer);
+    if (blockObj.moveIdx !== null) {
+      if (VERBOSE) console.log("Blocking opponent win at", blockObj.moveIdx);
+      return blockObj;
+    }
+    if (VERBOSE) console.log("No block needed");
+
+    // 3. Look for moves that create two threats (fork)
+    for (let moveIdx of moves) {
+      // Get all valid pieces for this move
+      let validPieces = availablePieceIndices().filter(i => 
+        valuesMap[i] > (board[moveIdx].value || 0)
+      );
+      
+      // Filter out 3s unless we're allowed to use them
+      if (!canUse3()) {
+        const non3Pieces = validPieces.filter(i => valuesMap[i] !== 3);
+        if (non3Pieces.length > 0) {
+          validPieces = non3Pieces;
+        }
+      }
+      
+      for (let pieceIdx of validPieces) {
+        const score = evaluateMove(moveIdx, pieceIdx);
+        // If this creates multiple threats (score > 800), it's a fork
+        if (score >= 800) {
+          if (VERBOSE) console.log("Fork opportunity at", moveIdx, "with score", score);
+          return { moveIdx, pieceIdx, moveReason: 'fork' };
+        }
+      }
+    }
+    if (VERBOSE) console.log("No fork found");
+
+    // 4. Check if opponent is about to create two threats - block it
+    for (let condition of winningConditions) {
+      const [a, b, c] = condition;
+      const line = [board[a], board[b], board[c]];
+      const values = line.map(t => t.player);
+      
+      // Opponent has 1 piece and 2 empty = potential fork setup
+      if (values.filter(v => v === opponent).length === 1 && 
+          values.filter(v => v === null).length === 2) {
+        // Block with a secure piece
+        for (let idx of [a, b, c]) {
+          if (board[idx].value === null && moves.includes(idx)) {
+            let validPieces = availablePieceIndices().filter(i => 
+              valuesMap[i] > (board[idx].value || 0)
+            );
+            
+            // Filter out 3s unless allowed
+            if (!canUse3()) {
+              const non3Pieces = validPieces.filter(i => valuesMap[i] !== 3);
+              if (non3Pieces.length > 0) {
+                validPieces = non3Pieces;
+              }
+            }
+            
+            if (validPieces.length > 0) {
+              const pieceIdx = choosePieceForPosition(idx) || validPieces[0];
+              if (VERBOSE) console.log("Blocking opponent setup at", idx);
+              return { moveIdx: idx, pieceIdx, moveReason: 'block setup' };
+            }
+          }
+        }
+      }
+    }
+    if (VERBOSE) console.log("No opponent setup to block");
+
+    // 5. Use 3s to takeover ONLY when it creates immediate winning threat or blocks opponent
+    const threes = availablePieceIndices().filter(i => valuesMap[i] === 3);
+    if (threes.length > 0 && oppPieceCounts[3] > 0) {
+      // ONLY use 3 if opponent also has 3s AND it's on center with 2+ threats
+      if (board[4].player === opponent && board[4].value === 2 && moves.includes(4)) {
+        const pieceIdx = threes[0];
+        const score = evaluateMove(4, pieceIdx);
+        // Only if this creates multiple threats (score > 600)
+        if (score > 600) {
+          if (VERBOSE) console.log("Critical 3-takeover of center");
+          return { moveIdx: 4, pieceIdx, moveReason: 'critical 3 takeover' };
+        }
+      }
+    }
+    if (VERBOSE) console.log("No critical 3-takeover needed");
+
+    // 6. Evaluate ALL possible moves and choose the absolute best
+    let bestMove = null;
+    let bestScore = -Infinity;
+    
+    for (let moveIdx of moves) {
+      // Get all valid pieces for this position
+      let validPieces = availablePieceIndices().filter(i => 
+        valuesMap[i] > (board[moveIdx].value || 0)
+      );
+      
+      // Filter out 3s unless allowed
+      if (!canUse3()) {
+        const non3Pieces = validPieces.filter(i => valuesMap[i] !== 3);
+        if (non3Pieces.length > 0) {
+          validPieces = non3Pieces;
+        }
+      }
+      
+      // Try each valid piece and evaluate
+      for (let pieceIdx of validPieces) {
+        const score = evaluateMove(moveIdx, pieceIdx);
+        if (score > bestScore) {
+          bestScore = score;
+          bestMove = { moveIdx, pieceIdx, moveReason: `best (score: ${score})` };
+        }
+      }
+    }
+    
+    if (bestMove !== null) {
+      if (VERBOSE) console.log("Best move:", bestMove, "with score", bestScore);
+      return bestMove;
+    }
+
+    // 7. Ultimate fallback - ensure we always return a valid move
+    if (VERBOSE) console.log("Fallback to random");
+    const fallback = getEasyMove(board);
+    
+    // Extra safety check: if fallback is still invalid, find ANY valid move
+    if (fallback.moveIdx === null || fallback.pieceIdx === null) {
+      if (VERBOSE) console.log("Emergency fallback - finding ANY valid move");
+      for (let moveIdx of moves) {
+        const validPieces = availablePieceIndices().filter(i => 
+          valuesMap[i] > (board[moveIdx].value || 0)
+        );
+        if (validPieces.length > 0) {
+          return { moveIdx, pieceIdx: validPieces[0], moveReason: 'emergency fallback' };
+        }
+      }
+    }
+    
+    return fallback;
   }
 
   // Helper: find winning move for bot

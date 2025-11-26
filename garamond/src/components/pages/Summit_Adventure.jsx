@@ -184,7 +184,7 @@ export default function Summit() {
             <div className="summit-container">
                 <header className="summit-header">
                     <h1>Summit Adventure</h1>
-                    <p>Explore our annual summit series — plans, stories, and highlights for each year.</p>
+                    
                 </header>
 
                 <div className="summit-body">

@@ -24,7 +24,8 @@
   z-index: 9999;
 }
 .timeRunning.active {
-  animation: runningTime 9s linear forwards;
+  /* Sync with AUTO_NEXT_TIME (19.5s) */
+  animation: runningTime 20s linear forwards;
 }
 
 .carousel {
@@ -33,6 +34,26 @@
   overflow: hidden;
   position: relative;
 }
+
+/* Pause/Resume button */
+.carousel-pause-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 10001;
+  padding: 8px 14px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.4);
+  background: rgba(0,0,0,0.35);
+  color: #fff;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+.carousel-pause-btn:hover { background: rgba(0,0,0,0.5); }
+.carousel-pause-btn:active { transform: scale(0.98); }
 
 .list {
   list-style: none;
@@ -72,15 +93,26 @@
   cursor: pointer;
 }
 
-.content {
+.content-blur-backdrop {
   position: absolute;
   top: 50%;
   left: 5%;
   transform: translateY(-50%);
   width: 90%;
-  max-width: 400px;
+  max-width: 450px;
+  background: rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 1rem 1.25rem;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.content {
+  position: relative;
+  width: 100%;
   color: #fff;
-  padding: 1rem;
 }
 
 .content > * {
@@ -93,20 +125,21 @@
 .content > *:nth-child(4) { animation-delay: 1.2s; }
 
 .content .title {
-  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-size: clamp(2rem, 4.8vw, 3.2rem);
   text-transform: uppercase;
-  color: #14ff72cb;
+  color: rgb(28, 162, 16);
   font-weight: bold;
   line-height: 1;
+  margin-top: 0;
+  margin-bottom: 0.75rem;
 }
 .content .name {
-  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-size: clamp(1.2rem, 3vw, 1.8rem);
   text-transform: uppercase;
   font-weight: bold;
-  text-shadow: 3px 4px 4px rgba(255,255,255,0.8);
 }
 .content .des {
-  margin: 10px 0 20px 5px;
+  margin: 8px 0 12px 0;
   font-size: clamp(0.9rem, 2.5vw, 1.1rem);
 }
 .content .btn button {
@@ -118,8 +151,8 @@
   font-size: clamp(0.8rem, 2vw, 0.9rem);
   margin-right: 15px;
 }
-.content .btn button:last-child { color: #14ff72cb; }
-.content .btn button:last-child:hover { background: #14ff72cb; color: #fff; }
+.content .btn button:last-child { color: rgb(28, 162, 16); }
+.content .btn button:last-child:hover { background: rgb(28, 162, 16); color: #fff; }
 
 @keyframes runningTime { to { width: 100%; } }
 @keyframes animate {
@@ -127,25 +160,168 @@
   to { opacity: 1; transform: translateY(0); filter: blur(0); }
 }
 
-.carousel:hover .timeRunning.active { animation-play-state: paused; }
+/* Progress bar should not pause on hover */
+/* .carousel:hover .timeRunning.active { animation-play-state: paused; } */
+
+/* Bible Chapter Popup */
+.bible-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  padding: 2rem;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.bible-popup {
+  background: #fff;
+  border-radius: 12px;
+  max-width: 800px;
+  width: 100%;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  position: relative;
+  animation: slideUp 0.3s ease-out;
+}
+
+.bible-popup-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: transparent;
+  border: none;
+  font-size: 2rem;
+  color: #666;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s;
+  z-index: 10;
+}
+
+.bible-popup-close:hover {
+  background: #f0f0f0;
+  color: #000;
+}
+
+.bible-popup-header {
+  padding: 2rem 2rem 1rem 2rem;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.bible-popup-header h2 {
+  margin: 0;
+  color: #e29716e0;
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-family: garamond;
+}
+
+.bible-popup-content {
+  padding: 2rem;
+  overflow-y: auto;
+  flex: 1;
+  font-family: garamond;
+}
+
+.bible-popup-content .loading {
+  text-align: center;
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.bible-text {
+  color: #333;
+  font-size: clamp(1rem, 2vw, 1.1rem);
+  line-height: 1.8;
+  white-space: pre-wrap;
+}
+
+.bible-popup-footer {
+  padding: 1rem 2rem;
+  border-top: 1px solid #e0e0e0;
+  text-align: center;
+}
+
+.bible-popup-footer p {
+  margin: 0;
+  color: #999;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
 @media (max-width: 999px) {
-  .content {
+  .content-blur-backdrop {
     left: 3%;
     width: 85%;
+    padding: 0.875rem 1rem;
   }
-  .content .title, .content .name { font-size: clamp(2rem, 5vw, 3rem); }
+  .content .title { font-size: clamp(1.6rem, 4vw, 2.4rem); }
+  .content .name { font-size: clamp(1rem, 2.5vw, 1.5rem); }
   .content .des { font-size: clamp(0.8rem, 2vw, 1rem); }
 }
 @media (max-width: 690px) {
-  .content {
+  .content-blur-backdrop {
     top: 35%;
     width: 80%;
+    padding: 0.75rem 0.875rem;
   }
-  .content .title, .content .name { font-size: clamp(1.5rem, 4vw, 2rem); }
+  .content .title { font-size: clamp(1.2rem, 3.2vw, 1.6rem); }
+  .content .name { font-size: clamp(0.9rem, 2vw, 1.2rem); }
   .content .des { font-size: clamp(0.7rem, 1.8vw, 0.9rem); }
   .content .btn button {
     padding: clamp(6px, 1.5vw, 8px) clamp(10px, 2.5vw, 12px);
     font-size: clamp(0.7rem, 1.8vw, 0.8rem);
+  }
+
+  .bible-popup-overlay {
+    padding: 1rem;
+  }
+
+  .bible-popup-header {
+    padding: 1.5rem 1.5rem 1rem 1.5rem;
+  }
+
+  .bible-popup-content {
+    padding: 1.5rem;
+  }
+
+  .bible-popup-footer {
+    padding: 0.75rem 1.5rem;
+  }
+
+  .bible-popup-close {
+    top: 0.75rem;
+    right: 0.75rem;
+    width: 36px;
+    height: 36px;
+    font-size: 1.75rem;
   }
 }

@@ -19,7 +19,7 @@ const GameLobby = () => {
     {
       id: 'asteroids',
       title: 'Asteroids',
-      description: 'The classic arcade game. (Coming Soon)',
+      description: 'The classic arcade game!',
       image: '/images/heavens.jpg',
       route: '/game/asteroids',
       disabled: false,
@@ -52,11 +52,12 @@ const GameLobby = () => {
 
   // Leaderboard state for Tic Tac Toe
   const [leaderboard, setLeaderboard] = useState({ easy: [], medium: [], hard: [] });
+  const [asteroidsLeaderboard, setAsteroidsLeaderboard] = useState([]);
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
   const [errorLeaderboard, setErrorLeaderboard] = useState("");
 
   useEffect(() => {
-    // Only fetch for Tic Tac Toe and when a difficulty is selected
+    // Fetch for Tic Tac Toe when a difficulty is selected
     if (expandedGame === 'tictactoe' && expandedDifficulty) {
       setLoadingLeaderboard(true);
       setErrorLeaderboard("");
@@ -65,6 +66,22 @@ const GameLobby = () => {
         .then(res => res.json())
         .then(data => {
           setLeaderboard(lb => ({ ...lb, [expandedDifficulty]: data.leaderboard || [] }));
+          setLoadingLeaderboard(false);
+        })
+        .catch(err => {
+          setErrorLeaderboard("Failed to load leaderboard");
+          setLoadingLeaderboard(false);
+        });
+    }
+    // Fetch for Asteroids when expanded
+    else if (expandedGame === 'asteroids') {
+      setLoadingLeaderboard(true);
+      setErrorLeaderboard("");
+      const apiBase = (import.meta.env && import.meta.env.VITE_API_BASE) ? import.meta.env.VITE_API_BASE : '';
+      fetch(`${apiBase}/api/leaderboard?gameType=Asteroids&limit=10`)
+        .then(res => res.json())
+        .then(data => {
+          setAsteroidsLeaderboard(data.leaderboard || []);
           setLoadingLeaderboard(false);
         })
         .catch(err => {
@@ -125,23 +142,59 @@ const GameLobby = () => {
 
               {/* Expandable Leaderboard */}
               <div className={`leaderboard ${expandedGame === game.id ? 'expanded' : ''}`}>
-                {/* Difficulty Tabs */}
-                <div className="difficulty-tabs">
-                  {['easy', 'medium', 'hard'].map((difficulty) => (
-                    <button
-                      key={difficulty}
-                      className={`difficulty-tab ${expandedDifficulty === difficulty ? 'active' : ''}`}
-                      onClick={() => handleDifficultySelect(difficulty)}
-                    >
-                      {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
-                    </button>
-                  ))}
-                </div>
+                {/* Tic Tac Toe: Show Difficulty Tabs */}
+                {game.id === 'tictactoe' && (
+                  <>
+                    <div className="difficulty-tabs">
+                      {['easy', 'medium', 'hard'].map((difficulty) => (
+                        <button
+                          key={difficulty}
+                          className={`difficulty-tab ${expandedDifficulty === difficulty ? 'active' : ''}`}
+                          onClick={() => handleDifficultySelect(difficulty)}
+                        >
+                          {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
+                        </button>
+                      ))}
+                    </div>
 
-                {/* Difficulty-Specific Leaderboards */}
-                {expandedDifficulty && game.id === 'tictactoe' && (
+                    {/* Difficulty-Specific Leaderboards */}
+                    {expandedDifficulty && (
+                      loadingLeaderboard ? (
+                        <div style={{ padding: '1rem', textAlign: 'center' }}>Loading leaderboard...</div>
+                      ) : errorLeaderboard ? (
+                        <div style={{ color: 'red', padding: '1rem', textAlign: 'center' }}>{errorLeaderboard}</div>
+                      ) : (
+                        <table className="leaderboard-table">
+                          <thead>
+                            <tr>
+                              <th>Rank</th>
+                              <th>Player</th>
+                              <th>Wins</th>
+                              <th>Win Rate</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {leaderboard[expandedDifficulty].length === 0 ? (
+                              <tr><td colSpan={4} style={{ textAlign: 'center' }}>No data yet</td></tr>
+                            ) : leaderboard[expandedDifficulty].map((entry) => (
+                              <tr key={entry.rank}>
+                                <td className="rank-badge">#{entry.rank}</td>
+                                <td>{entry.player}</td>
+                                <td>{entry.wins}</td>
+                                <td>{entry.winRate}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      )
+                    )}
+                  </>
+                )}
+
+                {/* Asteroids: Show leaderboard directly (no difficulty tabs) */}
+                {game.id === 'asteroids' && (
                   loadingLeaderboard ? (
-                    <div style={{ padding: '1rem', textAlign: 'center' }}>Loading leaderboard...</div>
+                    <div style={{ padding: '1rem', textAlign: 'center', color: '#fff' }}>Loading leaderboard...</div>
                   ) : errorLeaderboard ? (
                     <div style={{ color: 'red', padding: '1rem', textAlign: 'center' }}>{errorLeaderboard}</div>
                   ) : (
@@ -150,19 +203,19 @@ const GameLobby = () => {
                         <tr>
                           <th>Rank</th>
                           <th>Player</th>
-                          <th>Wins</th>
-                          <th>Win Rate</th>
+                          <th>High Score</th>
+                          <th>Level</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {leaderboard[expandedDifficulty].length === 0 ? (
+                        {asteroidsLeaderboard.length === 0 ? (
                           <tr><td colSpan={4} style={{ textAlign: 'center' }}>No data yet</td></tr>
-                        ) : leaderboard[expandedDifficulty].map((entry) => (
+                        ) : asteroidsLeaderboard.map((entry) => (
                           <tr key={entry.rank}>
                             <td className="rank-badge">#{entry.rank}</td>
                             <td>{entry.player}</td>
-                            <td>{entry.wins}</td>
-                            <td>{entry.winRate}</td>
+                            <td>{entry.score}</td>
+                            <td>{entry.level}</td>
                           </tr>
                         ))}
                       </tbody>

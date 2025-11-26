@@ -104,14 +104,27 @@
   margin: 0;
 }
 
-.control-panel li {
+.control-panel ol {
+  list-style: decimal;
+  padding-left: 25px;
+  margin: 0 0 10px 0;
+}
+
+.control-panel ul li {
   color: #ccc;
   font-family: 'Itim', cursive;
   padding: 8px 0;
   border-bottom: 1px solid rgba(156, 118, 228, 0.2);
 }
 
-.control-panel li:last-child {
+.control-panel ol li {
+  color: #ccc;
+  font-family: 'Itim', cursive;
+  padding: 5px 0;
+  border-bottom: none;
+}
+
+.control-panel ul li:last-child {
   border-bottom: none;
 }
 
