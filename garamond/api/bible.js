@@ -20,12 +20,12 @@ export default async function handler(req, res) {
 
     const [, book, chapter] = match;
 
-    // Try ESV API first if API key is available
-    const esvApiKey = process.env.ESV_API_KEY;
+  // Try ESV API first if API key is available. Support both ESV_API_KEY (preferred) and legacy esv_api_key.
+  const esvApiKey = process.env.ESV_API_KEY || process.env.esv_api_key;
     
     if (esvApiKey && esvApiKey !== 'IP') {
       try {
-        const apiUrl = `https://api.esv.org/v3/passage/text/?q=${encodeURIComponent(book + ' ' + chapter)}&include-headings=true&include-footnotes=false&include-verse-numbers=true&include-short-copyright=false&include-passage-references=true`;
+  const apiUrl = `https://api.esv.org/v3/passage/text/?q=${encodeURIComponent(book + ' ' + chapter)}&include-headings=true&include-footnotes=false&include-verse-numbers=true&include-short-copyright=false&include-passage-references=true`;
 
         const response = await fetch(apiUrl, {
           headers: {
@@ -47,8 +47,8 @@ export default async function handler(req, res) {
       }
     }
 
-    // Fallback to Bible API (free, no auth required)
-    // Use API.Bible or Bible.org endpoints
+  // Fallback to Bible API (free, no auth required)
+  // Using bible-api.com with World English Bible translation
     const bibleApiUrl = `https://bible-api.com/${encodeURIComponent(book + ' ' + chapter)}?translation=web`;
     
     const response = await fetch(bibleApiUrl);

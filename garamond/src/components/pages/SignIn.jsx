@@ -33,12 +33,16 @@ function SignIn() {
 
     try {
       const apiBase = (import.meta.env && import.meta.env.VITE_API_BASE) ? import.meta.env.VITE_API_BASE : '';
-      // First, query the database to find the user by email
-      const response = await fetch(`${apiBase}/api/signUpUser?email=${encodeURIComponent(signinForm.email)}`, {
-        method: 'GET',
+      // Use dedicated sign-in endpoint with POST
+      const response = await fetch(`${apiBase}/api/signInUser`, {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify({
+          name: signinForm.name,
+          email: signinForm.email
+        })
       });
 
       let text = await response.text();
@@ -47,13 +51,6 @@ function SignIn() {
 
       if (response.ok && data) {
         const userData = data.user;
-
-        // Verify the name matches
-        if (userData.name.toLowerCase() !== signinForm.name.toLowerCase()) {
-          setSigninMessage('Name does not match the email on file. Please try again.');
-          setIsLoading(false);
-          return;
-        }
 
         // User exists and name matches, sign them in via centralized helper
         setStoredUser({
@@ -71,8 +68,10 @@ function SignIn() {
         }, 1500);
       } else if (response.status === 404) {
         setSigninMessage('User not found. Please check your email and try again.');
+      } else if (response.status === 401) {
+        setSigninMessage('Name does not match the email on file. Please try again.');
       } else {
-        setSigninMessage('An error occurred. Please try again.');
+        setSigninMessage(data?.message || 'An error occurred. Please try again.');
       }
     } catch (error) {
       console.error('Sign in error:', error);

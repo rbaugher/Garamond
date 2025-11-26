@@ -7,19 +7,28 @@ if (!uri) {
   throw new Error("MONGO_URI environment variable is not defined");
 }
 
+// MongoDB client options for serverless environment
+const clientOptions = {
+  maxPoolSize: 1,
+  minPoolSize: 0,
+  maxIdleTimeMS: 120000,
+  serverSelectionTimeoutMS: 5000,
+  socketTimeoutMS: 45000,
+};
+
 let client;
 let clientPromise;
 
 if (process.env.NODE_ENV === "development") {
   // In development: keep connection in global to prevent hot reload exhaustion
   if (!global._mongoClientPromise) {
-    client = new MongoClient(uri);
+    client = new MongoClient(uri, clientOptions);
     global._mongoClientPromise = client.connect();
   }
   clientPromise = global._mongoClientPromise;
 } else {
   // In production (Vercel): create a new client per function (but still reuse if possible)
-  client = new MongoClient(uri);
+  client = new MongoClient(uri, clientOptions);
   clientPromise = client.connect();
 }
 

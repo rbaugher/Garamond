@@ -8,11 +8,20 @@ if (!uri) {
   throw new Error("MONGO_URI environment variable is not defined");
 }
 
+// MongoDB client options for serverless environment
+const clientOptions = {
+  maxPoolSize: 1,
+  minPoolSize: 0,
+  maxIdleTimeMS: 120000,
+  serverSelectionTimeoutMS: 5000,
+  socketTimeoutMS: 45000,
+};
+
 let client;
 let clientPromise;
 
 if (!global._mongoClientPromise) {
-  client = new MongoClient(uri);
+  client = new MongoClient(uri, clientOptions);
   global._mongoClientPromise = client.connect();
 }
 clientPromise = global._mongoClientPromise;
