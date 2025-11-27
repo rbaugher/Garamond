@@ -102,6 +102,83 @@
   transform: translateY(-2px);
 }
 
+/* Mobile Controls */
+.mobile-controls {
+  position: fixed;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 20px;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.mobile-controls-left,
+.mobile-controls-right {
+  display: flex;
+  gap: 10px;
+  pointer-events: all;
+}
+
+.mobile-controls-left {
+  flex-direction: column;
+  align-items: center;
+}
+
+.mobile-btn {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  border: 3px solid rgba(246, 213, 92, 0.6);
+  background: rgba(26, 26, 46, 0.85);
+  color: #F6D55C;
+  font-size: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  transition: all 0.1s;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.mobile-btn:active {
+  background: rgba(246, 213, 92, 0.3);
+  border-color: #F6D55C;
+  transform: scale(0.95);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+
+.mobile-btn-thrust {
+  width: 80px;
+  height: 80px;
+  font-size: 2.5rem;
+  border-color: rgba(255, 107, 107, 0.6);
+  color: #FF6B6B;
+}
+
+.mobile-btn-thrust:active {
+  background: rgba(255, 107, 107, 0.3);
+  border-color: #FF6B6B;
+}
+
+.mobile-btn-shoot {
+  width: 90px;
+  height: 90px;
+  font-size: 2.5rem;
+  border-color: rgba(61, 220, 151, 0.6);
+  align-self: flex-end;
+}
+
+.mobile-btn-shoot:active {
+  background: rgba(61, 220, 151, 0.3);
+  border-color: #3DDC97;
+}
+
 /* Mobile adjustments */
 @media screen and (max-width: 768px) {
   .asteroids-modal {
@@ -118,5 +195,29 @@
 
   .asteroids-modal-button {
     width: 100%;
+  }
+
+  .asteroids-canvas {
+    height: 70vh;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .mobile-btn {
+    width: 60px;
+    height: 60px;
+    font-size: 1.5rem;
+  }
+
+  .mobile-btn-thrust {
+    width: 70px;
+    height: 70px;
+    font-size: 2rem;
+  }
+
+  .mobile-btn-shoot {
+    width: 75px;
+    height: 75px;
+    font-size: 2rem;
   }
 }

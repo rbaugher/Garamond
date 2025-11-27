@@ -10,16 +10,16 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@heroicons/react": "^2.0.18",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
+    "@heroicons/react": "^2.0.18",
     "@mui/icons-material": "^7.3.5",
     "@mui/material": "^7.3.5",
     "dotenv": "^17.2.3",
     "mongodb": "^5.9.2",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "react-router-dom": "^7.9.4"
+    "react-router-dom": "^7.9.6"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",

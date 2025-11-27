@@ -13,6 +13,8 @@ export default function AsteroidsApp({ settings = { shipColor: '#F6D55C', backgr
   const [, setLives] = useState(3);
   const [isPaused, setIsPaused] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   
   const stateRef = useRef({
     width: 800,
@@ -49,6 +51,68 @@ export default function AsteroidsApp({ settings = { shipColor: '#F6D55C', backgr
   useEffect(() => {
     settingsRef.current = settings;
   }, [settings]);
+
+  // Detect mobile device
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768 || 'ontouchstart' in window);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Mobile control handlers
+  const handleTouchControl = (action, active) => {
+    const s = stateRef.current;
+    switch(action) {
+      case 'thrust':
+        s.keys['ArrowUp'] = active;
+        break;
+      case 'left':
+        s.keys['ArrowLeft'] = active;
+        break;
+      case 'right':
+        s.keys['ArrowRight'] = active;
+        break;
+      case 'shoot':
+        s.keys['Space'] = active;
+        break;
+      default:
+        break;
+    }
+  };
+
+  // Detect mobile device
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768 || 'ontouchstart' in window);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Mobile control handlers
+  const handleTouchControl = (action, active) => {
+    const s = stateRef.current;
+    switch(action) {
+      case 'thrust':
+        s.keys['ArrowUp'] = active;
+        break;
+      case 'left':
+        s.keys['ArrowLeft'] = active;
+        break;
+      case 'right':
+        s.keys['ArrowRight'] = active;
+        break;
+      case 'shoot':
+        s.keys['Space'] = active;
+        break;
+      default:
+        break;
+    }
+  };
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -835,38 +899,44 @@ export default function AsteroidsApp({ settings = { shipColor: '#F6D55C', backgr
         ctx.fill();
       });
 
-      // Draw HUD
+      // Draw HUD - use compact text on mobile
+      const isMobileView = s.width < 600;
       ctx.fillStyle = '#fff';
-      ctx.font = '20px Arial';
+      ctx.font = isMobileView ? '16px Arial' : '20px Arial';
       ctx.textAlign = 'left';
-      ctx.fillText(`Score: ${s.score}`, 20, 30);
-      ctx.fillText(`Lives: ${s.lives}`, 20, 60);
+      ctx.fillText(isMobileView ? `S: ${s.score}` : `Score: ${s.score}`, 20, 30);
+      ctx.fillText(isMobileView ? `❤️ ${s.lives}` : `Lives: ${s.lives}`, 20, isMobileView ? 50 : 60);
       
       // Draw top score in top-right corner
       ctx.textAlign = 'right';
       ctx.fillStyle = '#FFD700';
-      ctx.font = 'bold 20px Arial';
+      ctx.font = isMobileView ? '14px Arial' : 'bold 20px Arial';
   const ts2 = topScoreRef.current;
-  const topScoreText2 = ts2.player ? `High Score: ${ts2.player} - ${ts2.score}` : `High Score: ${ts2.score}`;
+  const topScoreText2 = isMobileView 
+    ? (ts2.player ? `${ts2.player}: ${ts2.score}` : `${ts2.score}`)
+    : (ts2.player ? `High Score: ${ts2.player} - ${ts2.score}` : `High Score: ${ts2.score}`);
   ctx.fillText(topScoreText2, s.width - 20, 30);
       
       // Highlight level and progress counter
       ctx.textAlign = 'left';
-      ctx.font = 'bold 24px Arial';
+      ctx.font = isMobileView ? 'bold 18px Arial' : 'bold 24px Arial';
       ctx.fillStyle = '#F6D55C';
-      ctx.fillText(`Level ${s.level}`, 20, 100);
+      ctx.fillText(isMobileView ? `L${s.level}` : `Level ${s.level}`, 20, isMobileView ? 75 : 100);
       
       // Progress bar with visual indicator
       const progressPercent = s.asteroidsDestroyed / s.asteroidsToDestroy;
-      ctx.font = '18px Arial';
+      ctx.font = isMobileView ? '14px Arial' : '18px Arial';
       ctx.fillStyle = '#fff';
-      ctx.fillText(`Asteroids: ${s.asteroidsDestroyed}/${s.asteroidsToDestroy}`, 20, 130);
+      const asteroidText = isMobileView 
+        ? `${s.asteroidsDestroyed}/${s.asteroidsToDestroy}` 
+        : `Asteroids: ${s.asteroidsDestroyed}/${s.asteroidsToDestroy}`;
+      ctx.fillText(asteroidText, 20, isMobileView ? 95 : 130);
       
       // Draw progress bar
       const barX = 20;
-      const barY = 140;
-      const barWidth = 200;
-      const barHeight = 12;
+      const barY = isMobileView ? 100 : 140;
+      const barWidth = isMobileView ? 150 : 200;
+      const barHeight = isMobileView ? 10 : 12;
       
       // Background bar
       ctx.fillStyle = '#2b2b2b';
@@ -881,10 +951,12 @@ export default function AsteroidsApp({ settings = { shipColor: '#F6D55C', backgr
       ctx.lineWidth = 2;
       ctx.strokeRect(barX, barY, barWidth, barHeight);
       
-      // Sound indicator below progress bar
-      ctx.font = '16px Arial';
-      ctx.fillStyle = '#aaa';
-      ctx.fillText(`Sound: ${s.soundEnabled ? 'On' : 'Off'} (M)`, 20, 175);
+      // Sound indicator below progress bar (hide on mobile)
+      if (!isMobileView) {
+        ctx.font = '16px Arial';
+        ctx.fillStyle = '#aaa';
+        ctx.fillText(`Sound: ${s.soundEnabled ? 'On' : 'Off'} (M)`, 20, 175);
+      }
 
   // Update thrust sound envelope after drawing frame (use anyAccel from earlier in step function)
   setThrustSound(anyAccel && !s.gameOver && !s.paused);
@@ -923,11 +995,60 @@ export default function AsteroidsApp({ settings = { shipColor: '#F6D55C', backgr
   return (
     <div className="asteroids-root">
       <div className="asteroids-instructions">
-        Use arrow keys or WASD to move. Press Space to shoot. P to pause. R to reset.
-        {gameOver && <span style={{ color: '#FF6B6B', marginLeft: '1rem' }}>Press ENTER to restart</span>}
+        {isMobile ? 'Use on-screen controls to play' : 'Use arrow keys or WASD to move. Press Space to shoot. P to pause. R to reset.'}
+        {gameOver && <span style={{ color: '#FF6B6B', marginLeft: '1rem' }}>{isMobile ? 'Tap Reset to restart' : 'Press ENTER to restart'}</span>}
         {isPaused && !gameOver && !showResetConfirm && <span style={{ color: '#F6D55C', marginLeft: '1rem' }}>PAUSED</span>}
       </div>
       <canvas ref={canvasRef} className="asteroids-canvas" />
+      
+      {isMobile && (
+        <div className="mobile-controls">
+          <div className="mobile-controls-left">
+            <button 
+              className="mobile-btn mobile-btn-rotate-left"
+              onTouchStart={() => handleTouchControl('left', true)}
+              onTouchEnd={() => handleTouchControl('left', false)}
+              onMouseDown={() => handleTouchControl('left', true)}
+              onMouseUp={() => handleTouchControl('left', false)}
+              onMouseLeave={() => handleTouchControl('left', false)}
+            >
+              ↶
+            </button>
+            <button 
+              className="mobile-btn mobile-btn-thrust"
+              onTouchStart={() => handleTouchControl('thrust', true)}
+              onTouchEnd={() => handleTouchControl('thrust', false)}
+              onMouseDown={() => handleTouchControl('thrust', true)}
+              onMouseUp={() => handleTouchControl('thrust', false)}
+              onMouseLeave={() => handleTouchControl('thrust', false)}
+            >
+              ▲
+            </button>
+            <button 
+              className="mobile-btn mobile-btn-rotate-right"
+              onTouchStart={() => handleTouchControl('right', true)}
+              onTouchEnd={() => handleTouchControl('right', false)}
+              onMouseDown={() => handleTouchControl('right', true)}
+              onMouseUp={() => handleTouchControl('right', false)}
+              onMouseLeave={() => handleTouchControl('right', false)}
+            >
+              ↷
+            </button>
+          </div>
+          <div className="mobile-controls-right">
+            <button 
+              className="mobile-btn mobile-btn-shoot"
+              onTouchStart={() => handleTouchControl('shoot', true)}
+              onTouchEnd={() => handleTouchControl('shoot', false)}
+              onMouseDown={() => handleTouchControl('shoot', true)}
+              onMouseUp={() => handleTouchControl('shoot', false)}
+              onMouseLeave={() => handleTouchControl('shoot', false)}
+            >
+              🔥
+            </button>
+          </div>
+        </div>
+      )}
       
       {showResetConfirm && (
         <div className="asteroids-modal-overlay">
