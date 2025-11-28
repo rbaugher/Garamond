@@ -11,8 +11,8 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Parse the reference (e.g., "Genesis 1:2" -> book: "Genesis", chapter: 1)
-    const match = reference.match(/^(.+?)\s+(\d+)(?::(\d+))?(?:-(\d+))?$/);
+    // Parse the reference (e.g., "Genesis 1:2" or "Psalm 124: 23,25" -> book: "Genesis"/"Psalm", chapter: 1/124)
+    const match = reference.match(/^(.+?)\s+(\d+)(?::\s*(?:\d+(?:[,-]\d+)*))?$/);
     
     if (!match) {
       return res.status(400).json({ message: "Invalid reference format" });
