@@ -18,14 +18,23 @@ export default function AsteroidsPage() {
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
   const [errorLeaderboard, setErrorLeaderboard] = useState("");
   const [topScore, setTopScore] = useState({ score: 0, player: '' });
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const mainNavbar = document.querySelector('.navbar');
     if (mainNavbar) mainNavbar.style.display = 'none';
 
+    // Check if mobile
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
     return () => {
       const navbar = document.querySelector('.navbar');
       if (navbar) navbar.style.display = 'flex';
+      window.removeEventListener('resize', checkMobile);
     };
   }, []);
 
@@ -110,17 +119,18 @@ export default function AsteroidsPage() {
         />
       </div>
       
-      {/* Leaderboard Dropdown */}
-      <div className="asteroids-leaderboard-container">
-        <button
-          className={`leaderboard-toggle ${showLeaderboard ? 'expanded' : ''}`}
-          onClick={() => setShowLeaderboard(!showLeaderboard)}
-          aria-expanded={showLeaderboard}
-          aria-label="Toggle Asteroids leaderboard"
-        >
-          <span>Leaderboard</span>
-          {showLeaderboard ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-        </button>
+      {/* Leaderboard Dropdown - Hidden on mobile */}
+      {!isMobile && (
+        <div className="asteroids-leaderboard-container">
+          <button
+            className={`leaderboard-toggle ${showLeaderboard ? 'expanded' : ''}`}
+            onClick={() => setShowLeaderboard(!showLeaderboard)}
+            aria-expanded={showLeaderboard}
+            aria-label="Toggle Asteroids leaderboard"
+          >
+            <span>Leaderboard</span>
+            {showLeaderboard ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+          </button>
 
         <div className={`leaderboard ${showLeaderboard ? 'expanded' : ''}`}>
           {loadingLeaderboard ? (
@@ -152,7 +162,8 @@ export default function AsteroidsPage() {
             </table>
           )}
         </div>
-      </div>
+        </div>
+      )}
       
       {activeControl === 'mechanics' && (
         <AsteroidsSettings

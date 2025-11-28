@@ -43,6 +43,9 @@ export default function AsteroidsApp({ settings = { shipColor: '#F6D55C', backgr
   // Keep latest top score without reinitializing the heavy canvas effect
   const topScoreRef = useRef(topScore);
   const isMobileRef = useRef(false);
+  const lastTapRef = useRef(0);
+  const doubleTapDelayRef = useRef(300);
+
   useEffect(() => {
     topScoreRef.current = topScore;
   }, [topScore]);
@@ -64,24 +67,92 @@ export default function AsteroidsApp({ settings = { shipColor: '#F6D55C', backgr
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Mobile control handlers
-  const handleTouchControl = (action, active) => {
+  // Mobile touch control handlers
+  const touchStartPos = useRef(null);
+  
+  const handleTouchStart = (e) => {
+    if (!canvasRef.current) return;
+    const canvas = canvasRef.current;
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+    
+    touchStartPos.current = { x, y };
+  };
+  
+  const handleTouchMove = (e) => {
+    if (!touchStartPos.current || !canvasRef.current) return;
+    e.preventDefault();
+    
+    const canvas = canvasRef.current;
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+    
     const s = stateRef.current;
-    switch(action) {
-      case 'thrust':
-        s.keys['ArrowUp'] = active;
-        break;
-      case 'left':
-        s.keys['ArrowLeft'] = active;
-        break;
-      case 'right':
-        s.keys['ArrowRight'] = active;
-        break;
-      case 'shoot':
-        s.keys['Space'] = active;
-        break;
-      default:
-        break;
+    const ship = s.ship;
+    
+    // Calculate angle from ship to touch point
+    const canvasX = (x / rect.width) * s.width;
+    const canvasY = (y / rect.height) * s.height;
+    const dx = canvasX - ship.x;
+    const dy = canvasY - ship.y;
+    const targetAngle = Math.atan2(dy, dx);
+    
+    // Rotate ship toward touch point
+    let angleDiff = targetAngle - ship.heading;
+    // Normalize angle difference to -PI to PI
+    while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
+    while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
+    
+    // Auto-rotate toward touch
+    if (Math.abs(angleDiff) > 0.1) {
+      s.keys['ArrowLeft'] = angleDiff < 0;
+      s.keys['ArrowRight'] = angleDiff > 0;
+    } else {
+      s.keys['ArrowLeft'] = false;
+      s.keys['ArrowRight'] = false;
+    }
+    
+    // Thrust if touch is far enough from ship
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    const minDistance = 30;
+    s.keys['ArrowUp'] = distance > minDistance;
+  };
+  
+  const handleTouchEnd = () => {
+    const s = stateRef.current;
+    s.keys['ArrowLeft'] = false;
+    s.keys['ArrowRight'] = false;
+    s.keys['ArrowUp'] = false;
+    touchStartPos.current = null;
+  };
+  
+  const handleShoot = () => {
+    const s = stateRef.current;
+    s.keys['Space'] = true;
+    setTimeout(() => { s.keys['Space'] = false; }, 100);
+  };
+
+  const handleDoubleTap = (e) => {
+    // Ignore double-tap if it's on a button or control element
+    if (e.target.closest('button') || e.target.closest('.mobile-controls-left') || e.target.closest('.mobile-controls-right') || e.target.closest('.mobile-controls-center')) {
+      return;
+    }
+    
+    const now = Date.now();
+    const timeSinceLast = now - lastTapRef.current;
+    
+    if (timeSinceLast < doubleTapDelayRef.current && timeSinceLast > 0) {
+      // Double tap detected
+      const s = stateRef.current;
+      s.paused = !s.paused;
+      setIsPaused(s.paused);
+      lastTapRef.current = 0; // Reset to prevent triple-tap issues
+    } else {
+      lastTapRef.current = now;
     }
   };
 
@@ -239,8 +310,10 @@ export default function AsteroidsApp({ settings = { shipColor: '#F6D55C', backgr
       const s = stateRef.current;
       // Level-based velocity multiplier: starts at 0.4 in level 1, increases by 0.15 per level
       const levelSpeedMultiplier = 0.4 + (s.level - 1) * 0.15;
-      
-      for (let i = 0; i < count; i++) {
+      // Mobile: fewer asteroids, smaller size
+      const actualCount = isMobileRef.current ? Math.ceil(count * 0.6) : count;
+
+      for (let i = 0; i < actualCount; i++) {
         // Spawn asteroids away from ship
         let x, y;
         do {
@@ -249,11 +322,14 @@ export default function AsteroidsApp({ settings = { shipColor: '#F6D55C', backgr
         } while (Math.hypot(x - s.ship.x, y - s.ship.y) < 150);
 
         // Choose varied sizes and speeds (smaller move faster)
-        const radius = 36 + Math.random() * 28; // 36-64px
+        // Mobile: 24-42px, Desktop: 36-64px
+        const radius = isMobileRef.current ? (24 + Math.random() * 18) : (36 + Math.random() * 28);
         const speedBase = 0.6 + Math.random() * 0.9; // 0.6 - 1.5
         const speedScale = 60 / radius; // small => faster
-        const vx = (Math.random() - 0.5) * speedBase * speedScale * 2 * levelSpeedMultiplier;
-        const vy = (Math.random() - 0.5) * speedBase * speedScale * 2 * levelSpeedMultiplier;
+        // Mobile: reduce speed by 50%
+        const mobileSpeedMultiplier = isMobileRef.current ? 0.5 : 1;
+        const vx = (Math.random() - 0.5) * speedBase * speedScale * 2 * levelSpeedMultiplier * mobileSpeedMultiplier;
+        const vy = (Math.random() - 0.5) * speedBase * speedScale * 2 * levelSpeedMultiplier * mobileSpeedMultiplier;
 
         const palette = colorsForRadius(radius);
         s.asteroids.push({
@@ -285,13 +361,15 @@ export default function AsteroidsApp({ settings = { shipColor: '#F6D55C', backgr
       const speedScale = 60 / newRadius;
       // Apply level-based speed multiplier to split asteroids
       const levelSpeedMultiplier = 0.4 + (s.level - 1) * 0.15;
+      // Mobile: reduce speed by 50%
+      const mobileSpeedMultiplier = isMobileRef.current ? 0.5 : 1;
 
       const palette1 = colorsForRadius(newRadius);
       s.asteroids.push({
         x: asteroid.x,
         y: asteroid.y,
-        vx: Math.cos(angle1) * speed * speedScale * levelSpeedMultiplier,
-        vy: Math.sin(angle1) * speed * speedScale * levelSpeedMultiplier,
+        vx: Math.cos(angle1) * speed * speedScale * levelSpeedMultiplier * mobileSpeedMultiplier,
+        vy: Math.sin(angle1) * speed * speedScale * levelSpeedMultiplier * mobileSpeedMultiplier,
         radius: newRadius,
         canSplit: newRadius > MIN_DESTROY_RADIUS,
         rotation: Math.random() * Math.PI * 2,
@@ -308,8 +386,8 @@ export default function AsteroidsApp({ settings = { shipColor: '#F6D55C', backgr
       s.asteroids.push({
         x: asteroid.x,
         y: asteroid.y,
-        vx: Math.cos(angle2) * speed * speedScale * levelSpeedMultiplier,
-        vy: Math.sin(angle2) * speed * speedScale * levelSpeedMultiplier,
+        vx: Math.cos(angle2) * speed * speedScale * levelSpeedMultiplier * mobileSpeedMultiplier,
+        vy: Math.sin(angle2) * speed * speedScale * levelSpeedMultiplier * mobileSpeedMultiplier,
         radius: newRadius,
         canSplit: newRadius > MIN_DESTROY_RADIUS,
         rotation: Math.random() * Math.PI * 2,
@@ -346,13 +424,13 @@ export default function AsteroidsApp({ settings = { shipColor: '#F6D55C', backgr
       s.score = 0;
       s.level = 1;
       s.asteroidsDestroyed = 0;
-      s.asteroidsToDestroy = 12;
+      s.asteroidsToDestroy = isMobileRef.current ? 6 : 12;
       s.asteroids = [];
       s.bullets = [];
       s.particles = [];
       s.paused = false;
       resetShip();
-      spawnAsteroids(4);
+      spawnAsteroids(isMobileRef.current ? 2 : 4);
       setLives(3);
       setScore(0);
       setIsPaused(false);
@@ -413,12 +491,12 @@ export default function AsteroidsApp({ settings = { shipColor: '#F6D55C', backgr
         s.score = 0;
         s.level = 1;
         s.asteroidsDestroyed = 0;
-        s.asteroidsToDestroy = 12;
+        s.asteroidsToDestroy = isMobileRef.current ? 6 : 12;
         s.asteroids = [];
         s.bullets = [];
         s.paused = false;
         resetShip();
-        spawnAsteroids(4);
+        spawnAsteroids(isMobileRef.current ? 2 : 4);
         setGameOver(false);
         setLives(3);
         setScore(0);
@@ -805,8 +883,8 @@ export default function AsteroidsApp({ settings = { shipColor: '#F6D55C', backgr
           // Level complete! Advance to next level
           s.level++;
           s.asteroidsDestroyed = 0;
-          s.asteroidsToDestroy = 12 * s.level;
-          // Spawn initial asteroids for new level (3-8 asteroids based on level)
+          s.asteroidsToDestroy = isMobileRef.current ? (6 * s.level) : (12 * s.level);
+          // Spawn initial asteroids for new level (3-8 asteroids based on level, reduced on mobile)
           spawnAsteroids(Math.min(3 + s.level, 8));
         } else {
           // Still working on current level, spawn more asteroids
@@ -963,7 +1041,7 @@ export default function AsteroidsApp({ settings = { shipColor: '#F6D55C', backgr
     }
 
     resize();
-    spawnAsteroids(4);
+    spawnAsteroids(isMobileRef.current ? 2 : 4);
   window.addEventListener('resize', resize);
   // Use non-passive listeners to allow preventDefault on control keys
   window.addEventListener('keydown', handleKeyDown, { passive: false });
@@ -991,64 +1069,99 @@ export default function AsteroidsApp({ settings = { shipColor: '#F6D55C', backgr
   };
 
   return (
-    <div className="asteroids-root">
+    <div
+      className="asteroids-root"
+      onTouchEnd={isMobile ? handleDoubleTap : undefined}
+    >
       <div className="asteroids-instructions">
-        {isMobile ? 'Use on-screen controls to play' : 'Use arrow keys or WASD to move. Press Space to shoot. P to pause. R to reset.'}
+        {isMobile ? 'Use on-screen controls to play. Double-tap to pause.' : 'Use arrow keys or WASD to move. Press Space to shoot. P to pause. R to reset.'}
         {gameOver && <span style={{ color: '#FF6B6B', marginLeft: '1rem' }}>{isMobile ? 'Tap Reset to restart' : 'Press ENTER to restart'}</span>}
         {isPaused && !gameOver && !showResetConfirm && <span style={{ color: '#F6D55C', marginLeft: '1rem' }}>PAUSED</span>}
       </div>
       <canvas ref={canvasRef} className="asteroids-canvas" />
       
       {isMobile && (
-        <div className="mobile-controls">
+        <>
           <div className="mobile-controls-left">
-            <button 
-              className="mobile-btn mobile-btn-rotate-left"
-              onTouchStart={() => handleTouchControl('left', true)}
-              onTouchEnd={() => handleTouchControl('left', false)}
-              onMouseDown={() => handleTouchControl('left', true)}
-              onMouseUp={() => handleTouchControl('left', false)}
-              onMouseLeave={() => handleTouchControl('left', false)}
-            >
-              ↶
-            </button>
-            <button 
-              className="mobile-btn mobile-btn-thrust"
-              onTouchStart={() => handleTouchControl('thrust', true)}
-              onTouchEnd={() => handleTouchControl('thrust', false)}
-              onMouseDown={() => handleTouchControl('thrust', true)}
-              onMouseUp={() => handleTouchControl('thrust', false)}
-              onMouseLeave={() => handleTouchControl('thrust', false)}
-            >
-              ▲
-            </button>
-            <button 
-              className="mobile-btn mobile-btn-rotate-right"
-              onTouchStart={() => handleTouchControl('right', true)}
-              onTouchEnd={() => handleTouchControl('right', false)}
-              onMouseDown={() => handleTouchControl('right', true)}
-              onMouseUp={() => handleTouchControl('right', false)}
-              onMouseLeave={() => handleTouchControl('right', false)}
-            >
-              ↷
-            </button>
+            <div className="arrow-keys">
+              <button 
+                className="mobile-arrow-btn mobile-arrow-up"
+                onTouchStart={() => { stateRef.current.keys['ArrowUp'] = true; }}
+                onTouchEnd={() => { stateRef.current.keys['ArrowUp'] = false; }}
+                onMouseDown={() => { stateRef.current.keys['ArrowUp'] = true; }}
+                onMouseUp={() => { stateRef.current.keys['ArrowUp'] = false; }}
+                onMouseLeave={() => { stateRef.current.keys['ArrowUp'] = false; }}
+              >
+                ▲
+              </button>
+              <div className="arrow-keys-middle">
+                <button 
+                  className="mobile-arrow-btn mobile-arrow-left"
+                  onTouchStart={() => { stateRef.current.keys['ArrowLeft'] = true; }}
+                  onTouchEnd={() => { stateRef.current.keys['ArrowLeft'] = false; }}
+                  onMouseDown={() => { stateRef.current.keys['ArrowLeft'] = true; }}
+                  onMouseUp={() => { stateRef.current.keys['ArrowLeft'] = false; }}
+                  onMouseLeave={() => { stateRef.current.keys['ArrowLeft'] = false; }}
+                >
+                  ◄
+                </button>
+                <button 
+                  className="mobile-arrow-btn mobile-arrow-down"
+                  onTouchStart={() => { stateRef.current.keys['ArrowDown'] = true; }}
+                  onTouchEnd={() => { stateRef.current.keys['ArrowDown'] = false; }}
+                  onMouseDown={() => { stateRef.current.keys['ArrowDown'] = true; }}
+                  onMouseUp={() => { stateRef.current.keys['ArrowDown'] = false; }}
+                  onMouseLeave={() => { stateRef.current.keys['ArrowDown'] = false; }}
+                >
+                  ▼
+                </button>
+                <button 
+                  className="mobile-arrow-btn mobile-arrow-right"
+                  onTouchStart={() => { stateRef.current.keys['ArrowRight'] = true; }}
+                  onTouchEnd={() => { stateRef.current.keys['ArrowRight'] = false; }}
+                  onMouseDown={() => { stateRef.current.keys['ArrowRight'] = true; }}
+                  onMouseUp={() => { stateRef.current.keys['ArrowRight'] = false; }}
+                  onMouseLeave={() => { stateRef.current.keys['ArrowRight'] = false; }}
+                >
+                  ►
+                </button>
+              </div>
+            </div>
           </div>
           <div className="mobile-controls-right">
             <button 
               className="mobile-btn mobile-btn-shoot"
-              onTouchStart={() => handleTouchControl('shoot', true)}
-              onTouchEnd={() => handleTouchControl('shoot', false)}
-              onMouseDown={() => handleTouchControl('shoot', true)}
-              onMouseUp={() => handleTouchControl('shoot', false)}
-              onMouseLeave={() => handleTouchControl('shoot', false)}
+              onTouchStart={() => { 
+                stateRef.current.keys['Space'] = true;
+                setTimeout(() => { stateRef.current.keys['Space'] = false; }, 100);
+              }}
+              onClick={() => { 
+                stateRef.current.keys['Space'] = true;
+                setTimeout(() => { stateRef.current.keys['Space'] = false; }, 100);
+              }}
             >
               🔥
             </button>
           </div>
-        </div>
-      )}
-      
-      {showResetConfirm && (
+          {gameOver && (
+            <div className="mobile-controls-center">
+              <button
+                className="mobile-btn mobile-btn-reset"
+                onClick={() => { 
+                  if (resetGameRef.current) {
+                    const s = stateRef.current;
+                    s.gameOver = false;
+                    setGameOver(false);
+                    resetGameRef.current();
+                  }
+                }}
+              >
+                🔄
+              </button>
+            </div>
+          )}
+        </>
+      )}      {showResetConfirm && (
         <div className="asteroids-modal-overlay">
           <div className="asteroids-modal">
             <h2>Reset Game?</h2>

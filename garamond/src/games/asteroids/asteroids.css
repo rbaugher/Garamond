@@ -103,28 +103,66 @@
 }
 
 /* Mobile Controls */
-.mobile-controls {
+.mobile-controls-left,
+.mobile-controls-right,
+.mobile-controls-center {
   position: fixed;
   bottom: 20px;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: space-between;
-  padding: 0 20px;
-  pointer-events: none;
+  pointer-events: all;
   z-index: 1000;
 }
 
-.mobile-controls-left,
-.mobile-controls-right {
-  display: flex;
-  gap: 10px;
-  pointer-events: all;
+.mobile-controls-left {
+  left: 20px;
 }
 
-.mobile-controls-left {
+.mobile-controls-right {
+  right: 20px;
+}
+
+.mobile-controls-center {
+  left: 50%;
+  transform: translateX(-50%);
   flex-direction: column;
   align-items: center;
+}
+
+/* Arrow Keys Layout */
+.arrow-keys {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.arrow-keys-middle {
+  display: flex;
+  gap: 5px;
+}
+
+.mobile-arrow-btn {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  background: rgba(26, 26, 46, 0.8);
+  color: white;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.mobile-arrow-btn:active {
+  background: rgba(246, 213, 92, 0.3);
+  border-color: #F6D55C;
+  transform: scale(0.95);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
 }
 
 .mobile-btn {
@@ -179,6 +217,21 @@
   border-color: #3DDC97;
 }
 
+.mobile-btn-reset,
+.mobile-btn-pause {
+  width: 70px;
+  height: 70px;
+  font-size: 2rem;
+  border-color: rgba(246, 213, 92, 0.6);
+  background: rgba(26, 26, 46, 0.9);
+}
+
+.mobile-btn-reset:active,
+.mobile-btn-pause:active {
+  background: rgba(246, 213, 92, 0.3);
+  border-color: #F6D55C;
+}
+
 /* Mobile adjustments */
 @media screen and (max-width: 768px) {
   .asteroids-modal {
@@ -203,16 +256,10 @@
 }
 
 @media screen and (max-width: 480px) {
-  .mobile-btn {
-    width: 60px;
-    height: 60px;
-    font-size: 1.5rem;
-  }
-
-  .mobile-btn-thrust {
-    width: 70px;
-    height: 70px;
-    font-size: 2rem;
+  .mobile-arrow-btn {
+    width: 50px;
+    height: 50px;
+    font-size: 20px;
   }
 
   .mobile-btn-shoot {
