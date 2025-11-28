@@ -14,7 +14,6 @@ export default function AsteroidsApp({ settings = { shipColor: '#F6D55C', backgr
   const [isPaused, setIsPaused] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
   
   const stateRef = useRef({
     width: 800,
@@ -43,6 +42,7 @@ export default function AsteroidsApp({ settings = { shipColor: '#F6D55C', backgr
   const gameStartTimeRef = useRef(Date.now());
   // Keep latest top score without reinitializing the heavy canvas effect
   const topScoreRef = useRef(topScore);
+  const isMobileRef = useRef(false);
   useEffect(() => {
     topScoreRef.current = topScore;
   }, [topScore]);
@@ -55,38 +55,9 @@ export default function AsteroidsApp({ settings = { shipColor: '#F6D55C', backgr
   // Detect mobile device
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768 || 'ontouchstart' in window);
-    };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  // Mobile control handlers
-  const handleTouchControl = (action, active) => {
-    const s = stateRef.current;
-    switch(action) {
-      case 'thrust':
-        s.keys['ArrowUp'] = active;
-        break;
-      case 'left':
-        s.keys['ArrowLeft'] = active;
-        break;
-      case 'right':
-        s.keys['ArrowRight'] = active;
-        break;
-      case 'shoot':
-        s.keys['Space'] = active;
-        break;
-      default:
-        break;
-    }
-  };
-
-  // Detect mobile device
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768 || 'ontouchstart' in window);
+      const mobile = window.innerWidth <= 768 || 'ontouchstart' in window;
+      setIsMobile(mobile);
+      isMobileRef.current = mobile;
     };
     checkMobile();
     window.addEventListener('resize', checkMobile);
@@ -192,14 +163,21 @@ export default function AsteroidsApp({ settings = { shipColor: '#F6D55C', backgr
       if (!a.ctx) {
         try {
           a.ctx = new (window.AudioContext || window.webkitAudioContext)();
+          
+          // Main gain for master volume
           a.gain = a.ctx.createGain();
           a.gain.gain.value = 0;
           a.gain.connect(a.ctx.destination);
-          a.osc = a.ctx.createOscillator();
-          a.osc.type = 'sawtooth';
-          a.osc.frequency.value = 140;
-          a.osc.connect(a.gain);
-          a.osc.start();
+          
+          // Load the rocket sound MP3
+          fetch('/audio/Rocket_Sounds.mp3')
+            .then(response => response.arrayBuffer())
+            .then(arrayBuffer => a.ctx.decodeAudioData(arrayBuffer))
+            .then(audioBuffer => {
+              a.audioBuffer = audioBuffer;
+              a.isLoaded = true;
+            })
+            .catch(e => console.error('Failed to load rocket sound:', e));
   } catch (e) { /* ignore AudioContext init errors */ void e; }
       }
     }
@@ -207,16 +185,54 @@ export default function AsteroidsApp({ settings = { shipColor: '#F6D55C', backgr
     function setThrustSound(thrusting) {
       const s = stateRef.current;
       const a = audioRef.current;
+      
       if (!s.soundEnabled) {
-        if (a.gain) a.gain.gain.linearRampToValueAtTime(0, a.ctx.currentTime + 0.05);
+        // Stop sound if disabled
+        if (a.source) {
+          a.gain.gain.linearRampToValueAtTime(0, a.ctx.currentTime + 0.1);
+          setTimeout(() => {
+            if (a.source) {
+              a.source.stop();
+              a.source = null;
+            }
+          }, 100);
+        }
         a.playing = false;
         return;
       }
+      
       ensureAudio();
       if (!a.ctx || !a.gain) return;
-      const target = thrusting ? 0.12 : 0.0;
-      a.gain.gain.linearRampToValueAtTime(target, a.ctx.currentTime + 0.05);
-      a.playing = thrusting;
+      
+      // Resume audio context if suspended (browser autoplay policy)
+      if (a.ctx.state === 'suspended') {
+        a.ctx.resume();
+      }
+      
+      // Start playing the sound
+      if (thrusting && !a.playing && a.isLoaded && a.audioBuffer) {
+        // Create new buffer source
+        a.source = a.ctx.createBufferSource();
+        a.source.buffer = a.audioBuffer;
+        a.source.loop = true;
+        a.source.connect(a.gain);
+        a.source.start(0);
+        
+        // Fade in
+        a.gain.gain.setValueAtTime(0, a.ctx.currentTime);
+        a.gain.gain.linearRampToValueAtTime(0.5, a.ctx.currentTime + 0.1);
+        a.playing = true;
+      } else if (!thrusting && a.playing) {
+        // Fade out and stop
+        a.gain.gain.linearRampToValueAtTime(0, a.ctx.currentTime + 0.1);
+        setTimeout(() => {
+          if (a.source && !thrusting) {
+            a.source.stop();
+            a.source = null;
+          }
+        }, 100);
+        a.playing = false;
+      }
     }
 
     function spawnAsteroids(count) {
@@ -530,45 +546,40 @@ export default function AsteroidsApp({ settings = { shipColor: '#F6D55C', backgr
           ctx.fill();
         });
 
-        // Draw HUD
+      // Draw HUD - compact format
         ctx.fillStyle = '#fff';
-        ctx.font = '20px Arial';
+        ctx.font = '16px Arial';
         ctx.textAlign = 'left';
-        ctx.fillText(`Score: ${s.score}`, 20, 30);
-        ctx.fillText(`Lives: ${s.lives}`, 20, 60);
-        
+        ctx.fillText(`S: ${s.score}`, 20, 30);
+        ctx.fillText(`❤️ ${s.lives}`, 20, 50);
+
         // Draw top score in top-right corner
         ctx.textAlign = 'right';
         ctx.fillStyle = '#FFD700';
-        ctx.font = 'bold 20px Arial';
+        ctx.font = '14px Arial';
   const ts = topScoreRef.current;
-  const topScoreText = ts.player ? `High Score: ${ts.player} - ${ts.score}` : `High Score: ${ts.score}`;
+  const topScoreText = ts.player ? `${ts.player}: ${ts.score}` : `${ts.score}`;
         ctx.fillText(topScoreText, s.width - 20, 30);
-        
+
         ctx.textAlign = 'left';
-        ctx.font = 'bold 24px Arial';
+        ctx.font = 'bold 18px Arial';
         ctx.fillStyle = '#F6D55C';
-        ctx.fillText(`Level ${s.level}`, 20, 100);
+        ctx.fillText(`L${s.level}`, 20, 75);
         const progressPercent = s.asteroidsDestroyed / s.asteroidsToDestroy;
-        ctx.font = '18px Arial';
+        ctx.font = '14px Arial';
         ctx.fillStyle = '#fff';
-        ctx.fillText(`Asteroids: ${s.asteroidsDestroyed}/${s.asteroidsToDestroy}`, 20, 130);
+        ctx.fillText(`${s.asteroidsDestroyed}/${s.asteroidsToDestroy}`, 20, 95);
         const barX = 20;
-        const barY = 140;
-        const barWidth = 200;
-        const barHeight = 12;
+        const barY = 100;
+        const barWidth = 150;
+        const barHeight = 10;
         ctx.fillStyle = '#2b2b2b';
         ctx.fillRect(barX, barY, barWidth, barHeight);
         ctx.fillStyle = progressPercent >= 1 ? '#3DDC97' : '#F6D55C';
         ctx.fillRect(barX, barY, barWidth * Math.min(progressPercent, 1), barHeight);
         ctx.strokeStyle = '#fff';
         ctx.lineWidth = 2;
-        ctx.strokeRect(barX, barY, barWidth, barHeight);
-        ctx.font = '16px Arial';
-        ctx.fillStyle = '#aaa';
-        ctx.fillText(`Sound: ${s.soundEnabled ? 'On' : 'Off'} (M)`, 20, 175);
-
-        // Draw PAUSED indicator
+        ctx.strokeRect(barX, barY, barWidth, barHeight);        // Draw PAUSED indicator
         ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = '#F6D55C';
@@ -899,44 +910,38 @@ export default function AsteroidsApp({ settings = { shipColor: '#F6D55C', backgr
         ctx.fill();
       });
 
-      // Draw HUD - use compact text on mobile
-      const isMobileView = s.width < 600;
+      // Draw HUD - compact format for all devices
       ctx.fillStyle = '#fff';
-      ctx.font = isMobileView ? '16px Arial' : '20px Arial';
+      ctx.font = '16px Arial';
       ctx.textAlign = 'left';
-      ctx.fillText(isMobileView ? `S: ${s.score}` : `Score: ${s.score}`, 20, 30);
-      ctx.fillText(isMobileView ? `❤️ ${s.lives}` : `Lives: ${s.lives}`, 20, isMobileView ? 50 : 60);
+      ctx.fillText(`S: ${s.score}`, 20, 30);
+      ctx.fillText(`❤️ ${s.lives}`, 20, 50);
       
       // Draw top score in top-right corner
       ctx.textAlign = 'right';
       ctx.fillStyle = '#FFD700';
-      ctx.font = isMobileView ? '14px Arial' : 'bold 20px Arial';
+      ctx.font = '14px Arial';
   const ts2 = topScoreRef.current;
-  const topScoreText2 = isMobileView 
-    ? (ts2.player ? `${ts2.player}: ${ts2.score}` : `${ts2.score}`)
-    : (ts2.player ? `High Score: ${ts2.player} - ${ts2.score}` : `High Score: ${ts2.score}`);
+  const topScoreText2 = ts2.player ? `${ts2.player}: ${ts2.score}` : `${ts2.score}`;
   ctx.fillText(topScoreText2, s.width - 20, 30);
       
       // Highlight level and progress counter
       ctx.textAlign = 'left';
-      ctx.font = isMobileView ? 'bold 18px Arial' : 'bold 24px Arial';
+      ctx.font = 'bold 18px Arial';
       ctx.fillStyle = '#F6D55C';
-      ctx.fillText(isMobileView ? `L${s.level}` : `Level ${s.level}`, 20, isMobileView ? 75 : 100);
+      ctx.fillText(`L${s.level}`, 20, 75);
       
       // Progress bar with visual indicator
       const progressPercent = s.asteroidsDestroyed / s.asteroidsToDestroy;
-      ctx.font = isMobileView ? '14px Arial' : '18px Arial';
+      ctx.font = '14px Arial';
       ctx.fillStyle = '#fff';
-      const asteroidText = isMobileView 
-        ? `${s.asteroidsDestroyed}/${s.asteroidsToDestroy}` 
-        : `Asteroids: ${s.asteroidsDestroyed}/${s.asteroidsToDestroy}`;
-      ctx.fillText(asteroidText, 20, isMobileView ? 95 : 130);
+      ctx.fillText(`${s.asteroidsDestroyed}/${s.asteroidsToDestroy}`, 20, 95);
       
       // Draw progress bar
       const barX = 20;
-      const barY = isMobileView ? 100 : 140;
-      const barWidth = isMobileView ? 150 : 200;
-      const barHeight = isMobileView ? 10 : 12;
+      const barY = 100;
+      const barWidth = 150;
+      const barHeight = 10;
       
       // Background bar
       ctx.fillStyle = '#2b2b2b';
@@ -950,13 +955,6 @@ export default function AsteroidsApp({ settings = { shipColor: '#F6D55C', backgr
       ctx.strokeStyle = '#fff';
       ctx.lineWidth = 2;
       ctx.strokeRect(barX, barY, barWidth, barHeight);
-      
-      // Sound indicator below progress bar (hide on mobile)
-      if (!isMobileView) {
-        ctx.font = '16px Arial';
-        ctx.fillStyle = '#aaa';
-        ctx.fillText(`Sound: ${s.soundEnabled ? 'On' : 'Off'} (M)`, 20, 175);
-      }
 
   // Update thrust sound envelope after drawing frame (use anyAccel from earlier in step function)
   setThrustSound(anyAccel && !s.gameOver && !s.paused);
