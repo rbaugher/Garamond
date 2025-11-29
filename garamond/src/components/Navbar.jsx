@@ -96,17 +96,19 @@ function Navbar() {
         </ul>
           {button && (
             user ? (
-            <div className="user-avatar" title={user.nickname || user.name} ref={menuRef}>
+            <div 
+              className="user-avatar" 
+              title={user.nickname || user.name} 
+              ref={menuRef}
+              style={{ 
+                backgroundColor: user.preferredColor || '#508465'
+              }}
+            >
               <button 
                 className="avatar-button" 
                 onClick={() => setMenuOpen(!menuOpen)} 
                 aria-haspopup="true" 
                 aria-expanded={menuOpen}
-                style={{ 
-                  backgroundColor: user.preferredColor || '#508465',
-                  padding: '0.5rem 1rem',
-                  borderRadius: '8px'
-                }}
               >
                 <span className="avatar-emoji">{user.avatar}</span>
                 <span className="user-name">{user.nickname || user.name}</span>
