@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { Button } from './Button'; // Ensure this component exists
 import { Link, useLocation } from 'react-router-dom';
 import './Navbar.css';
@@ -60,6 +60,25 @@ function Navbar() {
     setMenuOpen(false);
   };
 
+  // Calculate contrasting text color based on background
+  const getContrastColor = (hexColor) => {
+    if (!hexColor) return '#fff';
+    
+    // Remove # if present
+    const hex = hexColor.replace('#', '');
+    
+    // Convert to RGB
+    const r = parseInt(hex.substr(0, 2), 16);
+    const g = parseInt(hex.substr(2, 2), 16);
+    const b = parseInt(hex.substr(4, 2), 16);
+    
+    // Calculate luminance
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    
+    // Return black for light backgrounds, white for dark backgrounds
+    return luminance > 0.5 ? '#000' : '#fff';
+  };
+
   return (
     <nav className="navbar" role="navigation" aria-label="Main navigation">
       <div className="navbar-container">
@@ -94,24 +113,22 @@ function Navbar() {
             </Link>
           </li>
         </ul>
-          {button && (
-            user ? (
+        {button && (
+          user ? (
             <div 
               className="user-avatar" 
               title={user.nickname || user.name} 
               ref={menuRef}
-              style={{ 
-                backgroundColor: user.preferredColor || '#508465'
-              }}
+              style={{ backgroundColor: user.preferredColor || '#508465' }}
             >
-              <button 
-                className="avatar-button" 
-                onClick={() => setMenuOpen(!menuOpen)} 
-                aria-haspopup="true" 
-                aria-expanded={menuOpen}
-              >
+              <button className="avatar-button" onClick={() => setMenuOpen(!menuOpen)} aria-haspopup="true" aria-expanded={menuOpen}>
                 <span className="avatar-emoji">{user.avatar}</span>
-                <span className="user-name">{user.nickname || user.name}</span>
+                <span 
+                  className="user-name"
+                  style={{ color: getContrastColor(user.preferredColor || '#508465') }}
+                >
+                  {user.nickname || user.name}
+                </span>
               </button>
               {menuOpen && (
                 <div className="user-menu" role="menu">
