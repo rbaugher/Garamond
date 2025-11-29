@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import { getStoredUser } from '../../utils/session';
 import './GameLobby.css';
 
 const GameLobby = () => {
   const [expandedGame, setExpandedGame] = useState(null);
   const [expandedDifficulty, setExpandedDifficulty] = useState(null);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+  const [pendingRoute, setPendingRoute] = useState(null);
+  const navigate = useNavigate();
 
   const games = [
     {
@@ -101,8 +105,49 @@ const GameLobby = () => {
     setExpandedDifficulty(expandedDifficulty === difficulty ? null : difficulty);
   };
 
+  const handleGameClick = (e, game) => {
+    if (game.disabled) {
+      e.preventDefault();
+      return;
+    }
+
+    const user = getStoredUser();
+    if (!user) {
+      e.preventDefault();
+      setPendingRoute(game.route);
+      setShowLoginPrompt(true);
+    }
+  };
+
+  const handleLoginChoice = (shouldLogin) => {
+    setShowLoginPrompt(false);
+    if (shouldLogin) {
+      navigate('/sign-in');
+    } else if (pendingRoute) {
+      navigate(pendingRoute);
+    }
+    setPendingRoute(null);
+  };
+
   return (
     <div className="game-lobby">
+      {showLoginPrompt && (
+        <div className="login-prompt-overlay">
+          <div className="login-prompt-modal">
+            <h2>Login Required</h2>
+            <p>Would you like to log in to track your progress and compete on the leaderboard?</p>
+            <div className="login-prompt-buttons">
+              <button className="login-btn" onClick={() => handleLoginChoice(true)}>
+                Log In
+              </button>
+              <button className="continue-btn" onClick={() => handleLoginChoice(false)}>
+                Continue as Guest
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      
       <div className="game-lobby-container">
         <h1 className="game-lobby-title">Game Lobby</h1>
         <p className="game-lobby-subtitle">Select a game to play</p>
@@ -114,7 +159,7 @@ const GameLobby = () => {
                 id={game.id === 'asteroids' ? 'asteroids' : undefined}
                 to={game.route}
                 className={`game-card ${game.disabled ? 'disabled' : ''}`}
-                onClick={(e) => game.disabled && e.preventDefault()}
+                onClick={(e) => handleGameClick(e, game)}
                 role={game.disabled ? 'button' : 'link'}
                 tabIndex={game.disabled ? -1 : 0}
               >
