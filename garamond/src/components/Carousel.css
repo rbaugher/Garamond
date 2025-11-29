@@ -286,10 +286,10 @@
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
   }
-  .content .title { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 800; }
-  .content .name { font-size: clamp(1rem, 2.5vw, 1.5rem); }
+  .content .title { font-size: clamp(1.92rem, 4.8vw, 2.88rem); font-weight: 800; }
+  .content .name { font-size: clamp(1.2rem, 3vw, 1.8rem); }
   .content .des { 
-    font-size: clamp(0.8rem, 2vw, 1rem);
+    font-size: clamp(0.96rem, 2.4vw, 1.2rem);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -302,10 +302,10 @@
     backdrop-filter: blur(5px);
     -webkit-backdrop-filter: blur(5px);
   }
-  .content .title { font-size: clamp(1.2rem, 3.2vw, 1.6rem); font-weight: 800; }
-  .content .name { font-size: clamp(0.9rem, 2vw, 1.2rem); }
+  .content .title { font-size: clamp(1.44rem, 3.84vw, 1.92rem); font-weight: 800; }
+  .content .name { font-size: clamp(1.08rem, 2.4vw, 1.44rem); }
   .content .des { 
-    font-size: clamp(0.7rem, 1.8vw, 0.9rem);
+    font-size: clamp(0.84rem, 2.16vw, 1.08rem);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
