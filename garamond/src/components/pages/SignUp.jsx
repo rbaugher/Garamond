@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import './SignUp.css';
 import { setStoredUser } from '../../utils/session';
+import { AVATAR_OPTIONS, COLOR_OPTIONS } from '../../utils/avatars';
 
 const WOULD_YOU_RATHER_QUESTIONS = [
   "Would you rather always have to sing everything you say or always have to dance everywhere you go?",
   "Would you rather live in a world without music or without movies?",
   "Would you rather be able to fly or be invisible?",
   "Would you rather always speak your mind or always have to lie?",
-  "Would you rather be famous or wealthy?",
   "Would you rather have the ability to talk to animals or speak all languages?",
   "Would you rather have a time machine or a teleportation device?",
   "Would you rather always be cold or always be hot?",
@@ -18,54 +18,24 @@ const WOULD_YOU_RATHER_QUESTIONS = [
   "Would you rather be a professional gamer or a professional athlete?",
   "Would you rather always have a song stuck in your head or always have a random fact on your mind?",
   "Would you rather have the ability to pause time or slow it down?",
+  "Would you rather explore space or the deep ocean?",
+  "Would you rather have unlimited pizza or unlimited tacos for life?",
+  "Would you rather live in a house made of glass or a house with no windows?",
+  "Would you rather have super strength or super speed?",
+  "Would you rather never have to sleep again or never have to eat again?",
+  "Would you rather be able to control the weather or control technology with your mind?",
+  "Would you rather always win at board games or always win at card games?",
+  "Would you rather have the ability to change the past or see into the future?",
+  "Would you rather have a pet dragon or a pet unicorn?",
+  "Would you rather be the funniest person in the room or the smartest person in the room?",
+  "Would you rather never age physically or never age mentally?",
+  "Would you rather be able to speak to plants or speak to machines?",
+  "Would you rather live in a world where it's always summer or always winter?",
 ];
 
-const COLOR_OPTIONS = [
-  "#FF6B6B", // Red
-  "#4ECDC4", // Teal
-  "#45B7D1", // Blue
-  "#FFA07A", // Light Salmon
-  "#98D8C8", // Mint
-  "#F7DC6F", // Yellow
-  "#BB8FCE", // Purple
-  "#85C1E2", // Sky Blue
-  "#F8B195", // Peach
-  "#A8D8EA", // Light Blue
-];
 
-const AVATAR_OPTIONS = [
-  { id: 1, emoji: "🐉", label: "Dragon" },
-  { id: 2, emoji: "🐼", label: "Panda" },
-  { id: 3, emoji: "🦊", label: "Fox" },
-  { id: 4, emoji: "🐻", label: "Bear" },
-  { id: 5, emoji: "👨‍🚀", label: "Astronaut" },
-  { id: 6, emoji: "🥷", label: "Ninja" },
-  { id: 7, emoji: "😎", label: "Sunglasses" },
-  { id: 8, emoji: "🦕", label: "Dinosaur" },
-  { id: 9, emoji: "💡", label: "Light Bulb" },
-  { id: 10, emoji: "👑", label: "Crown" },
-  { id: 11, emoji: "🦈", label: "Shark" },
-  { id: 12, emoji: "🐢", label: "Turtle" },
-  { id: 13, emoji: "🍩", label: "Donut" },
-  { id: 14, emoji: "🍃", label: "Leaf" },
-  { id: 15, emoji: "❄️", label: "Snowflake" },
-  { id: 16, emoji: "⛈️", label: "Storm" },
-  { id: 17, emoji: "🔥", label: "Fire" },
-  { id: 18, emoji: "☀️", label: "Sun" },
-  { id: 19, emoji: "🌙", label: "Moon" },
-  { id: 20, emoji: "🚴", label: "Cyclist" },
-  { id: 21, emoji: "⚽", label: "Soccer Ball" },
-  { id: 22, emoji: "♟️", label: "Chess Pawn" },
-  { id: 23, emoji: "🛡️", label: "Shield" },
-  { id: 24, emoji: "🧠", label: "Smart" },
-  { id: 25, emoji: "⚡", label: "Lightning" },
-  { id: 26, emoji: "🎯", label: "Focused" },
-  { id: 27, emoji: "🏆", label: "Champion" },
-  { id: 28, emoji: "🚀", label: "Rocket" },
-  { id: 29, emoji: "🌟", label: "Star" },
-  { id: 30, emoji: "🎨", label: "Creative" },
-  { id: 31, emoji: "🎭", label: "Drama" },
-];
+
+
 
 export default function SignUp({ onSignUpComplete }) {
   const [formData, setFormData] = useState({

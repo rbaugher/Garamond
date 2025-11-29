@@ -1,25 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getStoredUser, setStoredUser } from '../../utils/session';
+import { AVATAR_OPTIONS, COLOR_OPTIONS } from '../../utils/avatars';
 import './SignUp.css';
-
-const AVATAR_OPTIONS = [
-  { id: 1, emoji: "🧑", label: "Person" },
-  { id: 2, emoji: "🧔", label: "Person with Beard" },
-  { id: 3, emoji: "👨‍🎮", label: "Gamer" },
-  { id: 4, emoji: "🧑‍💻", label: "Coder" },
-  { id: 5, emoji: "🧠", label: "Smart" },
-  { id: 6, emoji: "⚡", label: "Lightning" },
-  { id: 7, emoji: "🎯", label: "Focused" },
-  { id: 8, emoji: "🏆", label: "Champion" },
-  { id: 9, emoji: "🚀", label: "Rocket" },
-  { id: 10, emoji: "🌟", label: "Star" },
-  { id: 11, emoji: "🎨", label: "Creative" },
-  { id: 12, emoji: "🎭", label: "Drama" },
-];
-
-const COLOR_OPTIONS = [
-  "#FF6B6B", "#4ECDC4", "#45B7D1", "#FFA07A", "#98D8C8", "#F7DC6F", "#BB8FCE", "#85C1E2", "#F8B195", "#A8D8EA"
-];
 
 export default function Profile() {
   const [user, setUser] = useState(null);
