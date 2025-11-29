@@ -34,18 +34,21 @@ const COLOR_OPTIONS = [
 ];
 
 const AVATAR_OPTIONS = [
-  { id: 1, emoji: "🧑", label: "Person" },
-  { id: 2, emoji: "🧔", label: "Person with Beard" },
-  { id: 3, emoji: "👨‍🎮", label: "Gamer" },
-  { id: 4, emoji: "🧑‍💻", label: "Coder" },
-  { id: 5, emoji: "🧠", label: "Smart" },
-  { id: 6, emoji: "⚡", label: "Lightning" },
-  { id: 7, emoji: "🎯", label: "Focused" },
-  { id: 8, emoji: "🏆", label: "Champion" },
-  { id: 9, emoji: "🚀", label: "Rocket" },
-  { id: 10, emoji: "🌟", label: "Star" },
-  { id: 11, emoji: "🎨", label: "Creative" },
-  { id: 12, emoji: "🎭", label: "Drama" },
+  { id: 1, emoji: "🐉", label: "Dragon" },
+  { id: 2, emoji: "🐼", label: "Panda" },
+  { id: 3, emoji: "🦊", label: "Fox" },
+  { id: 4, emoji: "🐻", label: "Bear" },
+  { id: 5, emoji: "👨‍🚀", label: "Astronaut" },
+  { id: 6, emoji: "🥷", label: "Ninja" },
+  { id: 7, emoji: "😎", label: "Sunglasses" },
+  { id: 8, emoji: "🧠", label: "Smart" },
+  { id: 9, emoji: "⚡", label: "Lightning" },
+  { id: 10, emoji: "🎯", label: "Focused" },
+  { id: 11, emoji: "🏆", label: "Champion" },
+  { id: 12, emoji: "🚀", label: "Rocket" },
+  { id: 13, emoji: "🌟", label: "Star" },
+  { id: 14, emoji: "🎨", label: "Creative" },
+  { id: 15, emoji: "🎭", label: "Drama" },
 ];
 
 export default function SignUp({ onSignUpComplete }) {
