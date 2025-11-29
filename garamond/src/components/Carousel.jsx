@@ -16,7 +16,7 @@ const desktopSlides = [
 ];
 
 const mobileSlides = [
-  { bg: '/images/moose.jpg', title: 'Waters', name: 'Psalm 104:24,27', des: 'O LORD, how manifold are your works! In widsom have you made them all; the earth is full of your creatures. These all look to you, to give them their food in due season.' },
+  { bg: '/images/moose.jpg', title: 'Animals', name: 'Psalm 104:24,27', des: 'O LORD, how manifold are your works! In widsom have you made them all; the earth is full of your creatures. These all look to you, to give them their food in due season.' },
   { bg: '/images/Everest.jpg', title: 'Mountains', name: 'Psalm 65:5-6', des: 'By awesome deeds you answer us with righteousness, O God of our salvation, the hope of all the ends of the earth and of the farthest seas.' },
   { bg: '/images/img-home.jpg', title: 'Seas', name: 'Mark 4:41', des: 'And they were filled with great fear and said to one another, "Who then is this, that even the wind and the sea obey him?"' },
   { bg: '/images/heavens.jpg', title: 'Heavens', name: 'Psalm 19:1', des: 'The heavens declare the glory of God, and the sky above proclaims his handiwork.' },
