@@ -123,9 +123,12 @@ function Navbar() {
             >
               <button className="avatar-button" onClick={() => setMenuOpen(!menuOpen)} aria-haspopup="true" aria-expanded={menuOpen}>
                 <span className="avatar-emoji">{user.avatar}</span>
-                <span 
+                <span
                   className="user-name"
-                  style={{ color: getContrastColor(user.preferredColor || '#508465') }}
+                  style={{ 
+                    color: getContrastColor(user.preferredColor || '#508465'),
+                    fontWeight: 'bold'
+                  }}
                 >
                   {user.nickname || user.name}
                 </span>
