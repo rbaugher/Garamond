@@ -134,7 +134,7 @@ const GameLobby = () => {
       {showLoginPrompt && (
         <div className="login-prompt-overlay">
           <div className="login-prompt-modal">
-            <h2>Login Required</h2>
+            <h2>No Sign in Detected</h2>
             <p>Would you like to log in to track your progress and compete on the leaderboard?</p>
             <div className="login-prompt-buttons">
               <button className="login-btn" onClick={() => handleLoginChoice(true)}>
