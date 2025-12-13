@@ -22,6 +22,7 @@ export default function Connect3Page() {
       <DifficultyProvider>
         <div className="game-page-wrapper">
           <GameNavbar 
+            title="Connect 3"
             activeControl={activeControl}
             onControlChange={setActiveControl}
             onControlClose={() => setActiveControl(null)}

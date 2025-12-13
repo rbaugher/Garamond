@@ -11,7 +11,7 @@ import { useGameMode } from './context/gamemodeContext';
 import { getStoredUser, clearStoredUser } from '../../utils/session';
 import './GameNavbar.css';
 
-function GameNavbar({ activeControl, onControlChange, onControlClose }) {
+function GameNavbar({ activeControl, onControlChange, onControlClose, title }) {
   const [click, setClick] = useState(false);
   const [isMobile, setIsMobile] = useState(() => window.matchMedia('(max-width: 960px)').matches);
   const [user, setUser] = useState(null);
@@ -58,6 +58,15 @@ function GameNavbar({ activeControl, onControlChange, onControlClose }) {
     return () => document.removeEventListener('click', onDocClick);
   }, []);
 
+  // update the page title when a title prop is provided; restore previous title on unmount
+  useEffect(() => {
+    if (!title) return undefined;
+    if (typeof document === 'undefined') return undefined;
+    const previous = document.title;
+    document.title = title;
+    return () => { document.title = previous; };
+  }, [title]);
+
   const handleControlClick = (controlType) => {
     onControlChange(activeControl === controlType ? null : controlType);
     closeMobileMenu();
@@ -77,7 +86,13 @@ function GameNavbar({ activeControl, onControlChange, onControlClose }) {
           <span>Back to Lobby</span>
         </Link>
         
-        <h1 className="game-title">Tic Tac Toe <sup>2</sup></h1>
+        {title ? (
+          <h1 className="game-title">{title}</h1>
+        ) : (
+          <h1 className="game-title">Tic Tac Toe <sup>2</sup></h1>
+        )}
+
+        {/* document.title is handled in the effect above */}
 
         {/* Desktop Game Controls */}
         {!isMobile && (
