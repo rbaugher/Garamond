@@ -29,12 +29,12 @@ const GameLobby = () => {
       disabled: false,
     },
     {
-      id: 'connect 3',
+      id: 'connect3',
       title: 'Connect 3',
-      description: 'Is this really easier, come find out! (Coming Soon)',
+      description: 'Drop pieces and try to connect three in a row!',
       image: '/images/heavens1.jpg',
-      route: '#',
-      disabled: true,
+      route: '/game/connect3',
+      disabled: false,
     },
     {
       id: 'cribbage',
