@@ -1,12 +1,12 @@
 import React, { useState, useEffect, createContext, useContext, useRef } from 'react';
 import Controls from './Controls';
-import { checkWinner } from './functions/checkWinner';
-import { useGameMode } from './context/gamemodeContext';
+import { checkWinner } from '../../utils/tictactoe/checkWinner';
+import { useGameMode } from '../components/context/gamemodeContext';
 import { getBotMove } from './functions/botMoves/botMove';
-import { valuesMap } from './functions/pieceHelpers';
-import { useDifficulty } from './context/DifficultyContext';
-import { noPossibleMove,validMove } from './functions/Validator';
-import { recordGameMetrics, getWinningCondition } from './functions/gameMetricsCollector';
+import { valuesMap } from '../../utils/tictactoe/pieceHelpers';
+import { useDifficulty } from '../components/context/DifficultyContext';
+import { noPossibleMove,validMove } from '../../utils/tictactoe/Validator';
+import { recordGameMetrics, getWinningCondition } from '../../utils/gameMetricsCollector';
 import { getStoredUser } from '../../utils/session';
 
 

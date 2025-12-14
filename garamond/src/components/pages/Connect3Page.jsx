@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import GameNavbar from '../../games/components/GameNavbar';
 import Connect3App from '../../games/connect3/Connect3App';
-import { DifficultyProvider } from '../../games/components/context/DifficultyContext';
-import { GameModeProvider } from '../../games/components/context/gamemodeContext';
+import GamePageWrapper from '../GamePageWrapper';
+import { useGameMode } from '../../games/components/context/gamemodeContext';
 import './Game_Page.css';
 
 export default function Connect3Page() {
@@ -18,20 +18,28 @@ export default function Connect3Page() {
   }, []);
 
   return (
-    <GameModeProvider>
-      <DifficultyProvider>
-        <div className="game-page-wrapper">
-          <GameNavbar 
-            title="Connect 3"
-            activeControl={activeControl}
-            onControlChange={setActiveControl}
-            onControlClose={() => setActiveControl(null)}
-          />
-          <div className="game-container">
-            <Connect3App />
-          </div>
-        </div>
-      </DifficultyProvider>
-    </GameModeProvider>
+    <GamePageWrapper>
+      <InnerConnect3 activeControl={activeControl} setActiveControl={setActiveControl} />
+    </GamePageWrapper>
+  );
+}
+
+function InnerConnect3({ activeControl, setActiveControl }) {
+  const { gamemode } = useGameMode();
+  const controls = gamemode === 1 ? [ 'mechanics', 'stats' ] : [ 'gamemode', 'difficulty', 'mechanics', 'stats' ];
+
+  return (
+    <div className="game-page-wrapper">
+      <GameNavbar
+        title="Connect 3"
+        controls={controls}
+        activeControl={activeControl}
+        onControlChange={setActiveControl}
+        onControlClose={() => setActiveControl(null)}
+      />
+      <div className="game-container">
+        <Connect3App />
+      </div>
+    </div>
   );
 }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+/* import React, { useState } from 'react';
 
 const SubSettings = ({ active, setActive }) => {
     const handleToggle = () => {
@@ -20,3 +20,4 @@ const SubSettings = ({ active, setActive }) => {
 };
 
 export default SubSettings;
+ */

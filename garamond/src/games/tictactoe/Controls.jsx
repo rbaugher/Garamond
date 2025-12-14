@@ -1,4 +1,4 @@
-/* import * as React from "react";
+import * as React from "react";
 import Button from '@mui/material/Button';
 import ReplayCircleFilledRoundedIcon from '@mui/icons-material/ReplayCircleFilledRounded';
 import Stack from '@mui/material/Stack';
@@ -14,4 +14,4 @@ function Controls({ onClick }) {
     </section>
   );
 }
-export default Controls; */
+export default Controls;

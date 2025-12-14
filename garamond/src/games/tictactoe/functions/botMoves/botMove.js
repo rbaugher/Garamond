@@ -8,7 +8,7 @@
 
 //REWRITTEN WITHOUT AI
 
-import { valuesMap, getAvailablePieceIndices, getAvailablePieceValues, getMaxAvailablePieceValue, getFirstAvailablePieceIndex } from '../pieceHelpers';
+import { valuesMap, getAvailablePieceIndices, getAvailablePieceValues, getMaxAvailablePieceValue, getFirstAvailablePieceIndex } from '../../../../utils/tictactoe/pieceHelpers';
 
 export function getBotMove(board, deadO, difficulty, deadX) {
   
@@ -596,7 +596,7 @@ export function getBotMove(board, deadO, difficulty, deadX) {
           if (takeoverable.length > 0) {
                 // Check if the winning move involves overtaking an opponent's piece
                   const mIdx = takeoverable[0]; // Pick the first takeoverable index
-                  const possiblePieces = availablePieces.filter(i => i > board[mIdx].value);
+                  const possiblePieces = availablePieces.filter(v => v > board[mIdx].value);
 
                   if (possiblePieces.length > 0) {
                     blockMoveIdx = mIdx;
@@ -779,3 +779,4 @@ export function getBotMove(board, deadO, difficulty, deadX) {
 
   return { moveIdx: null, pieceIdx: null, moveReason: 'error' };
 }
+

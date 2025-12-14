@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import './asteroids.css';
 import { getStoredUser } from '../../utils/session';
-import { recordGameMetrics } from '../components/functions/gameMetricsCollector';
+import { recordGameMetrics } from '../../utils/gameMetricsCollector';
 
 // Full Asteroids game with collision detection, splitting asteroids, and game over logic
 export default function AsteroidsApp({ settings = { shipColor: '#F6D55C', backgroundColor: '#071019', shipShape: 'triangle' }, topScore = { score: 0, player: '' } }) {

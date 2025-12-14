@@ -1,19 +1,6 @@
-// src/games/components/functions/gameMetricsCollector.js
+// src/utils/gameMetricsCollector.js
 
-/**
- * Collects game metrics and sends them to the backend
- * @param {Object} params - Metrics parameters
- * @param {string} params.playerName - Player's nickname (unique identifier)
- * @param {string} params.opponentName - Name of opponent (O in singleplayer "Computer", or player name in multiplayer)
- * @param {string} params.gameType - Type of game (e.g., 'Tic Tac Toe Squared')
- * @param {string} params.outcome - Game outcome ('Win', 'Loss', 'Tie')
- * @param {number|null} params.difficulty - Difficulty level (0, 1, 2) or null for multiplayer
- * @param {string|null} params.winningCondition - How the game was won (e.g., 'row_0', 'column_1', 'diagonal_main', 'tie')
- * @param {Array} params.moveList - Array of all moves made
- * @param {number} params.gameDuration - Duration of game in seconds
- * @returns {Promise<Object>} Response from server
- */
-import { getStoredUserName } from '../../../utils/session';
+import { getStoredUserName } from './session';
 
 export async function recordGameMetrics({
   playerName = undefined,
@@ -83,17 +70,11 @@ export async function recordGameMetrics({
   }
 }
 
-/**
- * Determines the winning condition based on winning tiles
- * @param {Array<number>} winningTiles - Array of tile indices that form the winning line
- * @returns {string} Description of the winning condition
- */
 export function getWinningCondition(winningTiles) {
   if (!winningTiles || winningTiles.length === 0) {
     return null;
   }
 
-  // Winning combinations for Tic Tac Toe (3x3 board)
   const winningConditions = [
     { indices: [0, 1, 2], type: 'row_0' },
     { indices: [3, 4, 5], type: 'row_1' },
@@ -105,7 +86,6 @@ export function getWinningCondition(winningTiles) {
     { indices: [2, 4, 6], type: 'diagonal_anti' }
   ];
 
-  // Sort both arrays for comparison
   const sortedWinning = [...winningTiles].sort();
 
   for (const condition of winningConditions) {

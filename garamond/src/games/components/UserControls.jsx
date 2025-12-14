@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+/* import React, { useState } from 'react';
 import Settings from "./Settings";
 import Difficulty from "./subcomponents/difficultySlider";
 
@@ -23,3 +23,4 @@ function UserControls() {
   );
 }
 export default UserControls;
+ */

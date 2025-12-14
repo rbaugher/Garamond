@@ -1,7 +1,7 @@
-import { useDifficulty } from "./context/DifficultyContext";
+import { useDifficulty } from '../components/context/DifficultyContext';
 import { TurnContext } from './Board';
 import React, { useEffect, useContext } from 'react';
-import { useGameMode } from './context/gamemodeContext';
+import { useGameMode } from '../components/context/gamemodeContext';
 import { WinnerContext } from './Board';
 import { getStoredUser } from '../../utils/session';
 

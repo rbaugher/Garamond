@@ -5,6 +5,7 @@ import AsteroidsSettings from '../../games/asteroids/AsteroidsSettings.jsx';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import './Game_Page.css';
+import GamePageWrapper from '../GamePageWrapper';
 
 export default function AsteroidsPage() {
   const [activeControl, setActiveControl] = useState(null);
@@ -103,21 +104,22 @@ export default function AsteroidsPage() {
   }, [showLeaderboard]);
 
   return (
-    <div className="game-page-wrapper">
-      <AsteroidsNavbar
-        activeControl={activeControl}
-        onControlChange={setActiveControl}
-        onControlClose={() => setActiveControl(null)}
-      />
-      <div className="game-container">
-        <AsteroidsApp
+    <GamePageWrapper>
+      <div className="game-page-wrapper">
+        <AsteroidsNavbar
           activeControl={activeControl}
           onControlChange={setActiveControl}
           onControlClose={() => setActiveControl(null)}
-          settings={settings}
-          topScore={topScore}
         />
-      </div>
+        <div className="game-container">
+          <AsteroidsApp
+            activeControl={activeControl}
+            onControlChange={setActiveControl}
+            onControlClose={() => setActiveControl(null)}
+            settings={settings}
+            topScore={topScore}
+          />
+        </div>
       
       {/* Leaderboard Dropdown - Hidden on mobile */}
       {!isMobile && (
@@ -165,7 +167,7 @@ export default function AsteroidsPage() {
         </div>
       )}
       
-      {activeControl === 'mechanics' && (
+      {activeControl === 'settings' && (
         <AsteroidsSettings
           settings={settings}
           onSettingsChange={setSettings}
@@ -173,5 +175,6 @@ export default function AsteroidsPage() {
         />
       )}
     </div>
+    </GamePageWrapper>
   );
 }

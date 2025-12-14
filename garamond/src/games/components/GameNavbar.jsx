@@ -1,22 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
-import SettingsIcon from '@mui/icons-material/Settings';
-import QueryStatsIcon from '@mui/icons-material/QueryStats';
-import SmartToyIcon from '@mui/icons-material/SmartToy';
 import Button from '@mui/material/Button';
-import { useDifficulty } from './context/DifficultyContext';
-import { useGameMode } from './context/gamemodeContext';
+import GameModeControl from './navbar-controls/GameModeControl';
+import DifficultyControl from './navbar-controls/DifficultyControl';
+import MechanicsControl from './navbar-controls/MechanicsControl';
+import SettingsControl from './navbar-controls/SettingsControl';
+import StatsControl from './navbar-controls/StatsControl';
 import { getStoredUser, clearStoredUser } from '../../utils/session';
 import './GameNavbar.css';
 
-function GameNavbar({ activeControl, onControlChange, onControlClose, title }) {
+function GameNavbar({ activeControl, onControlChange, onControlClose, title, controls, controlProps = {}, controlComponents = {}, user: userProp }) {
   const [click, setClick] = useState(false);
   const [isMobile, setIsMobile] = useState(() => window.matchMedia('(max-width: 960px)').matches);
   const [user, setUser] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const { gamemode } = useGameMode();
   const menuRef = useRef(null);
 
   const handleClick = () => setClick(!click);
@@ -32,9 +30,13 @@ function GameNavbar({ activeControl, onControlChange, onControlClose, title }) {
     };
     window.addEventListener('resize', handleResize);
 
-    // Load stored user
-    const stored = getStoredUser();
-    if (stored) setUser(stored);
+    // Load stored user (only if not provided via props)
+    if (!userProp) {
+      const stored = getStoredUser();
+      if (stored) setUser(stored);
+    } else {
+      setUser(userProp);
+    }
 
     // Listen for sign-up and sign-out events
     const handleUserSignedUp = (event) => setUser(event.detail);
@@ -47,7 +49,7 @@ function GameNavbar({ activeControl, onControlChange, onControlClose, title }) {
       window.removeEventListener('userSignedUp', handleUserSignedUp);
       window.removeEventListener('userSignedOut', handleUserSignedOut);
     };
-  }, []);
+  }, [userProp]);
 
   // Close the menu when clicking outside
   useEffect(() => {
@@ -97,48 +99,25 @@ function GameNavbar({ activeControl, onControlChange, onControlClose, title }) {
         {/* Desktop Game Controls */}
         {!isMobile && (
           <div className="game-controls">
-            <Button
-              id='gamemode'
-              size="small"
-              variant="outlined"
-              startIcon={<SmartToyIcon />}
-              onClick={() => handleControlClick('gamemode')}
-              className="control-button"
-            >
-              Game Mode
-            </Button>
-            {gamemode !== 1 && (
-              <Button
-                id='difficulty'
-                size="small"
-                variant="outlined"
-                startIcon={<FitnessCenterIcon />}
-                onClick={() => handleControlClick('difficulty')}
-                className="control-button"
-              >
-                Difficulty
-              </Button>
-            )}
-            <Button
-              id='mechanics'
-              size="small"
-              variant="outlined"
-              startIcon={<SettingsIcon />}
-              onClick={() => handleControlClick('mechanics')}
-              className="control-button"
-            >
-              Mechanics
-            </Button>
-            <Button
-              id='stats'
-              size="small"
-              variant="outlined"
-              startIcon={<QueryStatsIcon />}
-              onClick={() => handleControlClick('stats')}
-              className="control-button"
-            >
-              Stats
-            </Button>
+            { (controls || ['gamemode','difficulty','mechanics','stats']).map((c) => {
+              const Comp = controlComponents[c] || ({
+                gamemode: GameModeControl,
+                difficulty: DifficultyControl,
+                mechanics: MechanicsControl,
+                settings: SettingsControl,
+                stats: StatsControl
+              })[c];
+              const props = controlProps[c] || {};
+              if (!Comp) return null;
+              return (
+                <Comp
+                  key={c}
+                  active={activeControl === c}
+                  onToggle={() => handleControlClick(c)}
+                  {...props}
+                />
+              );
+            })}
           </div>
         )}
 
@@ -167,60 +146,30 @@ function GameNavbar({ activeControl, onControlChange, onControlClose, title }) {
         </button>
 
         <ul className={click ? 'game-nav-menu active' : 'game-nav-menu'}>
-          <li className="game-nav-item">
-            <Button
-              id='gamemode-mobile'
-              size="small"
-              variant="text"
-              startIcon={<SmartToyIcon />}
-              onClick={() => handleControlClick('gamemode')}
-              fullWidth
-              className="mobile-control-button"
-            >
-              Game Mode
-            </Button>
-          </li>
-          {gamemode !== 1 && (
-            <li className="game-nav-item">
-              <Button
-                id='difficulty-mobile'
-                size="small"
-                variant="text"
-                startIcon={<FitnessCenterIcon />}
-                onClick={() => handleControlClick('difficulty')}
-                fullWidth
-                className="mobile-control-button"
-              >
-                Difficulty
-              </Button>
-            </li>
-          )}
-          <li className="game-nav-item">
-            <Button
-              id='mechanics-mobile'
-              size="small"
-              variant="text"
-              startIcon={<SettingsIcon />}
-              onClick={() => handleControlClick('mechanics')}
-              fullWidth
-              className="mobile-control-button"
-            >
-              Mechanics
-            </Button>
-          </li>
-          <li className="game-nav-item">
-            <Button
-              id='stats-mobile'
-              size="small"
-              variant="text"
-              startIcon={<QueryStatsIcon />}
-              onClick={() => handleControlClick('stats')}
-              fullWidth
-              className="mobile-control-button"
-            >
-              Stats
-            </Button>
-          </li>
+          { (controls || ['gamemode','difficulty','mechanics','stats']).map((c) => {
+            const Comp = controlComponents[c] || ({
+              gamemode: GameModeControl,
+              difficulty: DifficultyControl,
+              mechanics: MechanicsControl,
+              settings: SettingsControl,
+              stats: StatsControl
+            })[c];
+            const props = controlProps[c] || {};
+            if (!Comp) return null;
+            return (
+              <li className="game-nav-item" key={`mobile-${c}`}>
+                <Comp
+                  id={`${c}-mobile`}
+                  size="small"
+                  variant="text"
+                  fullWidth
+                  active={activeControl === c}
+                  onToggle={() => handleControlClick(c)}
+                  {...props}
+                />
+              </li>
+            );
+          })}
           <li className="game-nav-divider" />
           <li className="game-nav-item">
             <Link to="/" className="game-nav-link" onClick={closeMobileMenu}>

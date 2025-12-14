@@ -21,7 +21,7 @@ export function checkWinner(board) {
       board[a].player === board[b].player &&
       board[a].player === board[c].player
     ) {
-  return { player: board[a].player, winningTiles: condition };
+      return { player: board[a].player, winningTiles: condition };
     }
   }
   return null;

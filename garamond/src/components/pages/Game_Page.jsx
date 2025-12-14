@@ -2,8 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import GameNavbar from '../../games/components/GameNavbar';
 import TicTacToeApp from '../../games/App.jsx'; // Game's App.jsx imported from src/games/
-import { DifficultyProvider } from '../../games/components/context/DifficultyContext';
-import { GameModeProvider } from '../../games/components/context/gamemodeContext';
+import GamePageWrapper from '../GamePageWrapper';
 import './Game_Page.css'; // Optional: CSS for Game Page
 
 export default function GamePage() {
@@ -26,25 +25,24 @@ export default function GamePage() {
   }, []);
 
   return (
-    <GameModeProvider>
-      <DifficultyProvider>
-        <>
-          <GameNavbar 
-            activeControl={activeControl}
-            onControlChange={setActiveControl}
-            onControlClose={() => setActiveControl(null)}
-          />
-          <div className="game-page-wrapper">
-            <div className="game-container">
-              <TicTacToeApp 
-                activeControl={activeControl}
-                onControlChange={setActiveControl}
-                onControlClose={() => setActiveControl(null)}
-              />
-            </div>
+    <GamePageWrapper>
+      <>
+        <GameNavbar 
+          title="Tic Tac Toe 2"
+          activeControl={activeControl}
+          onControlChange={setActiveControl}
+          onControlClose={() => setActiveControl(null)}
+        />
+        <div className="game-page-wrapper">
+          <div className="game-container">
+            <TicTacToeApp 
+              activeControl={activeControl}
+              onControlChange={setActiveControl}
+              onControlClose={() => setActiveControl(null)}
+            />
           </div>
-        </>
-      </DifficultyProvider>
-    </GameModeProvider>
+        </div>
+      </>
+    </GamePageWrapper>
   );
 }
