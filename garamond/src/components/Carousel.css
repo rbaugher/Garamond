@@ -38,8 +38,8 @@
 /* Pause/Resume button */
 .carousel-pause-btn {
   position: absolute;
-  bottom: 1rem;
-  right: 1.25rem;
+  top: 8px;
+  right: 8px;
   z-index: 10001;
   padding: 8px 14px;
   border-radius: 20px;
@@ -128,8 +128,7 @@
   font-size: clamp(2rem, 4.8vw, 3.2rem);
   text-transform: uppercase;
   color: rgb(28, 162, 16);
-  font-weight: bold;
-  font-family: garamond, 'Times New Roman', serif;
+  font-weight: 800;
   line-height: 1;
   margin-top: 0;
   margin-bottom: 0.75rem;
@@ -150,7 +149,7 @@
   color: #fff;
   cursor: pointer;
   font-size: clamp(0.8rem, 2vw, 0.9rem);
-  font-weight: bold;
+  font-weight: 600;
   margin-right: 15px;
 }
 .content .btn button:last-child { color: rgb(28, 162, 16); }
@@ -284,36 +283,26 @@
     left: 3%;
     width: 85%;
     padding: 0.875rem 1rem;
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
   }
-  .content .title { font-size: clamp(3rem, 8vw, 5rem) !important; font-weight: 800; font-family: garamond, 'Times New Roman', serif; }
-  .content .name { font-size: clamp(1.44rem, 3.6vw, 2.16rem); }
-  .content .des {
-    font-size: clamp(1.08rem, 3vw, 1.32rem);
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
+  .content .title { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 800; }
+  .content .name { font-size: clamp(1rem, 2.5vw, 1.5rem); }
+  .content .des { font-size: clamp(0.8rem, 2vw, 1rem); }
 }
 @media (max-width: 690px) {
   .content-blur-backdrop {
     top: 35%;
     width: 80%;
     padding: 0.75rem 0.875rem;
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
   }
-  .content .title { font-size: clamp(3rem, 8vw, 5rem) !important; font-weight: 800; font-family: garamond, 'Times New Roman', serif; }
-  .content .name { font-size: clamp(1.44rem, 3.6vw, 2.16rem); }
-  .content .des {
-    font-size: clamp(1.08rem, 3vw, 1.32rem);
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
+  .content .title { font-size: clamp(1.2rem, 3.2vw, 1.6rem); font-weight: 800; }
+  .content .name { font-size: clamp(0.9rem, 2vw, 1.2rem); }
+  .content .des { font-size: clamp(0.7rem, 1.8vw, 0.9rem); }
   .content .btn button {
     padding: clamp(6px, 1.5vw, 8px) clamp(10px, 2.5vw, 12px);
-    font-size: clamp(0.7rem, 1.8vw, 0.8rem);
-  }  .bible-popup-overlay {
+    font-size: clamp(0.8rem, 1.8vw, 0.8rem);
+  }
+
+  .bible-popup-overlay {
     padding: 1rem;
   }
 
