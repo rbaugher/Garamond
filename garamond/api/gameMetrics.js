@@ -48,7 +48,9 @@ export default async function handler(req, res) {
         timestamp,
         score,
         level,
-        asteroidsDestroyed
+        asteroidsDestroyed,
+        perMoveStats,
+        openingStats
       } = req.body;
 
       console.log("Extracted values - score:", score, "level:", level, "asteroidsDestroyed:", asteroidsDestroyed);
@@ -72,6 +74,8 @@ export default async function handler(req, res) {
         score: score !== undefined ? Number(score) : null, // For games like Asteroids (can be 0) - ensure it's a number
         level: level !== undefined ? Number(level) : null, // For games with levels (can be 1) - ensure it's a number
         asteroidsDestroyed: asteroidsDestroyed !== undefined ? Number(asteroidsDestroyed) : null, // For Asteroids game (can be 0) - ensure it's a number
+        perMoveStats: Array.isArray(perMoveStats) ? perMoveStats : [],
+        openingStats: openingStats || null,
         timestamp: timestamp || new Date(),
         createdAt: new Date()
       };

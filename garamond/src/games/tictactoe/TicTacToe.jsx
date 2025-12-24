@@ -1,39 +1,60 @@
-import { useDifficulty } from '../components/context/DifficultyContext';
-import { TurnContext } from './Board';
-import React, { useEffect, useContext } from 'react';
+import React from 'react';
+import Board from './Board';
+import Controls from './Controls';
+import PlayerTiles from './components/PlayerTiles';
+import StatusBar from './components/StatusBar';
+import StarterPopout from './components/StarterPopout';
+import { TicTacToeProvider, useTicTacToeContext } from './context/TicTacToeContext';
 import { useGameMode } from '../components/context/gamemodeContext';
-import { WinnerContext } from './Board';
-import { getStoredUser } from '../../utils/session';
 
-
-function TicTacToe() {
-  const { label } = useDifficulty();
-  const { turn } = useContext(TurnContext);
-  const { winner } = useContext(WinnerContext);
+function TicTacToeLayout() {
   const { gamemode } = useGameMode();
-  
-  // Get player nickname from session
-  const user = getStoredUser();
-  const playerNickname = user?.nickname || "Player";
+  const { state, actions, anyTilePlayed, playerNickname } = useTicTacToeContext();
+  const { board, winningTiles, turn, winner, queueO, queueX, deadO, deadX, isMobile, gameMessage, showMessage } = state;
 
   return (
     <>
-        {winner.player === null && gamemode === 0 && (
-          <section className="display">
-            {turn === 'O' ? 'Computer' : playerNickname} <span className={`display-player${turn === 'X' ? 'playerX' : 'playerO'}`}></span>'s turn
-          </section>
-        )}
-        {winner.player === null && gamemode === 1 && (
-          <section className="display">
-            {turn === 'X' ? playerNickname : 'Player'} <span className={`display-player${turn === 'X' ? 'playerX' : 'playerO'}`}></span>'s turn
-          </section>
-        )}
-        {gamemode !== 1 && (
-          <section className="perm-display">
-            Difficulty: <span className="display-difficulty">{label}</span>
-          </section>
-        )}
+      <StarterPopout turn={turn} moveCount={state.moveCount} winner={winner} />
+      <StatusBar turn={turn} winner={winner} playerNickname={playerNickname} />
+      <section className={`gameboard${gamemode === 1 ? ' multiplayer' : ''}${turn === 'X' ? ' x-turn' : ' o-turn'}`}>
+        <PlayerTiles
+          queueO={queueO}
+          deadO={deadO}
+          queueX={queueX}
+          deadX={deadX}
+          turn={turn}
+          winner={winner}
+          isMobile={isMobile}
+          gamemode={gamemode}
+          onSelectPiece={(player, idx, val) => actions.selectPiece(player, idx, val)}
+        />
+        <Board
+          board={board}
+          winningTiles={winningTiles}
+          onTileClick={(idx) => actions.placePiece(idx)}
+          turn={turn}
+          gamemode={gamemode}
+        />
+      </section>
+      {/* Player banner for singleplayer mode (not mobile) */}
+      {gamemode === 0 && !state.isMobile && (
+        <div className="playerbanner" style={{ textAlign: 'center', color: '#fff', fontWeight: 'bold', fontSize: '1.2em', marginBottom: '0.5em' }}>
+          {playerNickname}
+        </div>
+      )}
+      <section style={{ textAlign: 'center', marginTop: '1em', color: 'white' }} />
+      <section style={{ textAlign: 'center', color: 'white' }}>
+        <span className={`game-message${showMessage ? '' : ' fade-out'}`}>{gameMessage}</span>
+        {anyTilePlayed && <Controls onClick={actions.reset} />}
+      </section>
     </>
   );
 }
-export default TicTacToe;
+
+export default function TicTacToe() {
+  return (
+    <TicTacToeProvider>
+      <TicTacToeLayout />
+    </TicTacToeProvider>
+  );
+}

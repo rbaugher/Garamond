@@ -4,6 +4,7 @@ export const marks = [
   { value: 0, label: 'Easy' },
   { value: 1, label: 'Medium' },
   { value: 2, label: 'Hard' },
+  { value: 3, label: 'AI' },
 ];
 
 const DifficultyContext = createContext();
