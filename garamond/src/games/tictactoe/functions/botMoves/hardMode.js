@@ -154,6 +154,9 @@ export function getHardMove(board, context) {
     current.score > best.score ? current : best
   );
 
+  console.log('Move Scores: ', moveScores);
+  console.log('Best Move: ', bestMove);
+
 //---------------------------------------------------------
   // Select the Bot piece to play
     // What bot pieces can be played here?
@@ -186,9 +189,9 @@ export function getHardMove(board, context) {
       pieceScores[2] += 0.5
       pieceScores[3] += 0.1
     } else if(bestMove.score < .15 && bot3Count >= opp3Count){
-      pieceScores[2] += 0.5
+      pieceScores[2] += (0.5 + (.15-bestMove.score))
     } else if(bestMove.score > .3) {
-      pieceScores [3] += 0.5
+      pieceScores [3] += (0.5 + (bestMove.score - .3))
     }
 
     const bestPieceValue = Object.keys(pieceScores).reduce((best, current) => 
@@ -201,6 +204,9 @@ export function getHardMove(board, context) {
     const chosenPieceIdx = validPieceIndices.find(i => valuesMap[i] === bestPiece);
     // Returns the actual piece index (0-5) for a piece with value 2
   
+    console.log('Piece Scores: ', pieceScores);
+    console.log('Best Piece: ', bestPiece);
+    console.log('Piece Index: ', chosenPieceIdx);
     // After finding bestMove and choosing piece
 return {
   moveIdx: bestMove.index,

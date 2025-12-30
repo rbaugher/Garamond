@@ -15,6 +15,7 @@ export function getBotMove(board, deadO, difficulty, deadX) {
   // Closure helpers for this game state
   const availablePieceIndices = () => getAvailablePieceIndices(deadO);
   const availableOpponentPieceIndices = () => getAvailablePieceIndices(deadX);
+  const availableOpponentPieceValues = () => getAvailablePieceValues(deadX);
 
   // Board analysis
   const maxAvailable = getMaxAvailablePieceValue(deadO);
@@ -35,6 +36,7 @@ export function getBotMove(board, deadO, difficulty, deadX) {
   const context = {
     availablePieceIndices,
     availableOpponentPieceIndices,
+    availableOpponentPieceValues,
     botPlayer,
     opponent,
     winningConditions: WINNING_CONDITIONS,

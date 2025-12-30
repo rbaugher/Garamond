@@ -292,5 +292,12 @@ export function useTicTacToe({ gamemode, difficulty }) {
     }
   }, [gamemode, difficulty, playerNickname]);
 
+  // Reset game when difficulty or gamemode changes (only if game has started)
+  useEffect(() => {
+    if (anyTilePlayed) {
+      actions.reset();
+    }
+  }, [difficulty, gamemode]);
+
   return { state, actions, anyTilePlayed, playerNickname };
 }

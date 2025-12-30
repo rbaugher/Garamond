@@ -156,3 +156,51 @@
     right: 10px;
   }
 }
+
+/* Stats Styling */
+.stats-info {
+  color: #e0e0e0;
+}
+
+.stats-overall {
+  background: rgba(156, 118, 228, 0.1);
+  border: 1px solid rgba(156, 118, 228, 0.3);
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.stats-overall h3 {
+  color: #9c76e4;
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.stats-overall p {
+  margin: 8px 0;
+  font-size: 16px;
+}
+
+.stats-by-difficulty h3 {
+  color: #9c76e4;
+  margin-bottom: 15px;
+}
+
+.difficulty-stats {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+
+.difficulty-stats h4 {
+  color: #fff;
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+
+.difficulty-stats p {
+  margin: 5px 0;
+  font-size: 14px;
+}

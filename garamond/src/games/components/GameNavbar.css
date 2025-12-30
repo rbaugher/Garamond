@@ -72,6 +72,11 @@
   align-items: center;
 }
 
+/* Mobile Icon Controls */
+.game-controls-mobile {
+  display: none;
+}
+
 .control-button {
   color: #fff !important;
   border-color: #9c76e4 !important;
@@ -85,6 +90,11 @@
   background-color: rgba(156, 118, 228, 0.3) !important;
   border-color: #498AFB !important;
   transform: translateY(-2px);
+}
+
+.control-button.icon-only {
+  min-width: 40px;
+  padding: 0.5rem !important;
 }
 
 /* User Avatar */
@@ -254,7 +264,8 @@
   }
 
   .game-navbar-container {
-    padding: 0 15px;
+    padding: 0 10px;
+    gap: 0.5rem;
   }
 
   .game-title {
@@ -277,6 +288,17 @@
   }
 
   .game-controls {
+    display: none;
+  }
+
+  .game-controls-mobile {
+    display: flex;
+    gap: 0.15rem;
+    align-items: center;
+    order: 3;
+  }
+
+  .user-avatar {
     display: none;
   }
 
@@ -305,7 +327,8 @@
     display: block;
     position: relative;
     margin-left: auto;
-    order: 3;
+    margin-right: 0.5rem;
+    order: 4;
   }
 
   .fa-bars {

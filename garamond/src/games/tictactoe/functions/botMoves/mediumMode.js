@@ -64,7 +64,7 @@ export function getMediumMove(board, context) {
   
   // --- Scoring helpers ---
   function scoreImmediateWin(simBoard, pieceValue) {
-    const winAfter = findWinningMove(simBoard, botPlayer);
+    const winAfter = findWinningMove(simBoard, botPlayer, context);
     if (winAfter.idx !== null) {
       return WIN_SCORE + (4 - pieceValue) * 100;
     }

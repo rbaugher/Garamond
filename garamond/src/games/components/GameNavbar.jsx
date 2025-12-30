@@ -121,6 +121,35 @@ function GameNavbar({ activeControl, onControlChange, onControlClose, title, con
           </div>
         )}
 
+        {/* Mobile Icon Controls (horizontal row) */}
+        {isMobile && (
+          <div className="game-controls-mobile">
+            { (controls || ['gamemode','difficulty','mechanics','stats']).map((c) => {
+              const Comp = controlComponents[c] || ({
+                gamemode: GameModeControl,
+                difficulty: DifficultyControl,
+                mechanics: MechanicsControl,
+                settings: SettingsControl,
+                stats: StatsControl
+              })[c];
+              const props = controlProps[c] || {};
+              if (!Comp) return null;
+              return (
+                <Comp
+                  key={`mobile-icon-${c}`}
+                  id={`${c}-mobile-icon`}
+                  size="small"
+                  variant="text"
+                  active={activeControl === c}
+                  onToggle={() => handleControlClick(c)}
+                  iconOnly
+                  {...props}
+                />
+              );
+            })}
+          </div>
+        )}
+
         {/* User Profile */}
         {!isMobile && user && (
           <div className="user-avatar" title={user.nickname || user.name} ref={menuRef}>
@@ -178,12 +207,8 @@ function GameNavbar({ activeControl, onControlChange, onControlClose, title, con
             </Link>
           </li>
           <li className="game-nav-item">
-            <Link to="/statistics" className="game-nav-link" onClick={closeMobileMenu}>
-              Statistics
-            </Link>
-          </li>
-          <li className="game-nav-item">
             <Link to="/sign-up" className="game-nav-link" onClick={closeMobileMenu}>
+              <ArrowBackIcon fontSize="small" />
               Sign Up
             </Link>
           </li>

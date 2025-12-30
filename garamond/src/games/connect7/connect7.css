@@ -1,0 +1,219 @@
+.connect7-root {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  gap: 2rem;
+  row-gap: 1rem;
+  align-items: center;
+  justify-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+}
+
+.game-header {
+  display: flex;
+  gap: 8px;
+  background: linear-gradient(180deg, #d0d5db 0%, #f4f7f9 100%);
+  padding: 12px 16px;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(4,23,56,0.4);
+  margin-bottom: 0.5rem;
+}
+
+.header-disc {
+  width: 52px;
+  height: 52px;
+  background: radial-gradient(circle at 30% 30%, #110e0e, #0f0c0c 20%, #0d0b0b 50%, #0e0707 100%);
+  border-radius: 50%;
+  box-shadow: inset 0 -6px 12px rgba(0,0,0,0.25);
+}
+
+.connect7-board {
+  display: grid;
+  grid-template-columns: repeat(7, 64px);
+  grid-template-rows: repeat(6, 64px);
+  gap: 8px;
+  background: linear-gradient(180deg, #0b57a4 0%, #084e94 100%);
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(4,23,56,0.6);
+}
+
+.connect7-cell {
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.06);
+  border-radius: 8px;
+}
+
+.header-cell {
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: default;
+}
+
+.header-cell.clickable {
+  cursor: pointer;
+}
+
+.header-cell.clickable:hover .header-disc {
+  transform: scale(1.1);
+  background: radial-gradient(circle at 30% 30%, #2a2626, #221f1f 20%, #1a1818 50%, #1b1414 100%);
+}
+
+.header-cell .header-disc {
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+
+
+.connect7-disc {
+  width: 52px;
+  height: 52px;
+  background: radial-gradient(circle at 30% 30%, #fff, #d9e9ff 20%, #bcd6f8 50%, #8fb0e6 100%);
+  border-radius: 50%;
+  box-shadow: inset 0 -6px 12px rgba(0,0,0,0.25);
+}
+
+.connect7-disc.player-red {
+  background: radial-gradient(circle at 30% 30%, #ff9999, #ff6b6b 20%, #e63946 50%, #d62828 100%);
+}
+
+.connect7-disc.player-yellow {
+  background: radial-gradient(circle at 30% 30%, #fff9b0, #ffeb3b 20%, #fbc02d 50%, #f9a825 100%);
+}
+
+/* Player disc interaction states */
+.connect7-disc.active-player {
+  cursor: pointer;
+  box-shadow: inset 0 -6px 12px rgba(0,0,0,0.25), 0 0 0 3px rgba(255,255,255,0.5);
+}
+
+.connect7-disc.active-player:hover {
+  transform: scale(1.1);
+  box-shadow: inset 0 -6px 12px rgba(0,0,0,0.25), 0 0 0 4px rgba(255,255,255,0.7);
+}
+
+.connect7-disc.selected {
+  animation: pulse 0.8s ease-in-out infinite;
+  box-shadow: inset 0 -6px 12px rgba(0,0,0,0.25), 0 0 0 4px rgba(255,255,255,0.9), 0 0 20px rgba(255,255,255,0.6);
+}
+
+/* Drop animation */
+.dropping-disc {
+  position: absolute;
+  top: 0;
+  animation: dropPiece 0.5s ease-in forwards;
+}
+
+@keyframes dropPiece {
+  from {
+    transform: translateY(-80px);
+    opacity: 0.8;
+  }
+  to {
+    transform: translateY(calc(100% + 8px));
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.player-pieces-left .connect7-disc,
+.player-pieces-right .connect7-disc {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.player-pieces-left,
+.player-pieces-right {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+}
+
+.disc-value {
+  position: absolute;
+  color: white;
+  font-weight: bold;
+  font-size: 1.5rem;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  pointer-events: none;
+}
+
+.connect7-disc {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.connect7-hint {
+  grid-column: 1 / -1;
+  color: #eaf4ff;
+  font-size: 0.95rem;
+  opacity: 0.9;
+  text-align: center;
+  min-height: 1.5rem;
+}
+
+.winning-cell {
+  background: rgba(255, 215, 0, 0.3) !important;
+  animation: winPulse 1s ease-in-out infinite;
+}
+
+@keyframes winPulse {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+  }
+}
+
+.reset-button {
+  margin-top: 1rem;
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  font-weight: bold;
+  color: white;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.reset-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.6);
+}
+
+.reset-button:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 720px) {
+  .connect7-board {
+    grid-template-columns: repeat(7, 40px);
+    grid-template-rows: repeat(6, 40px);
+    gap: 6px;
+    padding: 8px;
+  }
+  .connect7-cell { width: 40px; height: 40px; }
+  .connect7-disc { width: 32px; height: 32px; }
+}
