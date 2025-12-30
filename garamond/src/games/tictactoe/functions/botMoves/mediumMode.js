@@ -1,6 +1,13 @@
 import { valuesMap } from '../helperFunctions/pieceHelpers';
 import { getEasyMove } from './easyMode';
-import { findWinningMove, findBlockingMove } from '../helperFunctions/botmovelogic';
+import { 
+  findWinningMove, 
+  findBlockingMove,
+  isThreatLine,
+  isSetupLine,
+  hasTwoOfPlayer,
+  countEmptyInLine
+} from '../helperFunctions/botmovelogic';
 import {
   pieceCounts,
   computeUsed3s,
@@ -8,10 +15,12 @@ import {
   validPiecesForMove,
   getPositionValue as getPosValue,
   openingMoves,
-  canOpponentOvertake as canOppOvertake
+  canOpponentOvertake as canOppOvertake,
+  canUse3 as canUse3Helper,
+  choosePieceForPosition as choosePieceHelper
 } from '../helperFunctions/strategyHelpers';
 
-// Medium mode now uses the advanced strategy previously in hard mode
+// Medium mode now uses the advanced strategy
 export function getMediumMove(board, context) {
   const {
     availablePieceIndices,
@@ -47,43 +56,11 @@ export function getMediumMove(board, context) {
   
   if (VERBOSE) console.log("Opp pieces:", oppPieceCounts);
   
+  const gameState = { oppPieceCounts, maxOppValue, playerUsed3s, botUsed3s };
   const getPositionValue = (idx) => getPosValue(idx);
-  
-  // Use shared helper for consistency
   const canOpponentOvertake = (pieceValue) => canOppOvertake(pieceValue, deadX);
-  
-  function choosePieceForPosition(moveIdx, currentValue = 0) {
-    const validPieces = availablePieceIndices().filter(i => valuesMap[i] > currentValue);
-    if (validPieces.length === 0) return null;
-    
-    const posValue = getPositionValue(moveIdx);
-    
-    const ones = validPieces.filter(i => valuesMap[i] === 1);
-    const twos = validPieces.filter(i => valuesMap[i] === 2);
-    const threes = validPieces.filter(i => valuesMap[i] === 3);
-    
-    if (posValue <= 20 && ones.length > 0) {
-      return ones[0];
-    }
-    
-    if (posValue >= 60) {
-      if (oppPieceCounts[3] > 0 && twos.length > 0) {
-        return twos[0];
-      }
-      if (maxOppValue <= 2 && ones.length > 0) {
-        return ones[0];
-      }
-      if (maxOppValue <= 1 && ones.length > 0) {
-        return ones[0];
-      }
-    }
-    
-    if (ones.length > 0) return ones[0];
-    if (twos.length > 0) return twos[0];
-    if (threes.length > 0) return threes[0];
-    
-    return validPieces[0];
-  }
+  const choosePieceForPosition = (moveIdx, currentValue = 0) => 
+    choosePieceHelper(moveIdx, currentValue, availablePieceIndices, gameState);
   
   // --- Scoring helpers ---
   function scoreImmediateWin(simBoard, pieceValue) {
@@ -100,7 +77,7 @@ export function getMediumMove(board, context) {
     for (let condition of winningConditions) {
       if (condition.includes(moveIdx)) {
         const values = condition.map(i => simBoard[i].player);
-        if (values.filter(v => v === botPlayer).length === 2 && values.filter(v => v === null).length === 1) {
+        if (isThreatLine(values, botPlayer)) {
           threats++;
           const botPiecesInLine = condition.filter(i => simBoard[i].player === botPlayer);
           const allSecure = botPiecesInLine.every(i => simBoard[i].value === 3 || (simBoard[i].value === 2 && oppPieceCounts[3] === 0));
@@ -139,7 +116,7 @@ export function getMediumMove(board, context) {
     for (let condition of winningConditions) {
       if (condition.includes(moveIdx)) {
         const values = condition.map(i => board[i].player);
-        if (values.filter(v => v === opponent).length === 2) {
+        if (hasTwoOfPlayer(values, opponent)) {
           blockedThreats++;
         }
       }
@@ -179,13 +156,7 @@ export function getMediumMove(board, context) {
     }
   }
   
-  
-  function canUse3() {
-    if (playerUsed3s === 0 && botUsed3s >= 1) return false;
-    const botPiecesUsed = deadO.filter(Boolean).length;
-    const playerPiecesUsed = deadX.filter(Boolean).length;
-    return playerUsed3s > 0 || (botPiecesUsed >= 5 && playerPiecesUsed >= 5);
-  }
+  const canUse3 = () => canUse3Helper(gameState, deadO, deadX);
   
   const winIdx = findWinningMove(board, botPlayer, context);
   if (winIdx.idx !== null) {
@@ -230,8 +201,7 @@ export function getMediumMove(board, context) {
   for (let condition of winningConditions) {
     const [a, b, c] = condition;
     const values = [board[a].player, board[b].player, board[c].player];
-    if (values.filter(v => v === opponent).length === 1 && 
-        values.filter(v => v === null).length === 2) {
+    if (isSetupLine(values, opponent)) {
       for (let idx of [a, b, c]) {
         if (board[idx].value === null && moves.includes(idx)) {
           const validPieces = getValidPiecesForMove(idx);

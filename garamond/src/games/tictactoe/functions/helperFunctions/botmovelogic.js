@@ -1,6 +1,77 @@
 // src/games/tictactoe/functions/botMoves/botmovelogic.js
 // Pure helper functions and constants for bot move logic across all difficulty modes
 
+/**
+ * FUNCTION INDEX:
+ * 
+ * Line Checking Helpers:
+ * - countPlayerInLine(values, player) → number
+ *   Counts how many pieces belong to the specified player in a line
+ *   Input: values (array of player strings on a given winning condition), player ('X' or 'O')
+ *   Output: count (number)
+ * 
+ * - countEmptyInLine(values) → number
+ *   Counts how many empty spaces are in a line
+ *   Input: values (array of player strings or null on a given winning condition)
+ *   Output: count (number)
+ * 
+ * - isThreatLine(values, player) → boolean
+ *   Checks if a line has 2 pieces of player and 1 empty (winning threat)
+ *   Input: values (array of player strings or null), player ('X' or 'O')
+ *   Output: true if threat exists, false otherwise
+ * 
+ * - isSetupLine(values, player) → boolean
+ *   Checks if a line has 1 piece of player and 2 empty (setup opportunity)
+ *   Input: values (array of player strings or null), player ('X' or 'O')
+ *   Output: true if setup exists, false otherwise
+ * 
+ * - hasTwoOfPlayer(values, player) → boolean
+ *   Checks if a line has 2 or more pieces belonging to player
+ *   Input: values (array of player strings or null), player ('X' or 'O')
+ *   Output: true if 2+ pieces found, false otherwise
+ * 
+ * Strategic Move Finders:
+ * - findWinningMove(board, player, context) → {idx: number|null, condition: array|null}
+ *   Finds a move that would immediately win the game for player
+ *   Input: board (array of 9 tiles), player ('X' or 'O'), context (game state object)
+ *   Output: {idx: winning move index or null, condition: winning line or null}
+ * 
+ * - findBlockingMove(board, player, context) → {moveIdx: number|null, pieceIdx: number|null, moveReason: string|null}
+ *   Finds a move to block opponent from winning
+ *   Input: board (array of 9 tiles), player ('X' or 'O'), context (game state object)
+ *   Output: {moveIdx: block position, pieceIdx: piece to use, moveReason: 'block' or 'block takeover'}
+ * 
+ * - findSetupMove(board, player, context) → {moveIdx: number, pieceIdx: number, moveReason: string}|null
+ *   Finds a move to set up a winning opportunity (get 2 in a row)
+ *   Input: board (array of 9 tiles), player ('X' or 'O'), context (game state object)
+ *   Output: {moveIdx, pieceIdx, moveReason: 'setup' or 'setup takeover'} or null
+ * 
+ * - findForkMove(board, player, context) → number|null
+ *   Finds a move that creates multiple winning threats simultaneously
+ *   Input: board (array of 9 tiles), player ('X' or 'O'), context (game state object)
+ *   Output: fork move index or null
+ * 
+ * - findBlockForkMove(board, player, context) → number|null
+ *   Finds a move to block opponent's fork opportunity
+ *   Input: board (array of 9 tiles), player ('X' or 'O'), context (game state object)
+ *   Output: block fork move index or null
+ * 
+ * - findOppositeCornerMove(board, player) → number|null
+ *   Finds opposite corner to opponent's corner piece
+ *   Input: board (array of 9 tiles), player ('X' or 'O')
+ *   Output: opposite corner index or null
+ * 
+ * - findEmptySideMove(board) → number|null
+ *   Finds an empty side position (edges, not corners)
+ *   Input: board (array of 9 tiles)
+ *   Output: empty side index or null
+ * 
+ * - findTakeoverMove(board, player, context) → {moveIdx: number, pieceIdx: number, moveReason: string}|null
+ *   Finds a strategic takeover of opponent's piece
+ *   Input: board (array of 9 tiles), player ('X' or 'O'), context (game state object)
+ *   Output: {moveIdx, pieceIdx, moveReason: 'takeover win'|'takeover fork'|'takeover 2'} or null
+ */
+
 import { valuesMap, getMaxAvailablePieceValue } from './pieceHelpers';
 
 // Shared board constants
@@ -13,6 +84,27 @@ export const WINNING_CONDITIONS = [
 export const CORNERS = [0, 2, 6, 8];
 export const SIDES = [1, 3, 5, 7];
 export const CENTER = 4;
+
+// Line checking helpers
+export function countPlayerInLine(values, player) {
+  return values.filter(v => v === player).length;
+}
+
+export function countEmptyInLine(values) {
+  return values.filter(v => v === null).length;
+}
+
+export function isThreatLine(values, player) {
+  return countPlayerInLine(values, player) === 2 && countEmptyInLine(values) === 1;
+}
+
+export function isSetupLine(values, player) {
+  return countPlayerInLine(values, player) === 1 && countEmptyInLine(values) === 2;
+}
+
+export function hasTwoOfPlayer(values, player) {
+  return countPlayerInLine(values, player) === 2;
+}
 
 // Helper: find winning move for a player
 export function findWinningMove(board, player, context) {

@@ -46,19 +46,33 @@ export function getBotMove(board, deadO, difficulty, deadX) {
   };
 
   // Route to appropriate difficulty strategy
+  let result;
   if (difficulty === 0 && deadO.filter(idx => idx === true).length < 1) {
-    return getEasyMove(board, context);
-  }
-  if (difficulty === 1 || (difficulty === 0 && deadO.filter(idx => idx === true).length >= 1)) {
-    return getMediumMove(board, context);
-  }
-  if (difficulty === 2) {
-    return getHardMove(board, context);
-  }
-  if (difficulty === 3) {
-    return getAIMove(board, context);
+    result = getEasyMove(board, context);
+  } else if (difficulty === 1 || (difficulty === 0 && deadO.filter(idx => idx === true).length >= 1)) {
+    result = getMediumMove(board, context);
+  } else if (difficulty === 2) {
+    result = getHardMove(board, context);
+  } else if (difficulty === 3) {
+    result = getAIMove(board, context);
   }
 
-  return { moveIdx: null, pieceIdx: null, moveReason: 'error' };
+  // Fallback: if no move found, return random valid move
+  if (result && result.moveIdx !== null) {
+    return result;
+  }
+
+  const moves = availableMoves();
+  const pieces = availablePieceIndices();
+  
+  if (moves.length > 0 && pieces.length > 0) {
+    return {
+      moveIdx: moves[Math.floor(Math.random() * moves.length)],
+      pieceIdx: pieces[Math.floor(Math.random() * pieces.length)],
+      moveReason: 'fallback-random'
+    };
+  }
+
+  return { moveIdx: null, pieceIdx: null, moveReason: 'no-valid-moves' };
 }
 
