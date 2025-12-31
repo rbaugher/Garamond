@@ -1,7 +1,7 @@
 /**
  * Check for a winner in Connect 7
- * A player wins when any continuous combination of their pieces equals 8
- * (e.g., 1+1+2+3+1 = 8, or 3+2+3 = 8, or 2+2+2+2 = 8)
+ * A player wins when any continuous combination of their pieces equals 7
+ * (e.g., 1+3+3 = 7, or 2+2+3 = 7, or 1+1+2+3 = 7)
  */
 export function checkWinner(board, columns, rows) {
   const TARGET_SUM = 7;
@@ -10,11 +10,11 @@ export function checkWinner(board, columns, rows) {
   const checkSequence = (indices) => {
     const cells = indices.map(idx => board[idx]);
     
-    // Skip if any cell is empty
-    if (cells.some(cell => !cell.player)) return null;
-    
     // Check all possible continuous subsequences
     for (let start = 0; start < cells.length; start++) {
+      // Skip empty starting cells
+      if (!cells[start].player) continue;
+      
       let sum = 0;
       let player = cells[start].player;
       const winningIndices = [];

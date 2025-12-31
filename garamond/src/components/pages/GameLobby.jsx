@@ -29,11 +29,11 @@ const GameLobby = () => {
       disabled: false,
     },
     {
-      id: 'connect3',
-      title: 'Connect 3',
-      description: 'Drop pieces and try to connect three in a row!',
+      id: 'connect7',
+      title: 'Connect 7',
+      description: 'Drop numbered pieces to create sequences that sum to 8!',
       image: '/images/heavens1.jpg',
-      route: '/game/connect3',
+      route: '/game/connect7',
       disabled: false,
     },
     {

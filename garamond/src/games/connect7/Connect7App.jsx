@@ -39,7 +39,7 @@ function Connect7Layout() {
           {discValues.map((value, idx) => (
             <div
               key={idx}
-              className={`connect3-disc player-red ${
+              className={`connect7-disc player-red ${
                 turn === 'red' && !winner ? 'active-player' : ''
               } ${
                 selectedDisc.player === 'red' && selectedDisc.value === value ? 'selected' : ''
@@ -61,7 +61,7 @@ function Connect7Layout() {
           {discValues.map((value, idx) => (
             <div
               key={idx}
-              className={`connect3-disc player-yellow ${
+              className={`connect7-disc player-yellow ${
                 turn === 'yellow' && !winner ? 'active-player' : ''
               } ${
                 selectedDisc.player === 'yellow' && selectedDisc.value === value ? 'selected' : ''
