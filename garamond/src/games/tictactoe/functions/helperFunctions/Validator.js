@@ -13,7 +13,6 @@ export function validMove(board, tileIndex, lastSelected, setGameMessage) {
         setGameMessage("Invalid move! You cannot place on your own tile.");
         return false;
     }
-    console.log("Move is valid");
     return true;
 }
 
@@ -32,7 +31,6 @@ export function noPossibleMove(board, deadO, deadX) {
         if (board[i].value === null) {
             // Ensure there are still tiles to be played
             if (deadO.includes(false) || deadX.includes(false)) {
-                console.log("Empty spot found at index", i, "with available tiles");
                 return false; // Found an empty spot and tiles are available
             }
         }
@@ -40,7 +38,6 @@ export function noPossibleMove(board, deadO, deadX) {
             // Check if 'X' can place a higher tile here
             for (let j = 0; j < deadX.length; j++) {
                 if (!deadX[j] && tileValueMap[j] > board[i].value) {
-                    console.log("X can place a higher tile at index", i);
                     return false; // 'X' can place a higher tile
                 }
             }
@@ -48,7 +45,6 @@ export function noPossibleMove(board, deadO, deadX) {
             // Check if 'O' can place a higher tile here   
             for (let j = 0; j < deadO.length; j++) {
                 if (!deadO[j] && tileValueMap[j] > board[i].value) {
-                    console.log("O can place a higher tile at index", i);
                     return false; // 'O' can place a higher tile
                 }
             } 

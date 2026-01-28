@@ -30,7 +30,8 @@ export function setStoredUser(userObj) {
       nickname: userObj.nickname || null,
       email: userObj.email || null,
       avatar: userObj.avatar || '🧑',
-      preferredColor: userObj.preferredColor || '#4ECDC4'
+      preferredColor: userObj.preferredColor || '#4ECDC4',
+      mailingList: userObj.mailingList || false
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(toStore));
     // Dispatch event so other components (Navbar) can react

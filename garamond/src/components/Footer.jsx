@@ -1,10 +1,10 @@
 // Footer.jsx
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import './Footer.css';
 import  { Button }  from './Button';
 import { Link } from 'react-router-dom';
 import AutoGrowTextarea from "./sub-components/AutoGrowTextArea";
-import { getStoredUserName } from '../utils/session';
+import { getStoredUser, getStoredUserName } from '../utils/session';
 
 // SAT Vocabulary Bank
 const SAT_WORDS = [
@@ -138,6 +138,90 @@ function FooterForm() {
   );
 }
 
+// ---------------------- MailingListForm Component ----------------------
+function MailingListForm() {
+  const [user, setUser] = useState(null);
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    const userData = getStoredUser();
+    if (userData) {
+      setUser(userData);
+      // Read mailing list status directly from stored user data
+      setIsSubscribed(userData.mailingList || false);
+    }
+  }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setMessage('');
+
+    if (!user) {
+      setMessage('Please sign in to manage mailing list preferences');
+      return;
+    }
+
+    try {
+      const apiBase = (import.meta.env && import.meta.env.VITE_API_BASE) ? import.meta.env.VITE_API_BASE : '';
+      const newStatus = !isSubscribed;
+      
+      const response = await fetch(`${apiBase}/api/updateMailingList`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          userId: user.id,
+          subscribe: newStatus
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setIsSubscribed(newStatus);
+        
+        // Update localStorage to keep it in sync
+        const updatedUser = { ...user, mailingList: newStatus };
+        localStorage.setItem('garamondUser', JSON.stringify(updatedUser));
+        setUser(updatedUser);
+        
+        setMessage(data.message);
+      } else {
+        setMessage(data.message || 'An error occurred. Please try again.');
+      }
+    } catch (error) {
+      console.error('Mailing list error:', error);
+      setMessage('An error occurred. Please try again.');
+    }
+  };
+
+  return (
+    <div style={{ marginTop: '8px' }}>
+      {user ? (
+        <>
+          <p style={{ fontSize: '0.9em', marginBottom: '8px', color: '#fff' }}>
+            {user.email}
+          </p>
+          <form onSubmit={handleSubmit}>
+            <Button type="submit" buttonStyle="btn--outline">
+              {isSubscribed ? 'Unsubscribe' : 'Subscribe'}
+            </Button>
+          </form>
+        </>
+      ) : (
+        <p style={{ fontSize: '0.9em', color: '#fff' }}>
+          Please sign in to subscribe
+        </p>
+      )}
+      {message && (
+        <p style={{ fontSize: '0.85em', marginTop: '8px', color: '#fff' }}>
+          {message}
+        </p>
+      )}
+    </div>
+  );
+}
+
 // ---------------------- Footer Component ----------------------
 function Footer() {
   // Generate random values once per component mount using useMemo
@@ -154,77 +238,85 @@ function Footer() {
 
   return (
     <div className="footer-container">
-      <section className="footer-subscription">
-        <p className="footer-subscription-heading">
-          Feedback is always Welcome! Have Suggestions?
-        </p>
-        <FooterForm />
-      </section>
+      <div className="footer-content">
+        <section className="footer-subscription">
+          <p className="footer-subscription-heading">
+            Feedback is always Welcome! Have Suggestions?
+          </p>
+          <FooterForm />
+        </section>
 
-      <div className="footer-links">
-        <div className="footer-link-wrapper">
-          <div className="footer-link-items">
-            <h2>About</h2>
-            <Link to="#" onClick={(e) => { e.preventDefault(); toggleSection('how'); }}>
-              How it Works
-            </Link>
-            {expandedSection === 'how' && (
-              <div style={{ fontSize: '0.9em', marginTop: '4px', color: '#fff' }}>
-                Play games, track stats, compete on leaderboards!
-              </div>
-            )}
-            <Link to="#" onClick={(e) => { e.preventDefault(); toggleSection('mission'); }}>
-              Mission Statement
-            </Link>
-            {expandedSection === 'mission' && (
-              <div style={{ fontSize: '0.9em', marginTop: '4px', color: '#fff' }}>
-                Enjoy God and glorify Him forever
-              </div>
-            )}
-            <Link to="#" onClick={(e) => { e.preventDefault(); toggleSection('objectives'); }}>
-              3 Objectives
-            </Link>
-            {expandedSection === 'objectives' && (
-              <div style={{ fontSize: '0.9em', marginTop: '4px', color: '#fff' }}>
-                1. Win<br />
-                2. Don't lose<br />
-                3. Don't tie
-              </div>
-            )}
+        <div className="footer-links">
+          <div className="footer-link-wrapper">
+            <div className="footer-link-items">
+              <h2>About</h2>
+              <Link to="#" onClick={(e) => { e.preventDefault(); toggleSection('how'); }}>
+                How it Works
+              </Link>
+              {expandedSection === 'how' && (
+                <div style={{ fontSize: '0.9em', marginTop: '4px', color: '#fff' }}>
+                  Play games, track stats, compete on leaderboards!
+                </div>
+              )}
+              <Link to="#" onClick={(e) => { e.preventDefault(); toggleSection('mission'); }}>
+                Mission Statement
+              </Link>
+              {expandedSection === 'mission' && (
+                <div style={{ fontSize: '0.9em', marginTop: '4px', color: '#fff' }}>
+                  Enjoy God and glorify Him forever
+                </div>
+              )}
+              <Link to="#" onClick={(e) => { e.preventDefault(); toggleSection('objectives'); }}>
+                3 Objectives
+              </Link>
+              {expandedSection === 'objectives' && (
+                <div style={{ fontSize: '0.9em', marginTop: '4px', color: '#fff' }}>
+                  1. Win<br />
+                  2. Don't lose<br />
+                  3. Don't tie
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-        <div className="footer-link-wrapper">
-          <div className="footer-link-items">
-            <h2>Thoughts</h2>
-            <div style={{ marginBottom: '10px' }}>
-              <Link to="#" onClick={(e) => { e.preventDefault(); toggleSection('word'); }}>
-                Word of the Week
-              </Link>
-              {expandedSection === 'word' && (
-                <div style={{ fontSize: '0.9em', marginTop: '4px', color: '#fff' }}>
-                  <em>{wordOfWeek.word}</em> - {wordOfWeek.definition}
-                </div>
-              )}
+          <div className="footer-link-wrapper">
+            <div className="footer-link-items">
+              <h2>Thoughts</h2>
+              <div style={{ marginBottom: '10px' }}>
+                <Link to="#" onClick={(e) => { e.preventDefault(); toggleSection('word'); }}>
+                  Word of the Week
+                </Link>
+                {expandedSection === 'word' && (
+                  <div style={{ fontSize: '0.9em', marginTop: '4px', color: '#fff' }}>
+                    <em>{wordOfWeek.word}</em> - {wordOfWeek.definition}
+                  </div>
+                )}
+              </div>
+              <div style={{ marginBottom: '10px' }}>
+                <Link to="#" onClick={(e) => { e.preventDefault(); toggleSection('codename'); }}>
+                  Codename of the Day
+                </Link>
+                {expandedSection === 'codename' && (
+                  <div style={{ fontSize: '0.9em', marginTop: '4px', color: '#fff' }}>
+                    {codename}
+                  </div>
+                )}
+              </div>
+              <div>
+                <Link to="#" onClick={(e) => { e.preventDefault(); toggleSection('probability'); }}>
+                  Current Probabilities
+                </Link>
+                {expandedSection === 'probability' && (
+                  <div style={{ fontSize: '0.9em', marginTop: '4px', color: '#fff' }}>
+                    {probability}
+                  </div>
+                )}
+              </div>
             </div>
-            <div style={{ marginBottom: '10px' }}>
-              <Link to="#" onClick={(e) => { e.preventDefault(); toggleSection('codename'); }}>
-                Codename of the Day
-              </Link>
-              {expandedSection === 'codename' && (
-                <div style={{ fontSize: '0.9em', marginTop: '4px', color: '#fff' }}>
-                  {codename}
-                </div>
-              )}
-            </div>
-            <div>
-              <Link to="#" onClick={(e) => { e.preventDefault(); toggleSection('probability'); }}>
-                Current Probabilities
-              </Link>
-              {expandedSection === 'probability' && (
-                <div style={{ fontSize: '0.9em', marginTop: '4px', color: '#fff' }}>
-                  {probability}
-                </div>
-              )}
+          </div>
+          <div className="footer-link-wrapper">
+            <div className="footer-link-items">
+              <h2>Mailing List</h2>
+              <MailingListForm />
             </div>
           </div>
         </div>

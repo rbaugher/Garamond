@@ -67,6 +67,7 @@ if (process.env.NODE_ENV === 'development') {
 				email: user.email,
 				avatar: user.avatar,
 				preferredColor: user.preferredColor,
+				mailingList: user.mailingList || false,
 				createdAt: user.createdAt
 			}
 		});

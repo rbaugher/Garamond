@@ -45,7 +45,8 @@ export default function SignUp({ onSignUpComplete }) {
     avatar: AVATAR_OPTIONS[0].emoji, // Default to first avatar
     preferredColor: "#4ECDC4",
     favoriteBibleVerse: "",
-    wouldYouRatherAnswer: ""
+    wouldYouRatherAnswer: "",
+    mailingList: false
   });
 
   // Word lists for auto-nickname
@@ -152,7 +153,8 @@ export default function SignUp({ onSignUpComplete }) {
           avatar: formData.avatar,
           preferredColor: formData.preferredColor,
           favoriteBibleVerse: formData.favoriteBibleVerse,
-          wouldYouRatherAnswer: formData.wouldYouRatherAnswer
+          wouldYouRatherAnswer: formData.wouldYouRatherAnswer,
+          mailingList: formData.mailingList
         })
       });
 
@@ -203,7 +205,8 @@ export default function SignUp({ onSignUpComplete }) {
           avatar: AVATAR_OPTIONS[0].emoji,
           preferredColor: "#4ECDC4",
           favoriteBibleVerse: "",
-          wouldYouRatherAnswer: ""
+          wouldYouRatherAnswer: "",
+          mailingList: false
         });
         
         // Call the callback if provided (e.g., when used in SignIn)
@@ -292,6 +295,19 @@ export default function SignUp({ onSignUpComplete }) {
                   placeholder="Enter your email"
                   required
                 />
+              </div>
+              <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <input
+                  type="checkbox"
+                  id="mailingList"
+                  name="mailingList"
+                  checked={formData.mailingList}
+                  onChange={(e) => setFormData(prev => ({ ...prev, mailingList: e.target.checked }))}
+                  style={{ width: 'auto', cursor: 'pointer' }}
+                />
+                <label htmlFor="mailingList" style={{ margin: 0, cursor: 'pointer' }}>
+                  Subscribe to our mailing list for updates and news
+                </label>
               </div>
             </div>
 

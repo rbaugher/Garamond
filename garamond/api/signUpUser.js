@@ -52,7 +52,7 @@ export default async function handler(req, res) {
       const collection = db.collection("Users");
 
 
-      const { name, nickname, email, avatar, preferredColor, favoriteBibleVerse, wouldYouRatherAnswer } = req.body;
+      const { name, nickname, email, avatar, preferredColor, favoriteBibleVerse, wouldYouRatherAnswer, mailingList } = req.body;
 
       // Validate required fields
       if (!name || !nickname || !email || !avatar) {
@@ -126,6 +126,7 @@ export default async function handler(req, res) {
         preferredColor: preferredColor || "#4ECDC4",
         favoriteBibleVerse: favoriteBibleVerse || null,
         wouldYouRatherAnswer: wouldYouRatherAnswer || null,
+        mailingList: mailingList || false,
         createdAt: new Date(),
         updatedAt: new Date()
       };

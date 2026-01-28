@@ -1,10 +1,10 @@
 /**
- * Check for a winner in Connect 7
- * A player wins when any continuous combination of their pieces equals 7
- * (e.g., 1+3+3 = 7, or 2+2+3 = 7, or 1+1+2+3 = 7)
+ * Check for a winner in Connect 10
+ * A player wins when any continuous combination of their pieces equals 10
+ * (e.g., 1+3+3+3 = 10, or 2+2+3+3 = 10, or 1+1+1+2+2+3 = 10)
  */
 export function checkWinner(board, columns, rows) {
-  const TARGET_SUM = 7;
+  const TARGET_SUM = 10;
 
   // Helper function to check a sequence of cells
   const checkSequence = (indices) => {

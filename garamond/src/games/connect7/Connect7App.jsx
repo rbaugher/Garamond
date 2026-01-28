@@ -73,7 +73,7 @@ function Connect7Layout() {
           ))}
         </div>
         <div className="connect7-hint">
-          {showMessage ? gameMessage : 'Connect 7 — drop pieces to make a line that sums to 8'}
+          {showMessage ? gameMessage : 'Connect 10 — drop pieces to make a line that sums to 10'}
         </div>
       </div>
       <section style={{ textAlign: 'center', marginTop: '1em' }}>

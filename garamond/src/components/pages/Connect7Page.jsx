@@ -31,7 +31,7 @@ function InnerConnect7({ activeControl, setActiveControl }) {
   return (
     <div className="game-page-wrapper">
       <GameNavbar
-        title="Connect 7"
+        title="Connect 10"
         controls={controls}
         activeControl={activeControl}
         onControlChange={setActiveControl}

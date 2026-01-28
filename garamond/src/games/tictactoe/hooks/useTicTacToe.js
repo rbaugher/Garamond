@@ -150,10 +150,16 @@ export function useTicTacToe({ gamemode, difficulty }) {
 
   // Bot decision
   useEffect(() => {
+    // Only run this effect when it's the bot's turn
+    if (gamemode !== 0 || state.turn !== 'O' || state.winner.player) {
+      return;
+    }
+    
     const deadOCount = state.deadO.filter(Boolean).length;
     const deadXCount = state.deadX.filter(Boolean).length;
     const effectiveDifficulty = user ? difficulty : Math.min(difficulty ?? 1, 2);
-    if (gamemode === 0 && state.turn === 'O' && !state.winner.player && Math.abs(deadOCount - deadXCount) <= 1) {
+    
+    if (Math.abs(deadOCount - deadXCount) <= 1) {
       const bm = getBotMove(state.board, state.deadO, effectiveDifficulty, state.deadX);
       if (bm.moveIdx !== null) {
         dispatch({
@@ -163,7 +169,7 @@ export function useTicTacToe({ gamemode, difficulty }) {
         });
       }
     }
-  }, [gamemode, state.turn, state.winner.player, state.deadO, state.deadX, state.board, difficulty]);
+  }, [gamemode, state.turn, state.winner.player, difficulty, user]);
 
   // Execute bot move after delay
   useEffect(() => {

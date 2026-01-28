@@ -14,7 +14,7 @@ const initialState = () => ({
   moveCount: 0,
   selectedDisc: { value: null, player: null },
   droppingColumn: null,
-  gameMessage: 'Welcome to Connect 7! Select a disc (1, 2, or 3), then click a column to drop.',
+  gameMessage: 'Welcome to Connect 10! Select a disc (1, 2, or 3), then click a column to drop.',
   showMessage: true,
   moveList: [],
   perMoveStats: [],
