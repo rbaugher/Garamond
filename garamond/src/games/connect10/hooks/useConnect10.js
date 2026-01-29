@@ -26,15 +26,15 @@ const initialState = () => ({
   
   // Player supplies (nodes remaining)
   redSupply: {
-    1: 7,  // Power Node 1
-    2: 5,  // Power Node 2
+    1: 5,  // Power Node 1
+    2: 4,  // Power Node 2
     3: 3,  // Power Node 3
     '-1': 1, // Coolant Node
     0: 1,  // Shutdown/Assassin Node
   },
   yellowSupply: {
-    1: 7,
-    2: 5,
+    1: 5,
+    2: 4,
     3: 3,
     '-1': 1,
     0: 1,

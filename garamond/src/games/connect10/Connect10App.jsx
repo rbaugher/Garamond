@@ -10,8 +10,8 @@ const ROWS = 6;
 
 // Node display configuration
 const NODE_CONFIG = [
-  { value: 1, label: '⚪', name: 'Power 1', qty: 7 },
-  { value: 2, label: '🔵', name: 'Power 2', qty: 5 },
+  { value: 1, label: '⚪', name: 'Power 1', qty: 5 },
+  { value: 2, label: '🔵', name: 'Power 2', qty: 4 },
   { value: 3, label: '🔴', name: 'Power 3', qty: 3 },
   { value: -1, label: '❄️', name: 'Coolant', qty: 1, isSpecial: true },
   { value: 0, label: '⚠️', name: 'Shutdown', qty: 1, isSpecial: true },
@@ -23,7 +23,7 @@ function NodeSupply({ player, supply, turn, winner, selectedDisc, onSelectDisc, 
   
   return (
     <div className={`node-supply ${playerClass}`}>
-      <div className="supply-title">{player === 'red' ? 'Red' : 'Yellow'} Supply</div>
+      <div className="supply-title">{player === 'red' ? 'Red' : 'Green'} Supply</div>
       {NODE_CONFIG.map((node) => {
         const remaining = supply[String(node.value)];
         const isSelected = selectedDisc.player === player && selectedDisc.value === node.value;
@@ -36,7 +36,10 @@ function NodeSupply({ player, supply, turn, winner, selectedDisc, onSelectDisc, 
             onClick={() => canSelect && onSelectDisc(node.value, node.isSpecial, node.name)}
             title={`${node.name} (${remaining} remaining)`}
           >
-            <span className="node-icon">{node.label}</span>
+            <div className="node-display">
+              <span className="node-icon">{node.label}</span>
+              {!node.isSpecial && <span className="node-value">{node.value}</span>}
+            </div>
             <span className="node-count">×{remaining}</span>
           </div>
         );
@@ -54,7 +57,7 @@ function ScoreDisplay({ redScore, yellowScore, winner }) {
       </div>
       <div className="score-divider">|</div>
       <div className={`score-item ${winner === 'yellow' ? 'winner' : ''}`}>
-        <span className="score-label">Yellow:</span>
+        <span className="score-label">Green:</span>
         <span className="score-value">{yellowScore}/3</span>
       </div>
     </div>
@@ -141,6 +144,7 @@ function Connect10Layout() {
             <Board
               board={board}
               winningCells={winningCells}
+              completedLines={completedLines}
               onCellClick={handleCellClick}
               columns={COLUMNS}
               rows={ROWS}

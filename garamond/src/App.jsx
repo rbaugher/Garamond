@@ -13,7 +13,7 @@ import Profile from './components/pages/Profile';
 import GameLobby from './components/pages/GameLobby';
 import TicTacToePage from './components/pages/TicTacToePage';
 import AsteroidsPage from './components/pages/AsteroidsPage';
-import Connect7Page from './components/pages/Connect10Page';
+import Connect10Page from './components/pages/Connect10Page';
 
 
 function App() {
