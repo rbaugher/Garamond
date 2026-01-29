@@ -2,8 +2,8 @@ import React from 'react';
 import Board from './components/Board';
 import Header from './components/Header';
 import Controls from './components/Controls';
-import { Connect7Provider, useConnect7Context } from './context/Connect7Context';
-import './connect7.css';
+import { Connect10Provider, useConnect10Context } from './context/Connect10Context';
+import './connect10.css';
 
 const COLUMNS = 7;
 const ROWS = 6;
@@ -87,8 +87,8 @@ function PowerRerouteButton({ player, unlocked, used, isActive, onActivate, powe
   );
 }
 
-function Connect7Layout() {
-  const { state, actions, anyDiscPlayed } = useConnect7Context();
+function Connect10Layout() {
+  const { state, actions, anyDiscPlayed } = useConnect10Context();
   const { 
     board, 
     turn, 
@@ -120,7 +120,7 @@ function Connect7Layout() {
       <div className="reactor-control-container">
         <ScoreDisplay redScore={redScore} yellowScore={yellowScore} winner={winner} />
         
-        <div className="connect7-root">
+        <div className="connect10-root">
           <NodeSupply 
             player="red" 
             supply={redSupply} 
@@ -169,7 +169,7 @@ function Connect7Layout() {
             onCancel={actions.cancelPowerReroute}
           />
           
-          <div className="connect7-hint">
+          <div className="connect10-hint">
             {showMessage ? gameMessage : 'Reactor Control — stabilize 3 lines summing to 10'}
           </div>
           
@@ -192,10 +192,10 @@ function Connect7Layout() {
   );
 }
 
-export default function Connect7App() {
+export default function Connect10App() {
   return (
-    <Connect7Provider>
-      <Connect7Layout />
-    </Connect7Provider>
+    <Connect10Provider>
+      <Connect10Layout />
+    </Connect10Provider>
   );
 }

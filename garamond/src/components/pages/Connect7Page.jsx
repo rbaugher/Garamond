@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import GameNavbar from '../../games/components/GameNavbar';
-import Connect7App from '../../games/connect7/Connect7App';
+import Connect10App from '../../games/connect10/Connect10App';
 import GamePageWrapper from '../GamePageWrapper';
 import { useGameMode } from '../../games/components/context/gamemodeContext';
 import './Game_Page.css';
 
-export default function Connect7Page() {
+export default function Connect10Page() {
   const [activeControl, setActiveControl] = useState(null);
 
   useEffect(() => {
@@ -19,12 +19,12 @@ export default function Connect7Page() {
 
   return (
     <GamePageWrapper>
-      <InnerConnect7 activeControl={activeControl} setActiveControl={setActiveControl} />
+      <InnerConnect10 activeControl={activeControl} setActiveControl={setActiveControl} />
     </GamePageWrapper>
   );
 }
 
-function InnerConnect7({ activeControl, setActiveControl }) {
+function InnerConnect10({ activeControl, setActiveControl }) {
   const { gamemode } = useGameMode();
   const controls = gamemode === 1 ? [ 'mechanics', 'stats' ] : [ 'gamemode', 'difficulty', 'mechanics', 'stats' ];
 
@@ -38,7 +38,7 @@ function InnerConnect7({ activeControl, setActiveControl }) {
         onControlClose={() => setActiveControl(null)}
       />
       <div className="game-container">
-        <Connect7App />
+        <Connect10App />
       </div>
     </div>
   );

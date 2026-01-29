@@ -18,13 +18,13 @@ export default function PlayerDiscs({
     <>
       <div className='player-pieces-left'>
         <div
-          className={`connect7-disc player-red ${currentPlayer === 'red' && !winner ? 'active-player' : ''} ${selectedDisc === 'red' ? 'selected' : ''}`}
+          className={`connect10-disc player-red ${currentPlayer === 'red' && !winner ? 'active-player' : ''} ${selectedDisc === 'red' ? 'selected' : ''}`}
           onClick={handleRedClick}
         ></div>
       </div>
       <div className='player-pieces-right'>
         <div
-          className={`connect7-disc player-yellow ${currentPlayer === 'yellow' && !winner ? 'active-player' : ''} ${selectedDisc === 'yellow' ? 'selected' : ''}`}
+          className={`connect10-disc player-yellow ${currentPlayer === 'yellow' && !winner ? 'active-player' : ''} ${selectedDisc === 'yellow' ? 'selected' : ''}`}
           onClick={handleYellowClick}
         ></div>
       </div>

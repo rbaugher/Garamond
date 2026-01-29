@@ -1,4 +1,4 @@
-.connect7-root {
+.connect10-root {
   display: grid;
   grid-template-columns: auto auto auto;
   gap: 2rem;
@@ -90,26 +90,26 @@
   flex-shrink: 0;
 }
 
-.connect7-disc.player-red {
+.connect10-disc.player-red {
   background: radial-gradient(circle at 30% 30%, #ff9999, #ff6b6b 20%, #e63946 50%, #d62828 100%);
 }
 
-.connect7-disc.player-yellow {
+.connect10-disc.player-yellow {
   background: radial-gradient(circle at 30% 30%, #fff9b0, #ffeb3b 20%, #fbc02d 50%, #f9a825 100%);
 }
 
 /* Player disc interaction states */
-.connect7-disc.active-player {
+.connect10-disc.active-player {
   cursor: pointer;
   box-shadow: inset 0 -6px 12px rgba(0,0,0,0.25), 0 0 0 3px rgba(255,255,255,0.5);
 }
 
-.connect7-disc.active-player:hover {
+.connect10-disc.active-player:hover {
   transform: scale(1.1);
   box-shadow: inset 0 -6px 12px rgba(0,0,0,0.25), 0 0 0 4px rgba(255,255,255,0.7);
 }
 
-.connect7-disc.selected {
+.connect10-disc.selected {
   animation: pulse 0.8s ease-in-out infinite;
   box-shadow: inset 0 -6px 12px rgba(0,0,0,0.25), 0 0 0 4px rgba(255,255,255,0.9), 0 0 20px rgba(255,255,255,0.6);
 }
@@ -145,8 +145,8 @@
   }
 }
 
-.player-pieces-left .connect7-disc,
-.player-pieces-right .connect7-disc {
+.player-pieces-left .connect10-disc,
+.player-pieces-right .connect10-disc {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -167,14 +167,14 @@
   pointer-events: none;
 }
 
-.connect7-disc {
+.connect10-disc {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.connect7-hint {
+.connect10-hint {
   grid-column: 1 / -1;
   color: #eaf4ff;
   font-size: 0.95rem;
@@ -221,14 +221,14 @@
 }
 
 @media (max-width: 720px) {
-  .connect7-board {
+  .connect10-board {
     grid-template-columns: repeat(7, 40px);
     grid-template-rows: repeat(6, 40px);
     gap: 6px;
     padding: 8px;
   }
-  .connect7-cell { width: 40px; height: 40px; }
-  .connect7-disc { width: 32px; height: 32px; }
+  .connect10-cell { width: 40px; height: 40px; }
+  .connect10-disc { width: 32px; height: 32px; }
   
   .node-supply {
     gap: 6px;
@@ -374,7 +374,7 @@
   box-shadow: 0 0 12px rgba(167, 139, 250, 0.6) !important;
 }
 
-.connect7-cell.clickable:hover {
+.connect10-cell.clickable:hover {
   background: rgba(147, 197, 253, 0.2);
   box-shadow: 0 0 8px rgba(147, 197, 253, 0.4);
 }
@@ -436,7 +436,7 @@
   opacity: 0.5;
 }
 
-.connect7-hint {
+.connect10-hint {
   flex: 1;
   text-align: center;
   font-size: 1rem;

@@ -29,11 +29,11 @@ const GameLobby = () => {
       disabled: false,
     },
     {
-      id: 'connect7',
+      id: 'connect10',
       title: 'Reactor Control',
       description: 'Strategic grid game - first to stabilize 3 lines summing to 10 wins!',
       image: '/images/heavens1.jpg',
-      route: '/game/connect7',
+      route: '/game/connect10',
       disabled: false,
     },
     {

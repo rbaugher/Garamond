@@ -364,7 +364,7 @@ function reducer(state, action) {
   }
 }
 
-export function useConnect7({ gamemode = 0, difficulty = 1 }) {
+export function useConnect10({ gamemode = 0, difficulty = 1 }) {
   const [state, dispatch] = useReducer(reducer, null, initialState);
   const gamemodeRef = useRef(gamemode);
   const difficultyRef = useRef(difficulty);
@@ -388,7 +388,7 @@ export function useConnect7({ gamemode = 0, difficulty = 1 }) {
       recordGameMetrics({
         playerName,
         opponentName: gamemode === 0 ? 'Computer' : 'Player 2',
-        gameType: 'Connect7',
+        gameType: 'ReactorControl',
         outcome: state.winner === 'tie' ? 'tie' : (state.winner === 'red' ? 'win' : 'loss'),
         difficulty: gamemode === 0 ? ['Easy', 'Medium', 'Hard'][difficulty] : 'N/A',
         winningCondition: state.winner === 'tie' ? null : getWinningCondition(state.winningCells),

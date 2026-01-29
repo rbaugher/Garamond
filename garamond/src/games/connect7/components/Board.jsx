@@ -14,7 +14,7 @@ const getNodeIcon = (value) => {
 
 export default function Board({ board, winningCells, onCellClick, columns, rows }) {
   return (
-    <div className="connect7-board" role="grid" aria-label="Reactor Control board">
+    <div className="connect10-board" role="grid" aria-label="Reactor Control board">
       {board.map((cell, idx) => {
         const isWinningCell = winningCells.includes(idx);
         const isClickable = onCellClick && cell.value !== null;
@@ -22,7 +22,7 @@ export default function Board({ board, winningCells, onCellClick, columns, rows 
         return (
           <div
             key={idx}
-            className={`connect7-cell ${isWinningCell ? 'winning-cell' : ''} ${isClickable ? 'clickable' : ''}`}
+            className={`connect10-cell ${isWinningCell ? 'winning-cell' : ''} ${isClickable ? 'clickable' : ''}`}
             role="gridcell"
             aria-colindex={(idx % columns) + 1}
             aria-rowindex={Math.floor(idx / columns) + 1}
@@ -30,7 +30,7 @@ export default function Board({ board, winningCells, onCellClick, columns, rows 
             style={{ cursor: isClickable ? 'pointer' : 'default' }}
           >
             {cell.value !== null && (
-              <div className={`connect7-disc player-${cell.player} ${cell.isSpecial ? 'special-node' : ''}`}>
+              <div className={`connect10-disc player-${cell.player} ${cell.isSpecial ? 'special-node' : ''}`}>
                 <span className="disc-value">{getNodeIcon(cell.value)}</span>
               </div>
             )}

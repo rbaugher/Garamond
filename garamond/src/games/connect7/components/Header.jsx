@@ -20,7 +20,7 @@ export default function Header({
         >
           <div className="header-disc"></div>
           {droppingColumn === idx && (
-            <div className={`connect7-disc player-${selectedDisc} dropping-disc`}></div>
+            <div className={`connect10-disc player-${selectedDisc} dropping-disc`}></div>
           )}
         </div>
       ))}
