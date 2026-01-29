@@ -250,27 +250,27 @@ function Footer() {
           <div className="footer-link-wrapper">
             <div className="footer-link-items">
               <h2>About</h2>
-              <Link to="#" onClick={(e) => { e.preventDefault(); toggleSection('how'); }}>
+              <Link to="#" className={expandedSection === 'how' ? 'active' : ''} onClick={(e) => { e.preventDefault(); toggleSection('how'); }}>
                 How it Works
               </Link>
               {expandedSection === 'how' && (
-                <div style={{ fontSize: '0.9em', marginTop: '4px', color: '#fff' }}>
+                <div className="expanded-text">
                   Play games, track stats, compete on leaderboards!
                 </div>
               )}
-              <Link to="#" onClick={(e) => { e.preventDefault(); toggleSection('mission'); }}>
+              <Link to="#" className={expandedSection === 'mission' ? 'active' : ''} onClick={(e) => { e.preventDefault(); toggleSection('mission'); }}>
                 Mission Statement
               </Link>
               {expandedSection === 'mission' && (
-                <div style={{ fontSize: '0.9em', marginTop: '4px', color: '#fff' }}>
+                <div className="expanded-text">
                   Enjoy God and glorify Him forever
                 </div>
               )}
-              <Link to="#" onClick={(e) => { e.preventDefault(); toggleSection('objectives'); }}>
+              <Link to="#" className={expandedSection === 'objectives' ? 'active' : ''} onClick={(e) => { e.preventDefault(); toggleSection('objectives'); }}>
                 3 Objectives
               </Link>
               {expandedSection === 'objectives' && (
-                <div style={{ fontSize: '0.9em', marginTop: '4px', color: '#fff' }}>
+                <div className="expanded-text">
                   1. Win<br />
                   2. Don't lose<br />
                   3. Don't tie

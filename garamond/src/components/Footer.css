@@ -100,6 +100,29 @@
     transition: 0.3s ease-out;
 }
 
+.footer-link-items a.active {
+    color: #0467fb;
+    border: 2px solid #0467fb;
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin-left: -8px;
+}
+
+.expanded-text {
+    font-size: 0.9em;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    color: #a8dadc;
+    padding: 12px;
+    line-height: 1.4;
+    border: 2px solid #a8dadc;
+    border-radius: 8px;
+    background: rgba(16, 21, 34, 0.95);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    position: relative;
+    z-index: 10;
+}
+
 .footer-email-form h2 {
     margin-bottom: 32px;
 }
