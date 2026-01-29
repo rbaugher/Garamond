@@ -229,4 +229,217 @@
   }
   .connect7-cell { width: 40px; height: 40px; }
   .connect7-disc { width: 32px; height: 32px; }
+  
+  .node-supply {
+    gap: 6px;
+  }
+  
+  .node-button {
+    width: 48px;
+    height: 48px;
+  }
 }
+
+/* ===== REACTOR CONTROL STYLES ===== */
+
+.reactor-control-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.score-display {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+  padding: 0.75rem 2rem;
+  background: linear-gradient(135deg, #1e3a8a 0%, #312e81 100%);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: white;
+}
+
+.score-item {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.score-item.winner {
+  color: #fbbf24;
+  text-shadow: 0 0 10px rgba(251, 191, 36, 0.8);
+  animation: winGlow 1s ease-in-out infinite;
+}
+
+@keyframes winGlow {
+  0%, 100% { text-shadow: 0 0 10px rgba(251, 191, 36, 0.8); }
+  50% { text-shadow: 0 0 20px rgba(251, 191, 36, 1); }
+}
+
+.score-label {
+  font-weight: 600;
+}
+
+.score-value {
+  font-size: 1.5rem;
+  font-weight: 900;
+}
+
+.score-divider {
+  color: rgba(255,255,255,0.3);
+  font-size: 1.5rem;
+}
+
+/* Node Supply Panel */
+.node-supply {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  background: linear-gradient(145deg, #1f2937 0%, #111827 100%);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  min-width: 120px;
+}
+
+.supply-title {
+  font-size: 0.9rem;
+  font-weight: bold;
+  text-align: center;
+  padding: 6px;
+  border-radius: 6px;
+  margin-bottom: 4px;
+}
+
+.player-red .supply-title {
+  background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+  color: white;
+}
+
+.player-yellow .supply-title {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: #1f2937;
+}
+
+.node-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: rgba(255,255,255,0.05);
+  border: 2px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 52px;
+}
+
+.node-button:hover:not(.disabled) {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.3);
+  transform: translateY(-2px);
+}
+
+.node-button.selected {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.2);
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.5);
+}
+
+.node-button.disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.node-icon {
+  font-size: 2rem;
+}
+
+.node-count {
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: white;
+  background: rgba(0,0,0,0.4);
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+/* Special Node Styling */
+.special-node {
+  border: 2px solid #a78bfa !important;
+  box-shadow: 0 0 12px rgba(167, 139, 250, 0.6) !important;
+}
+
+.connect7-cell.clickable:hover {
+  background: rgba(147, 197, 253, 0.2);
+  box-shadow: 0 0 8px rgba(147, 197, 253, 0.4);
+}
+
+/* Board Container */
+.board-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Game Controls Row */
+.game-controls-row {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 900px;
+}
+
+.power-reroute-btn {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 180px;
+}
+
+.power-reroute-btn.active {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+.power-reroute-btn.active:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.6);
+}
+
+.power-reroute-btn.cancel {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+}
+
+.power-reroute-btn.cancel:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.6);
+}
+
+.power-reroute-btn.disabled {
+  background: #374151;
+  color: #9ca3af;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.connect7-hint {
+  flex: 1;
+  text-align: center;
+  font-size: 1rem;
+  min-height: 2rem;
+}
+

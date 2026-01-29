@@ -1,37 +1,53 @@
 /**
- * Check for a winner in Connect 10
- * A player wins when any continuous combination of their pieces equals 10
- * (e.g., 1+3+3+3 = 10, or 2+2+3+3 = 10, or 1+1+1+2+2+3 = 10)
+ * Check for completed lines in Reactor Control (Connect 10)
+ * Returns all NEW lines that sum to exactly 10
+ * Both players' nodes count toward line totals
+ * A line scores for the player who completed it with their last move
  */
-export function checkWinner(board, columns, rows) {
+export function checkWinner(board, columns, rows, existingCompletedLines = [], lastMove = null) {
   const TARGET_SUM = 10;
+  const newCompletedLines = [];
+  let lineIdCounter = existingCompletedLines.length;
 
-  // Helper function to check a sequence of cells
+  // Helper to check if a set of cells is already in completed lines
+  const isAlreadyCompleted = (cells) => {
+    const cellSet = new Set(cells.sort((a, b) => a - b));
+    return existingCompletedLines.some(line => {
+      const lineSet = new Set(line.cells.sort((a, b) => a - b));
+      if (lineSet.size !== cellSet.size) return false;
+      for (const cell of cellSet) {
+        if (!lineSet.has(cell)) return false;
+      }
+      return true;
+    });
+  };
+
+  // Helper function to check a sequence of cells for ANY 10-sum subsequence
   const checkSequence = (indices) => {
     const cells = indices.map(idx => board[idx]);
+    const foundLines = [];
     
     // Check all possible continuous subsequences
     for (let start = 0; start < cells.length; start++) {
       // Skip empty starting cells
-      if (!cells[start].player) continue;
+      if (cells[start].value === null) continue;
       
       let sum = 0;
-      let player = cells[start].player;
       const winningIndices = [];
       
       for (let end = start; end < cells.length; end++) {
-        // Break if we encounter a different player or empty cell
-        if (!cells[end].player || cells[end].player !== player) break;
+        // Break if we encounter an empty cell
+        if (cells[end].value === null) break;
         
         sum += cells[end].value;
         winningIndices.push(indices[end]);
         
         // Check if we hit the target sum
         if (sum === TARGET_SUM) {
-          return {
-            winner: player,
-            winningCells: winningIndices,
-          };
+          // Check if this line is already completed
+          if (!isAlreadyCompleted(winningIndices)) {
+            foundLines.push([...winningIndices]);
+          }
         }
         
         // Stop if sum exceeds target
@@ -39,8 +55,10 @@ export function checkWinner(board, columns, rows) {
       }
     }
     
-    return null;
+    return foundLines;
   };
+
+  const allPotentialLines = [];
 
   // Check all horizontal rows
   for (let row = 0; row < rows; row++) {
@@ -48,8 +66,7 @@ export function checkWinner(board, columns, rows) {
     for (let col = 0; col < columns; col++) {
       indices.push(row * columns + col);
     }
-    const result = checkSequence(indices);
-    if (result) return result;
+    allPotentialLines.push(...checkSequence(indices));
   }
 
   // Check all vertical columns
@@ -58,12 +75,10 @@ export function checkWinner(board, columns, rows) {
     for (let row = 0; row < rows; row++) {
       indices.push(row * columns + col);
     }
-    const result = checkSequence(indices);
-    if (result) return result;
+    allPotentialLines.push(...checkSequence(indices));
   }
 
   // Check all diagonals (top-left to bottom-right)
-  // Start from each position in first row and first column
   for (let startRow = 0; startRow < rows; startRow++) {
     const indices = [];
     let row = startRow;
@@ -74,8 +89,7 @@ export function checkWinner(board, columns, rows) {
       col++;
     }
     if (indices.length >= 2) {
-      const result = checkSequence(indices);
-      if (result) return result;
+      allPotentialLines.push(...checkSequence(indices));
     }
   }
   
@@ -89,13 +103,11 @@ export function checkWinner(board, columns, rows) {
       col++;
     }
     if (indices.length >= 2) {
-      const result = checkSequence(indices);
-      if (result) return result;
+      allPotentialLines.push(...checkSequence(indices));
     }
   }
 
   // Check all diagonals (top-right to bottom-left)
-  // Start from each position in first row and last column
   for (let startRow = 0; startRow < rows; startRow++) {
     const indices = [];
     let row = startRow;
@@ -106,8 +118,7 @@ export function checkWinner(board, columns, rows) {
       col--;
     }
     if (indices.length >= 2) {
-      const result = checkSequence(indices);
-      if (result) return result;
+      allPotentialLines.push(...checkSequence(indices));
     }
   }
   
@@ -121,11 +132,19 @@ export function checkWinner(board, columns, rows) {
       col--;
     }
     if (indices.length >= 2) {
-      const result = checkSequence(indices);
-      if (result) return result;
+      allPotentialLines.push(...checkSequence(indices));
     }
   }
 
-  // No winner
-  return { winner: null, winningCells: [] };
+  // Convert found lines to completed line objects
+  // The player who gets credit is the one who made the last move that completed it
+  for (const lineCells of allPotentialLines) {
+    newCompletedLines.push({
+      player: lastMove?.player || null,
+      cells: lineCells,
+      lineId: lineIdCounter++,
+    });
+  }
+
+  return newCompletedLines;
 }

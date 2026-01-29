@@ -1,13 +1,91 @@
 import React from 'react';
 import Board from './components/Board';
 import Header from './components/Header';
-import PlayerDiscs from './components/PlayerDiscs';
 import Controls from './components/Controls';
 import { Connect7Provider, useConnect7Context } from './context/Connect7Context';
 import './connect7.css';
 
 const COLUMNS = 7;
 const ROWS = 6;
+
+// Node display configuration
+const NODE_CONFIG = [
+  { value: 1, label: '⚪', name: 'Power 1', qty: 7 },
+  { value: 2, label: '🔵', name: 'Power 2', qty: 5 },
+  { value: 3, label: '🔴', name: 'Power 3', qty: 3 },
+  { value: -1, label: '❄️', name: 'Coolant', qty: 1, isSpecial: true },
+  { value: 0, label: '⚠️', name: 'Shutdown', qty: 1, isSpecial: true },
+];
+
+function NodeSupply({ player, supply, turn, winner, selectedDisc, onSelectDisc, powerRerouteMode }) {
+  const isActive = turn === player && !winner && !powerRerouteMode;
+  const playerClass = player === 'red' ? 'player-red' : 'player-yellow';
+  
+  return (
+    <div className={`node-supply ${playerClass}`}>
+      <div className="supply-title">{player === 'red' ? 'Red' : 'Yellow'} Supply</div>
+      {NODE_CONFIG.map((node) => {
+        const remaining = supply[String(node.value)];
+        const isSelected = selectedDisc.player === player && selectedDisc.value === node.value;
+        const canSelect = isActive && remaining > 0;
+        
+        return (
+          <div
+            key={node.value}
+            className={`node-button ${isSelected ? 'selected' : ''} ${!canSelect ? 'disabled' : ''}`}
+            onClick={() => canSelect && onSelectDisc(node.value, node.isSpecial, node.name)}
+            title={`${node.name} (${remaining} remaining)`}
+          >
+            <span className="node-icon">{node.label}</span>
+            <span className="node-count">×{remaining}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function ScoreDisplay({ redScore, yellowScore, winner }) {
+  return (
+    <div className="score-display">
+      <div className={`score-item ${winner === 'red' ? 'winner' : ''}`}>
+        <span className="score-label">Red:</span>
+        <span className="score-value">{redScore}/3</span>
+      </div>
+      <div className="score-divider">|</div>
+      <div className={`score-item ${winner === 'yellow' ? 'winner' : ''}`}>
+        <span className="score-label">Yellow:</span>
+        <span className="score-value">{yellowScore}/3</span>
+      </div>
+    </div>
+  );
+}
+
+function PowerRerouteButton({ player, unlocked, used, isActive, onActivate, powerRerouteMode, onCancel }) {
+  if (!unlocked) return null;
+  
+  if (powerRerouteMode && isActive) {
+    return (
+      <button className="power-reroute-btn cancel" onClick={onCancel}>
+        Cancel Reclaim
+      </button>
+    );
+  }
+  
+  if (used || !isActive) {
+    return (
+      <button className="power-reroute-btn disabled" disabled title={used ? 'Already used' : 'Not your turn'}>
+        ♻️ Power Reroute {used ? '(Used)' : ''}
+      </button>
+    );
+  }
+  
+  return (
+    <button className="power-reroute-btn active" onClick={onActivate}>
+      ♻️ Power Reroute
+    </button>
+  );
+}
 
 function Connect7Layout() {
   const { state, actions, anyDiscPlayed } = useConnect7Context();
@@ -16,66 +94,97 @@ function Connect7Layout() {
     turn, 
     winner, 
     winningCells, 
+    completedLines,
+    redScore,
+    yellowScore,
     selectedDisc, 
     droppingColumn,
     gameMessage,
-    showMessage 
+    showMessage,
+    redSupply,
+    yellowSupply,
+    redPowerRerouteUnlocked,
+    yellowPowerRerouteUnlocked,
+    redPowerRerouteUsed,
+    yellowPowerRerouteUsed,
+    powerRerouteMode,
   } = state;
 
-  const discValues = [1, 2, 3];
+  // Handle board cell clicks for Power Reroute mode
+  const handleCellClick = powerRerouteMode ? (idx) => {
+    actions.reclaimNode(idx);
+  } : null;
 
   return (
     <>
-      <div className="connect7-root">
-        <div />
-        <Header
-          columns={COLUMNS}
-          selectedDisc={selectedDisc.player}
-          droppingColumn={droppingColumn}
-          onHeaderClick={actions.dropDisc}
-        />
-        <div />
-        <div className='player-pieces-left'>
-          {discValues.map((value, idx) => (
-            <div
-              key={idx}
-              className={`connect7-disc player-red ${
-                turn === 'red' && !winner ? 'active-player' : ''
-              } ${
-                selectedDisc.player === 'red' && selectedDisc.value === value ? 'selected' : ''
-              }`}
-              onClick={() => !winner && actions.selectDisc('red', value)}
-            >
-              <span className="disc-value">{value}</span>
-            </div>
-          ))}
+      <div className="reactor-control-container">
+        <ScoreDisplay redScore={redScore} yellowScore={yellowScore} winner={winner} />
+        
+        <div className="connect7-root">
+          <NodeSupply 
+            player="red" 
+            supply={redSupply} 
+            turn={turn} 
+            winner={winner}
+            selectedDisc={selectedDisc}
+            onSelectDisc={actions.selectDisc}
+            powerRerouteMode={powerRerouteMode}
+          />
+          
+          <div className="board-container">
+            <Header
+              columns={COLUMNS}
+              selectedDisc={selectedDisc.player}
+              droppingColumn={droppingColumn}
+              onHeaderClick={powerRerouteMode ? null : actions.dropDisc}
+            />
+            <Board
+              board={board}
+              winningCells={winningCells}
+              onCellClick={handleCellClick}
+              columns={COLUMNS}
+              rows={ROWS}
+            />
+          </div>
+          
+          <NodeSupply 
+            player="yellow" 
+            supply={yellowSupply} 
+            turn={turn} 
+            winner={winner}
+            selectedDisc={selectedDisc}
+            onSelectDisc={actions.selectDisc}
+            powerRerouteMode={powerRerouteMode}
+          />
         </div>
-        <Board
-          board={board}
-          winningCells={winningCells}
-          onCellClick={null}
-          columns={COLUMNS}
-          rows={ROWS}
-        />
-        <div className='player-pieces-right'>
-          {discValues.map((value, idx) => (
-            <div
-              key={idx}
-              className={`connect7-disc player-yellow ${
-                turn === 'yellow' && !winner ? 'active-player' : ''
-              } ${
-                selectedDisc.player === 'yellow' && selectedDisc.value === value ? 'selected' : ''
-              }`}
-              onClick={() => !winner && actions.selectDisc('yellow', value)}
-            >
-              <span className="disc-value">{value}</span>
-            </div>
-          ))}
-        </div>
-        <div className="connect7-hint">
-          {showMessage ? gameMessage : 'Connect 10 — drop pieces to make a line that sums to 10'}
+
+        <div className="game-controls-row">
+          <PowerRerouteButton 
+            player="red"
+            unlocked={redPowerRerouteUnlocked}
+            used={redPowerRerouteUsed}
+            isActive={turn === 'red' && !winner}
+            onActivate={actions.activatePowerReroute}
+            powerRerouteMode={powerRerouteMode}
+            onCancel={actions.cancelPowerReroute}
+          />
+          
+          <div className="connect7-hint">
+            {showMessage ? gameMessage : 'Reactor Control — stabilize 3 lines summing to 10'}
+          </div>
+          
+          <PowerRerouteButton 
+            player="yellow"
+            unlocked={yellowPowerRerouteUnlocked}
+            used={yellowPowerRerouteUsed}
+            isActive={turn === 'yellow' && !winner}
+            onActivate={actions.activatePowerReroute}
+            powerRerouteMode={powerRerouteMode}
+            onCancel={actions.cancelPowerReroute}
+          />
         </div>
       </div>
+      
       <section style={{ textAlign: 'center', marginTop: '1em' }}>
         {anyDiscPlayed && <Controls onClick={actions.reset} />}
       </section>

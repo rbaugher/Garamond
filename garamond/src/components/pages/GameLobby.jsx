@@ -30,8 +30,8 @@ const GameLobby = () => {
     },
     {
       id: 'connect7',
-      title: 'Connect 10',
-      description: 'Drop numbered pieces to create sequences that sum to 10!',
+      title: 'Reactor Control',
+      description: 'Strategic grid game - first to stabilize 3 lines summing to 10 wins!',
       image: '/images/heavens1.jpg',
       route: '/game/connect7',
       disabled: false,
